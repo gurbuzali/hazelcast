@@ -37,6 +37,7 @@
         <module>hazelcast-sql</module>
         <module>hazelcast-all</module>
         <module>distribution</module>
+        <module>hazelcast-jet</module>
     </modules>
 
     <properties>
