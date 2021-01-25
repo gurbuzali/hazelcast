@@ -30,6 +30,7 @@ import com.hazelcast.config.FlakeIdGeneratorConfig;
 import com.hazelcast.config.HotRestartPersistenceConfig;
 import com.hazelcast.config.InstanceTrackingConfig;
 import com.hazelcast.config.InvalidConfigurationException;
+import com.hazelcast.config.JetConfig;
 import com.hazelcast.config.ListConfig;
 import com.hazelcast.config.ListenerConfig;
 import com.hazelcast.config.ManagementCenterConfig;
@@ -1122,6 +1123,16 @@ public class DynamicConfigurationAwareConfig extends Config {
     @Nonnull
     @Override
     public Config setSqlConfig(@Nonnull SqlConfig sqlConfig) {
+        throw new UnsupportedOperationException("Unsupported operation");
+    }
+
+    @Override
+    public JetConfig getJetConfig() {
+        return staticConfig.getJetConfig();
+    }
+
+    @Override
+    public void setJetConfig(JetConfig jetConfig) {
         throw new UnsupportedOperationException("Unsupported operation");
     }
 }

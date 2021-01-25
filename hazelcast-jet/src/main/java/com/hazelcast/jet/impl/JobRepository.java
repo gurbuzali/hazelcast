@@ -22,7 +22,6 @@ import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
 import com.hazelcast.internal.nio.IOUtil;
 import com.hazelcast.jet.JetException;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ResourceConfig;
@@ -179,8 +178,8 @@ public class JobRepository {
 
     private long resourcesExpirationMillis = DEFAULT_RESOURCES_EXPIRATION_MILLIS;
 
-    public JobRepository(JetInstance jetInstance) {
-        this.instance = jetInstance.getHazelcastInstance();
+    public JobRepository(HazelcastInstance instance) {
+        this.instance = instance;
         this.logger = instance.getLoggingService().getLogger(getClass());
 
         this.idGenerator = instance.getFlakeIdGenerator(RANDOM_ID_GENERATOR_NAME);

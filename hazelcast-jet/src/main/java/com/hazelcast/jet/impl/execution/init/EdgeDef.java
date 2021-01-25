@@ -17,8 +17,8 @@
 package com.hazelcast.jet.impl.execution.init;
 
 import com.hazelcast.cluster.Address;
+import com.hazelcast.config.EdgeConfig;
 import com.hazelcast.function.ComparatorEx;
-import com.hazelcast.jet.config.EdgeConfig;
 import com.hazelcast.jet.core.Edge;
 import com.hazelcast.jet.core.Edge.RoutingPolicy;
 import com.hazelcast.jet.core.Partitioner;

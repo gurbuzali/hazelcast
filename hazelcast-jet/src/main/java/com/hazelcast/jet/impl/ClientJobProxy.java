@@ -16,9 +16,11 @@
 
 package com.hazelcast.jet.impl;
 
+import com.hazelcast.client.impl.clientside.HazelcastClientInstanceImpl;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.spi.impl.ClientInvocation;
 import com.hazelcast.cluster.Member;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.Job;
@@ -27,6 +29,7 @@ import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.JobSuspensionCause;
 import com.hazelcast.jet.core.metrics.JobMetrics;
+import com.hazelcast.jet.impl.client.protocol.codec.JetExistsDistributedObjectCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetExportSnapshotCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobConfigCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobMetricsCodec;
@@ -56,16 +59,16 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * {@link Job} proxy on client.
  */
-public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
+public class ClientJobProxy extends AbstractJobProxy<HazelcastClientInstanceImpl> {
 
     private static final long RETRY_DELAY_NS = MILLISECONDS.toNanos(200);
     private static final long RETRY_TIME_NS = SECONDS.toNanos(60);
 
-    ClientJobProxy(JetClientInstanceImpl client, long jobId) {
+    ClientJobProxy(HazelcastClientInstanceImpl client, long jobId) {
         super(client, jobId);
     }
 
-    ClientJobProxy(JetClientInstanceImpl client, long jobId, Object jobDefinition, JobConfig config) {
+    ClientJobProxy(HazelcastClientInstanceImpl client, long jobId, Object jobDefinition, JobConfig config) {
         super(client, jobId, jobDefinition, config);
     }
 
@@ -151,7 +154,7 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
         } catch (Throwable t) {
             throw rethrow(t);
         }
-        return container().getJobStateSnapshot(name);
+        return getJobStateSnapshot(name);
     }
 
     @Override
@@ -175,7 +178,7 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
 
     @Nonnull @Override
     protected UUID masterUuid() {
-        Member masterMember = container().getHazelcastClient().getClientClusterService().getMasterMember();
+        Member masterMember = container().getClientClusterService().getMasterMember();
         if (masterMember == null) {
             throw new IllegalStateException("Master isn't known");
         }
@@ -184,22 +187,35 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
 
     @Override
     protected SerializationService serializationService() {
-        return container().getHazelcastClient().getSerializationService();
+        return container().getSerializationService();
     }
 
     @Override
     protected LoggingService loggingService() {
-        return container().getHazelcastClient().getLoggingService();
+        return container().getLoggingService();
     }
 
     @Override
     protected boolean isRunning() {
-        return container().getHazelcastClient().getLifecycleService().isRunning();
+        return container().getLifecycleService().isRunning();
+    }
+
+    boolean existsDistributedObject(String serviceName, String objectName) {
+        return callAndRetryIfTargetNotFound(() -> {
+            ClientMessage request = JetExistsDistributedObjectCodec.encodeRequest(serviceName, objectName);
+            ClientMessage response = invocation(request, null).invoke().get();
+            return JetExistsDistributedObjectCodec.decodeResponse(response).response;
+        });
+    }
+
+    @Override
+    HazelcastInstance getInstance() {
+        return container();
     }
 
     private ClientInvocation invocation(ClientMessage request, UUID invocationUuid) {
         return new ClientInvocation(
-                container().getHazelcastClient(), request, "jobId=" + getIdString(), invocationUuid
+                container(), request, "jobId=" + getIdString(), invocationUuid
         );
     }
 

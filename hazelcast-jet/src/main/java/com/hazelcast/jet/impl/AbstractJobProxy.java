@@ -16,16 +16,20 @@
 
 package com.hazelcast.jet.impl;
 
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.LocalMemberResetException;
 import com.hazelcast.core.MemberLeftException;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.Job;
+import com.hazelcast.jet.JobStateSnapshot;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.impl.util.NonCompletableFuture;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.LoggingService;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.impl.MapService;
 import com.hazelcast.spi.exception.TargetDisconnectedException;
 import com.hazelcast.spi.exception.TargetNotMemberException;
 
@@ -37,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import static com.hazelcast.jet.impl.JobRepository.exportedSnapshotMapName;
 import static com.hazelcast.jet.impl.util.ExceptionUtil.peel;
 import static com.hazelcast.jet.impl.util.ExceptionUtil.rethrow;
 import static com.hazelcast.jet.impl.util.Util.memoizeConcurrent;
@@ -229,6 +234,32 @@ public abstract class AbstractJobProxy<T> implements Job {
     private void doInvokeJoinJob() {
         invokeJoinJob().whenCompleteAsync(joinJobCallback);
     }
+
+    /**
+     * TODO MERGE
+     * Moved here from JetInstance
+     */
+    protected JobStateSnapshot getJobStateSnapshot(@Nonnull String name) {
+        String mapName = exportedSnapshotMapName(name);
+
+        if (!existsDistributedObject(MapService.SERVICE_NAME, mapName)) {
+            return null;
+        }
+        HazelcastInstance hazelcastInstance = getInstance();
+        IMap<Object, Object> map = hazelcastInstance.getMap(mapName);
+        Object validationRecord = map.get(SnapshotValidationRecord.KEY);
+        if (validationRecord instanceof SnapshotValidationRecord) {
+            // update the cache - for robustness. For example after the map was copied
+            hazelcastInstance.getMap(JobRepository.EXPORTED_SNAPSHOTS_DETAIL_CACHE).set(name, validationRecord);
+            return new JobStateSnapshot(hazelcastInstance, name, (SnapshotValidationRecord) validationRecord);
+        } else {
+            return null;
+        }
+    }
+
+    abstract boolean existsDistributedObject(String serviceName, String objectName);
+
+    abstract HazelcastInstance getInstance();
 
     private abstract class CallbackBase implements BiConsumer<Void, Throwable> {
         private final NonCompletableFuture future;

@@ -17,10 +17,10 @@
 package com.hazelcast.jet.core;
 
 import com.hazelcast.cluster.Address;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.JetException;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
 import com.hazelcast.jet.impl.processor.ExpectNothingP;
@@ -300,7 +300,7 @@ public interface ProcessorMetaSupplier extends Serializable {
                                     + "supports only total parallelism of 1. Local parallelism must be 1.");
                 }
                 String key = StringPartitioningStrategy.getPartitionKey(partitionKey);
-                ownerAddress = context.jetInstance().getHazelcastInstance().getPartitionService()
+                ownerAddress = context.instance().getPartitionService()
                                       .getPartition(key).getOwner().getAddress();
             }
 
@@ -409,7 +409,7 @@ public interface ProcessorMetaSupplier extends Serializable {
          * Returns the current Jet instance.
          */
         @Nonnull
-        JetInstance jetInstance();
+        HazelcastInstance instance();
 
         /**
          * Returns the job ID. Job id is unique for job submission and doesn't

@@ -185,6 +185,8 @@ public class Config {
 
     private InstanceTrackingConfig instanceTrackingConfig = new InstanceTrackingConfig();
 
+    private JetConfig jetConfig = new JetConfig();
+
     public Config() {
     }
 
@@ -2669,6 +2671,14 @@ public class Config {
         Preconditions.checkNotNull(sqlConfig, "sqlConfig");
         this.sqlConfig = sqlConfig;
         return this;
+    }
+
+    public JetConfig getJetConfig() {
+        return jetConfig;
+    }
+
+    public void setJetConfig(JetConfig jetConfig) {
+        this.jetConfig = jetConfig;
     }
 
     /**

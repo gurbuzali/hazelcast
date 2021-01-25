@@ -18,6 +18,7 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.impl.MemberImpl;
+import com.hazelcast.config.JetConfig;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.instance.impl.Node;
@@ -32,7 +33,6 @@ import com.hazelcast.internal.util.counters.Counter;
 import com.hazelcast.internal.util.counters.MwCounter;
 import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.JobAlreadyExistsException;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.DAG;
 import com.hazelcast.jet.core.JobNotFoundException;
@@ -100,7 +100,6 @@ import static com.hazelcast.jet.impl.util.ExceptionUtil.sneakyThrow;
 import static com.hazelcast.jet.impl.util.ExceptionUtil.withTryCatch;
 import static com.hazelcast.jet.impl.util.LoggingUtil.logFine;
 import static com.hazelcast.jet.impl.util.LoggingUtil.logFinest;
-import static com.hazelcast.jet.impl.util.Util.getJetInstance;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.concurrent.TimeUnit.HOURS;
@@ -180,7 +179,7 @@ public class JobCoordinationService {
 
     void startScanningForJobs() {
         ExecutionService executionService = nodeEngine.getExecutionService();
-        HazelcastProperties properties = new HazelcastProperties(config.getProperties());
+        HazelcastProperties properties = new HazelcastProperties(nodeEngine.getConfig().getProperties());
         maxJobScanPeriodInMillis = properties.getMillis(JOB_SCAN_PERIOD);
         executionService.schedule(COORDINATOR_EXECUTOR_NAME, this::scanJobs, 0, MILLISECONDS);
     }
@@ -209,7 +208,7 @@ public class JobCoordinationService {
                 DAG dag;
                 Data serializedDag;
                 if (jobDefinition instanceof PipelineImpl) {
-                    int coopThreadCount = getJetInstance(nodeEngine).getConfig()
+                    int coopThreadCount = this.config
                                                                     .getInstanceConfig()
                                                                     .getCooperativeThreadCount();
                     dag = ((PipelineImpl) jobDefinition).toDag(new Context() {
@@ -877,7 +876,7 @@ public class JobCoordinationService {
     }
 
     private String dagToJson(DAG dag) {
-        int coopThreadCount = getJetInstance(nodeEngine).getConfig().getInstanceConfig().getCooperativeThreadCount();
+        int coopThreadCount = config.getInstanceConfig().getCooperativeThreadCount();
         return dag.toJson(coopThreadCount).toString();
     }
 

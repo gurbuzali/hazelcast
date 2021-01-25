@@ -62,7 +62,7 @@ public abstract class AbstractHazelcastConnectorSupplier implements ProcessorSup
             instance = newHazelcastClient(asClientConfig(clientXml));
             serializationService = ((HazelcastClientProxy) instance).getSerializationService();
         } else {
-            instance = context.jetInstance().getHazelcastInstance();
+            instance = context.instance();
             serializationService = ((ProcSupplierCtx) context).serializationService();
         }
     }

@@ -241,7 +241,7 @@ public final class ReadMapOrCacheP<F extends CompletableFuture, B, R> extends Ab
 
         @Override
         public void init(@Nonnull Context context) {
-            Set<Partition> partitions = context.jetInstance().getHazelcastInstance().getPartitionService().getPartitions();
+            Set<Partition> partitions = context.instance().getPartitionService().getPartitions();
             addrToPartitions = partitions.stream()
                                          .collect(groupingBy(
                                                  partition -> partition.getOwner().getAddress(),
@@ -267,7 +267,7 @@ public final class ReadMapOrCacheP<F extends CompletableFuture, B, R> extends Ab
         private final BiFunction<HazelcastInstance, InternalSerializationService, Reader<F, B, R>> readerSupplier;
         private final List<Integer> memberPartitions;
 
-        private transient HazelcastInstanceImpl hzInstance;
+        private transient HazelcastInstance hzInstance;
         private transient InternalSerializationService serializationService;
 
         private LocalProcessorSupplier(
@@ -280,7 +280,7 @@ public final class ReadMapOrCacheP<F extends CompletableFuture, B, R> extends Ab
 
         @Override
         public void init(@Nonnull Context context) {
-            hzInstance = (HazelcastInstanceImpl) context.jetInstance().getHazelcastInstance();
+            hzInstance = context.instance();
             serializationService = ((ProcSupplierCtx) context).serializationService();
         }
 

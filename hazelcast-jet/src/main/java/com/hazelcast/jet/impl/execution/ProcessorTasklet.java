@@ -16,6 +16,7 @@
 
 package com.hazelcast.jet.impl.execution;
 
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ManagedContext;
 import com.hazelcast.internal.metrics.DynamicMetricsProvider;
 import com.hazelcast.internal.metrics.MetricDescriptor;
@@ -196,8 +197,9 @@ public class ProcessorTasklet implements Tasklet {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
             justification = "jetInstance() can be null in TestProcessorContext")
     private ILogger getLogger(@Nonnull Context context) {
-        return context.jetInstance() != null
-                ? context.jetInstance().getHazelcastInstance().getLoggingService().getLogger(getClass())
+        HazelcastInstance instance = context.instance();
+        return instance != null
+                ? instance.getLoggingService().getLogger(getClass())
                 : Logger.getLogger(getClass());
     }
 

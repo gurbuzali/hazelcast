@@ -18,8 +18,8 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.client.impl.ClientEngineImpl;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.ConfigAccessor;
-import com.hazelcast.instance.impl.HazelcastInstanceImpl;
+import com.hazelcast.config.JetConfig;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.metrics.impl.MetricsService;
 import com.hazelcast.internal.nio.Packet;
@@ -28,8 +28,6 @@ import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.internal.services.ManagedService;
 import com.hazelcast.internal.services.MembershipAwareService;
 import com.hazelcast.internal.services.MembershipServiceEvent;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobNotFoundException;
 import com.hazelcast.jet.impl.execution.TaskletExecutionService;
@@ -56,6 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import static com.hazelcast.jet.core.JetProperties.JET_SHUTDOWNHOOK_ENABLED;
+import static com.hazelcast.jet.impl.JobRepository.exportedSnapshotMapName;
 import static com.hazelcast.jet.impl.util.ExceptionUtil.sneakyThrow;
 import static com.hazelcast.jet.impl.util.Util.memoizeConcurrent;
 import static com.hazelcast.spi.properties.ClusterProperty.SHUTDOWNHOOK_POLICY;
@@ -76,7 +75,6 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
     private final Thread shutdownHookThread;
 
     private JetConfig config;
-    private JetInstance jetInstance;
     private Networking networking;
     private TaskletExecutionService taskletExecutionService;
     private JobRepository jobRepository;
@@ -111,12 +109,12 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
     @Override
     public void init(NodeEngine engine, Properties hzProperties) {
         this.nodeEngine = (NodeEngineImpl) engine;
-        this.config = findJetServiceConfig(engine.getConfig());
-        jetInstance = new JetInstanceImpl((HazelcastInstanceImpl) engine.getHazelcastInstance(), config);
+        Config hzConfig = engine.getConfig();
+        this.config = hzConfig.getJetConfig();
         taskletExecutionService = new TaskletExecutionService(
-                nodeEngine, config.getInstanceConfig().getCooperativeThreadCount(), nodeEngine.getProperties()
+                nodeEngine, this.config.getInstanceConfig().getCooperativeThreadCount(), nodeEngine.getProperties()
         );
-        jobRepository = new JobRepository(jetInstance);
+        jobRepository = new JobRepository(engine.getHazelcastInstance());
 
         jobExecutionService = new JobExecutionService(nodeEngine, taskletExecutionService, jobRepository);
         jobCoordinationService = createJobCoordinationService();
@@ -125,32 +123,27 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
         metricsService.registerPublisher(nodeEngine -> new JobMetricsPublisher(jobExecutionService,
                 nodeEngine.getLocalMember()));
         nodeEngine.getMetricsRegistry().registerDynamicMetricsProvider(jobExecutionService);
-        networking = new Networking(engine, jobExecutionService, config.getInstanceConfig().getFlowControlPeriodMs());
+        networking = new Networking(engine, jobExecutionService, this.config.getInstanceConfig().getFlowControlPeriodMs());
 
         ClientEngineImpl clientEngine = engine.getService(ClientEngineImpl.SERVICE_NAME);
         ExceptionUtil.registerJetExceptions(clientEngine.getExceptionFactory());
 
-        if (parseBoolean(config.getHazelcastConfig().getProperties().getProperty(JET_SHUTDOWNHOOK_ENABLED.getName()))) {
+        if (parseBoolean(hzConfig.getProperties().getProperty(JET_SHUTDOWNHOOK_ENABLED.getName()))) {
             logger.finest("Adding Jet shutdown hook");
             Runtime.getRuntime().addShutdownHook(shutdownHookThread);
         }
 
         logger.info("Setting number of cooperative threads and default parallelism to "
-                + config.getInstanceConfig().getCooperativeThreadCount());
+                + this.config.getInstanceConfig().getCooperativeThreadCount());
 
         if (sqlCoreBackend != null) {
             try {
-                Method initJetInstanceMethod = sqlCoreBackend.getClass().getMethod("init", JetInstance.class);
-                initJetInstanceMethod.invoke(sqlCoreBackend, jetInstance);
+                Method initJetInstanceMethod = sqlCoreBackend.getClass().getMethod("init", HazelcastInstance.class);
+                initJetInstanceMethod.invoke(sqlCoreBackend, engine.getHazelcastInstance());
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    static JetConfig findJetServiceConfig(Config hzConfig) {
-        return (JetConfig) ConfigAccessor.getServicesConfig(hzConfig)
-                                         .getServiceConfig(SERVICE_NAME).getConfigObject();
     }
 
     /**
@@ -216,8 +209,8 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
         throw new UnsupportedOperationException("You need Hazelcast Jet Enterprise to use this feature");
     }
 
-    public JetInstance getJetInstance() {
-        return jetInstance;
+    public HazelcastInstance instance() {
+        return nodeEngine.getHazelcastInstance();
     }
 
     public LiveOperationRegistry getLiveOperationRegistry() {
@@ -318,11 +311,12 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
 
     private Thread shutdownHookThread(Node node) {
         return new Thread(() -> {
+            HazelcastInstance instance = nodeEngine.getHazelcastInstance();
             String policy = node.getProperties().getString(SHUTDOWNHOOK_POLICY);
             if (policy.equals("TERMINATE")) {
-                jetInstance.getHazelcastInstance().getLifecycleService().terminate();
+                instance.getLifecycleService().terminate();
             } else {
-                jetInstance.shutdown();
+                instance.shutdown();
             }
         }, "jet.ShutdownThread");
     }

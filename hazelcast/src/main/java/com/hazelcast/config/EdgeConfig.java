@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet.config;
-
-import com.hazelcast.jet.core.Edge;
+package com.hazelcast.config;
 
 import java.io.Serializable;
 
 import static com.hazelcast.internal.util.Preconditions.checkPositive;
 
 /**
- * A configuration object for a DAG {@link Edge} that holds fine-tuning
+ * A configuration object for a DAG {@code Edge} that holds fine-tuning
  * parameters that influence its performance characteristics.
  *
  * @since 3.0

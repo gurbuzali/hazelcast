@@ -16,6 +16,7 @@
 
 package com.hazelcast.jet;
 
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.impl.JobRepository;
 import com.hazelcast.jet.impl.SnapshotValidationRecord;
 
@@ -32,11 +33,11 @@ import static com.hazelcast.jet.impl.JobRepository.exportedSnapshotMapName;
  */
 public final class JobStateSnapshot {
 
-    private final JetInstance instance;
+    private final HazelcastInstance instance;
     private final String name;
     private final SnapshotValidationRecord snapshotValidationRecord;
 
-    JobStateSnapshot(@Nonnull JetInstance instance, @Nonnull String name, @Nonnull SnapshotValidationRecord record) {
+    public JobStateSnapshot(@Nonnull HazelcastInstance instance, @Nonnull String name, @Nonnull SnapshotValidationRecord record) {
         this.instance = instance;
         this.name = name;
         this.snapshotValidationRecord = record;

@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet.config;
-
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.jet.Job;
+package com.hazelcast.config;
 
 import javax.annotation.Nonnull;
 
@@ -122,7 +119,7 @@ public class InstanceConfig {
     /**
      * Sets the delay after which auto-scaled jobs will restart if a new member
      * is added to the cluster. The default is 10 seconds. Has no effect on
-     * jobs with {@linkplain JobConfig#setAutoScaling(boolean) auto scaling}
+     * jobs with {@code JobConfig#setAutoScaling(boolean) auto scaling}
      * disabled.
      *
      * @param millis the delay, in milliseconds
@@ -165,7 +162,7 @@ public class InstanceConfig {
      *        .setParallelism(2);
      * }</pre>
      * <p>
-     * Note: the snapshots exported using {@link Job#exportSnapshot}
+     * Note: the snapshots exported using {@code Job#exportSnapshot}
      * will also have Hot Restart storage enabled.
      * <p>
      * Feature is disabled by default. If you enable this option in open-source
