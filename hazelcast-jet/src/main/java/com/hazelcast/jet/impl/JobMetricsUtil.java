@@ -21,7 +21,7 @@ import com.hazelcast.internal.metrics.MetricConsumer;
 import com.hazelcast.internal.metrics.MetricDescriptor;
 import com.hazelcast.internal.metrics.impl.MetricsCompressor;
 import com.hazelcast.internal.util.MapUtil;
-import com.hazelcast.jet.core.metrics.JobMetrics;
+import com.hazelcast.jet.core.metrics.JobMetricsImpl;
 import com.hazelcast.jet.core.metrics.Measurement;
 import com.hazelcast.jet.core.metrics.MetricTags;
 import com.hazelcast.jet.impl.metrics.RawJobMetrics;
@@ -55,7 +55,7 @@ public final class JobMetricsUtil {
         return d -> d.copy().withTag(MetricTags.MEMBER, uuid).withTag(MetricTags.ADDRESS, addr);
     }
 
-    static JobMetrics toJobMetrics(List<RawJobMetrics> rawJobMetrics) {
+    static JobMetricsImpl toJobMetrics(List<RawJobMetrics> rawJobMetrics) {
         JobMetricsConsumer consumer = null;
         for (RawJobMetrics metrics : rawJobMetrics) {
             if (metrics.getBlob() == null) {
@@ -67,7 +67,7 @@ public final class JobMetricsUtil {
             consumer.timestamp = metrics.getTimestamp();
             MetricsCompressor.extractMetrics(metrics.getBlob(), consumer);
         }
-        return consumer == null ? JobMetrics.empty() : JobMetrics.of(consumer.metrics);
+        return consumer == null ? JobMetricsImpl.empty() : JobMetricsImpl.of(consumer.metrics);
 
     }
 

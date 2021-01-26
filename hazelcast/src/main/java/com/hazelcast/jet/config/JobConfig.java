@@ -16,16 +16,12 @@
 
 package com.hazelcast.jet.config;
 
-import com.hazelcast.config.InstanceConfig;
 import com.hazelcast.config.MetricsConfig;
+import com.hazelcast.core.HazelcastException;
 import com.hazelcast.internal.util.Preconditions;
-import com.hazelcast.jet.JetException;
+import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.annotation.EvolvingApi;
-import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.impl.util.ReflectionUtils;
-import com.hazelcast.jet.impl.util.ReflectionUtils.Resources;
-import com.hazelcast.jet.pipeline.ServiceFactory;
 import com.hazelcast.map.IMap;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -86,7 +82,7 @@ public class JobConfig implements IdentifiedDataSerializable {
     /**
      * Sets the name of the job. There can be at most one active job in the cluster
      * with particular name, however, the name can be reused after the previous job
-     * with that name completed or failed. See {@code JetInstance#newJobIfAbsent}.
+     * with that name completed or failed. See {@link JetInstance#newJobIfAbsent}.
      * An active job is a job that is running, suspended or waiting to be run.
      * <p>
      * The job name is printed in logs and is visible in Management Center.
@@ -299,7 +295,7 @@ public class JobConfig implements IdentifiedDataSerializable {
     @Nonnull
     public JobConfig addPackage(@Nonnull String... packages) {
         checkNotNull(packages, "Packages cannot be null");
-        Resources resources = ReflectionUtils.resourcesOf(packages);
+        ReflectionUtils.Resources resources = ReflectionUtils.resourcesOf(packages);
         resources.classes().forEach(classResource -> add(classResource.getUrl(), classResource.getId(), CLASS));
         resources.nonClasses().forEach(this::addClasspathResource);
         return this;
@@ -893,14 +889,14 @@ public class JobConfig implements IdentifiedDataSerializable {
         for (Entry<String, File> e : idToFile.entrySet()) {
             File file = e.getValue();
             if (!file.canRead()) {
-                throw new JetException("Not readable: " + file);
+                throw new HazelcastException("Not readable: " + file);
             }
             if (file.isDirectory()) {
                 attachDirectory(file, e.getKey());
             } else if (file.isFile()) {
                 attachFile(file, e.getKey());
             } else {
-                throw new JetException("Neither a regular file nor a directory: " + file);
+                throw new HazelcastException("Neither a regular file nor a directory: " + file);
             }
         }
         return this;
@@ -921,13 +917,13 @@ public class JobConfig implements IdentifiedDataSerializable {
 
     private static void ensureIsFile(@Nonnull File file) {
         if (!file.isFile() || !file.canRead()) {
-            throw new JetException("Not an existing, readable file: " + file);
+            throw new HazelcastException("Not an existing, readable file: " + file);
         }
     }
 
     private static void ensureIsDirectory(@Nonnull File path) {
         if (!path.isDirectory() || !path.canRead()) {
-            throw new JetException("Not an existing, readable directory: " + path);
+            throw new HazelcastException("Not an existing, readable directory: " + path);
         }
     }
 
@@ -975,7 +971,6 @@ public class JobConfig implements IdentifiedDataSerializable {
      * @since 4.1
      */
     @Nonnull
-    @EvolvingApi
     public <T, S extends StreamSerializer<T>> JobConfig registerSerializer(
             @Nonnull Class<T> clazz,
             @Nonnull Class<S> serializerClass

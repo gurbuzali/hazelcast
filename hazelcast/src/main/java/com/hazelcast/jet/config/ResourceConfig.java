@@ -17,6 +17,7 @@
 package com.hazelcast.jet.config;
 
 import com.hazelcast.internal.util.Preconditions;
+import com.hazelcast.jet.impl.util.ReflectionUtils;
 import com.hazelcast.spi.annotation.PrivateApi;
 
 import javax.annotation.Nonnull;
@@ -24,7 +25,6 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Objects;
 
-import static com.hazelcast.jet.impl.util.ReflectionUtils.toClassResourceId;
 
 /**
  * Describes a single resource to deploy to the Jet cluster.
@@ -64,7 +64,7 @@ public class ResourceConfig implements Serializable {
     ResourceConfig(@Nonnull Class<?> clazz) {
         Preconditions.checkNotNull(clazz, "clazz");
 
-        String id = toClassResourceId(clazz.getName());
+        String id = ReflectionUtils.toClassResourceId(clazz.getName());
         ClassLoader cl = clazz.getClassLoader();
         if (cl == null) {
             throw new IllegalArgumentException(clazz.getName() + ".getClassLoader() returned null, cannot" +
@@ -135,4 +135,5 @@ public class ResourceConfig implements Serializable {
     public int hashCode() {
         return Objects.hash(url, id, resourceType);
     }
+
 }

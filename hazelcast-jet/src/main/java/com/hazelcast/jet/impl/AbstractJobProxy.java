@@ -24,6 +24,8 @@ import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobStateSnapshot;
+import com.hazelcast.jet.JobStateSnapshotImpl;
+import com.hazelcast.jet.Util;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.impl.util.NonCompletableFuture;
 import com.hazelcast.logging.ILogger;
@@ -90,6 +92,11 @@ public abstract class AbstractJobProxy<T> implements Job {
     @Override
     public long getId() {
         return jobId;
+    }
+
+    @Override
+    public String getIdString() {
+        return Util.idToString(getId());
     }
 
     @Nonnull
@@ -251,7 +258,7 @@ public abstract class AbstractJobProxy<T> implements Job {
         if (validationRecord instanceof SnapshotValidationRecord) {
             // update the cache - for robustness. For example after the map was copied
             hazelcastInstance.getMap(JobRepository.EXPORTED_SNAPSHOTS_DETAIL_CACHE).set(name, validationRecord);
-            return new JobStateSnapshot(hazelcastInstance, name, (SnapshotValidationRecord) validationRecord);
+            return new JobStateSnapshotImpl(hazelcastInstance, name, (SnapshotValidationRecord) validationRecord);
         } else {
             return null;
         }

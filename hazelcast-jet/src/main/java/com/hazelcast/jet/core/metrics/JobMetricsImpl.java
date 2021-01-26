@@ -16,6 +16,7 @@
 
 package com.hazelcast.jet.core.metrics;
 
+import com.hazelcast.jet.JobMetrics;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -43,39 +44,39 @@ import static java.util.stream.Collectors.groupingBy;
  *
  * @since 3.2
  */
-public final class JobMetrics implements IdentifiedDataSerializable {
+public final class JobMetricsImpl implements JobMetrics, IdentifiedDataSerializable {
 
-    private static final JobMetrics EMPTY = new JobMetrics(Collections.emptyMap());
+    private static final JobMetricsImpl EMPTY = new JobMetricsImpl(Collections.emptyMap());
 
     private static final Collector<Measurement, ?, Map<String, List<Measurement>>> COLLECTOR =
         Collectors.groupingBy(Measurement::metric);
 
     private Map<String, List<Measurement>> metrics; //metric name -> set of measurements
 
-    JobMetrics() { //needed for deserialization
+    JobMetricsImpl() { //needed for deserialization
     }
 
-    private JobMetrics(@Nonnull Map<String, List<Measurement>> metrics) {
+    private JobMetricsImpl(@Nonnull Map<String, List<Measurement>> metrics) {
         this.metrics = new HashMap<>(metrics);
     }
 
     /**
-     * Returns an empty {@link JobMetrics} object.
+     * Returns an empty {@link JobMetricsImpl} object.
      */
     @Nonnull
     @PrivateApi
-    public static JobMetrics empty() {
+    public static JobMetricsImpl empty() {
         return EMPTY;
     }
 
     /**
-     * Builds a {@link JobMetrics} object based on a map of
+     * Builds a {@link JobMetricsImpl} object based on a map of
      * {@link Measurement}s.
      */
     @Nonnull
     @PrivateApi
-    public static JobMetrics of(@Nonnull Map<String, List<Measurement>> metrics) {
-        return new JobMetrics(metrics);
+    public static JobMetricsImpl of(@Nonnull Map<String, List<Measurement>> metrics) {
+        return new JobMetricsImpl(metrics);
     }
 
     /**
@@ -100,29 +101,29 @@ public final class JobMetrics implements IdentifiedDataSerializable {
 
     /**
      * Convenience method for {@link #filter(Predicate<Measurement>)},
-     * returns a new {@link JobMetrics} instance containing only those
+     * returns a new {@link JobMetricsImpl} instance containing only those
      * {@link Measurement}s which have the specified tag set to the
      * specified value.
      * <p>
      * For a list of available tag names, see {@link MetricTags}.
      */
     @Nonnull
-    public JobMetrics filter(@Nonnull String tagName, @Nonnull String tagValue) {
+    public JobMetricsImpl filter(@Nonnull String tagName, @Nonnull String tagValue) {
         return filter(MeasurementPredicates.tagValueEquals(tagName, tagValue));
     }
 
     /**
-     * Returns a new {@link JobMetrics} instance containing a subset of
+     * Returns a new {@link JobMetricsImpl} instance containing a subset of
      * the {@link Measurement}s found in the current one. The subset is
      * formed by those {@link Measurement}s which match the provided
      * {@link Predicate}.
      * <p>
      * The metric names which have all their {@link Measurement}s filtered
      * out won't be present in the new {@link
-     * JobMetrics} instance.
+     * JobMetricsImpl} instance.
      */
     @Nonnull
-    public JobMetrics filter(@Nonnull Predicate<Measurement> predicate) {
+    public JobMetricsImpl filter(@Nonnull Predicate<Measurement> predicate) {
         Objects.requireNonNull(predicate, "predicate");
 
         Map<String, List<Measurement>> filteredMetrics =
@@ -130,7 +131,7 @@ public final class JobMetrics implements IdentifiedDataSerializable {
                    .flatMap(List::stream)
                    .filter(predicate)
                    .collect(COLLECTOR);
-        return new JobMetrics(filteredMetrics);
+        return new JobMetricsImpl(filteredMetrics);
     }
 
     @Override
@@ -168,7 +169,7 @@ public final class JobMetrics implements IdentifiedDataSerializable {
             return true;
         }
 
-        return Objects.equals(metrics, ((JobMetrics) obj).metrics);
+        return Objects.equals(metrics, ((JobMetricsImpl) obj).metrics);
     }
 
     @Override

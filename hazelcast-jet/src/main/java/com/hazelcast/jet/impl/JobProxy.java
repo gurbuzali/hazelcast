@@ -23,10 +23,10 @@ import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobStateSnapshot;
-import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.JobSuspensionCause;
-import com.hazelcast.jet.core.metrics.JobMetrics;
+import com.hazelcast.jet.config.JobConfig;
+import com.hazelcast.jet.core.metrics.JobMetricsImpl;
 import com.hazelcast.jet.impl.metrics.RawJobMetrics;
 import com.hazelcast.jet.impl.operation.GetJobConfigOperation;
 import com.hazelcast.jet.impl.operation.GetJobMetricsOperation;
@@ -84,7 +84,7 @@ public class JobProxy extends AbstractJobProxy<NodeEngineImpl> {
     }
 
     @Nonnull @Override
-    public JobMetrics getMetrics() {
+    public JobMetricsImpl getMetrics() {
         try {
             List<RawJobMetrics> shards = this.<List<RawJobMetrics>>invokeOp(new GetJobMetricsOperation(getId())).get();
             return toJobMetrics(shards);

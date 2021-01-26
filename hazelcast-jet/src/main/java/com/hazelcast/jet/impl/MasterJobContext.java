@@ -28,7 +28,7 @@ import com.hazelcast.jet.core.Edge;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.TopologyChangedException;
 import com.hazelcast.jet.core.Vertex;
-import com.hazelcast.jet.core.metrics.JobMetrics;
+import com.hazelcast.jet.core.metrics.JobMetricsImpl;
 import com.hazelcast.jet.core.metrics.Measurement;
 import com.hazelcast.jet.core.metrics.MetricNames;
 import com.hazelcast.jet.core.metrics.MetricTags;
@@ -699,7 +699,7 @@ public class MasterJobContext {
         if (jobMetrics.stream().noneMatch(rjm -> rjm.getBlob() != null)) {
             sb.append("\n\tTo see additional job metrics enable JobConfig.storeMetricsAfterJobCompletion");
         } else {
-            JobMetrics jobMetrics = JobMetricsUtil.toJobMetrics(this.jobMetrics);
+            JobMetricsImpl jobMetrics = JobMetricsUtil.toJobMetrics(this.jobMetrics);
 
             Map<String, Long> receivedCounts = mergeByVertex(jobMetrics.get(MetricNames.RECEIVED_COUNT));
             Map<String, Long> emittedCounts = mergeByVertex(jobMetrics.get(MetricNames.EMITTED_COUNT));

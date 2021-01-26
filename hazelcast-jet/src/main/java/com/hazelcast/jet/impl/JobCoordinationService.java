@@ -18,7 +18,7 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.cluster.impl.MemberImpl;
-import com.hazelcast.config.JetConfig;
+import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.instance.impl.Node;

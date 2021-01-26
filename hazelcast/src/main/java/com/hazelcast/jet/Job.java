@@ -19,11 +19,8 @@ package com.hazelcast.jet;
 import com.hazelcast.config.MetricsConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
-import com.hazelcast.jet.core.DAG;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.JobSuspensionCause;
-import com.hazelcast.jet.core.metrics.JobMetrics;
-import com.hazelcast.jet.pipeline.Pipeline;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,13 +42,15 @@ public interface Job {
      */
     long getId();
 
-    /**
-     * Returns the string representation of this job's ID.
-     */
-    @Nonnull
-    default String getIdString() {
-        return Util.idToString(getId());
-    }
+//    /**
+//     * Returns the string representation of this job's ID.
+//     */
+//    @Nonnull
+//    default String getIdString() {
+//        return Util.idToString(getId());
+//    }
+
+    String getIdString();
 
     /**
      * Returns the configuration this job was submitted with. Changes made to the

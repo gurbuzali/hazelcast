@@ -16,7 +16,7 @@
 
 package com.hazelcast.jet.core;
 
-import com.hazelcast.config.EdgeConfig;
+import com.hazelcast.jet.config.EdgeConfig;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.internal.json.JsonArray;
 import com.hazelcast.internal.json.JsonObject;

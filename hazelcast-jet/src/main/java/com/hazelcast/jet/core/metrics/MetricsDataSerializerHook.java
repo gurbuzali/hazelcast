@@ -33,7 +33,7 @@ import static com.hazelcast.jet.impl.JetFactoryIdHelper.JET_JOB_METRICS_DS_FACTO
 public class MetricsDataSerializerHook implements DataSerializerHook {
 
     /**
-     * Serialization ID of the {@link JobMetrics} class.
+     * Serialization ID of the {@link JobMetricsImpl} class.
      */
     public static final int JOB_METRICS = 0;
 
@@ -60,7 +60,7 @@ public class MetricsDataSerializerHook implements DataSerializerHook {
         public IdentifiedDataSerializable create(int typeId) {
             switch (typeId) {
                 case JOB_METRICS:
-                    return new JobMetrics();
+                    return new JobMetricsImpl();
                 case MEASUREMENT:
                     return new Measurement();
                 default:

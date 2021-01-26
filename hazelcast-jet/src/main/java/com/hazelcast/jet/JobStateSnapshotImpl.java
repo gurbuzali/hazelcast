@@ -31,13 +31,13 @@ import static com.hazelcast.jet.impl.JobRepository.exportedSnapshotMapName;
  *
  * @since 3.0
  */
-public final class JobStateSnapshot {
+public final class JobStateSnapshotImpl implements JobStateSnapshot {
 
     private final HazelcastInstance instance;
     private final String name;
     private final SnapshotValidationRecord snapshotValidationRecord;
 
-    public JobStateSnapshot(@Nonnull HazelcastInstance instance, @Nonnull String name, @Nonnull SnapshotValidationRecord record) {
+    public JobStateSnapshotImpl(@Nonnull HazelcastInstance instance, @Nonnull String name, @Nonnull SnapshotValidationRecord record) {
         this.instance = instance;
         this.name = name;
         this.snapshotValidationRecord = record;

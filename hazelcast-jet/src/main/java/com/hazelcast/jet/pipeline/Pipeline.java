@@ -16,6 +16,7 @@
 
 package com.hazelcast.jet.pipeline;
 
+import com.hazelcast.jet.ThePipeline;
 import com.hazelcast.jet.core.DAG;
 import com.hazelcast.jet.impl.pipeline.PipelineImpl;
 
@@ -43,7 +44,7 @@ import java.io.Serializable;
  *
  * @since 3.0
  */
-public interface Pipeline extends Serializable {
+public interface Pipeline extends Serializable, ThePipeline {
 
     /**
      * Creates a new, empty pipeline.

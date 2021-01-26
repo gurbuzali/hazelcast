@@ -17,7 +17,7 @@
 package com.hazelcast.jet.impl.util;
 
 import com.hazelcast.cluster.Address;
-import com.hazelcast.config.EdgeConfig;
+import com.hazelcast.jet.config.EdgeConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.config.JobConfig;
@@ -27,10 +27,8 @@ import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.core.Watermark;
 import com.hazelcast.jet.function.RunnableEx;
 import com.hazelcast.jet.impl.JetEvent;
-import com.hazelcast.jet.impl.JetService;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.nio.serialization.DataSerializable;
-import com.hazelcast.spi.impl.NodeEngine;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

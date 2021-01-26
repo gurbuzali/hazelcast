@@ -17,7 +17,8 @@
 package com.hazelcast.jet.impl;
 
 import com.hazelcast.cluster.ClusterState;
-import com.hazelcast.config.JetConfig;
+import com.hazelcast.jet.JetInstance;
+import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.instance.impl.DefaultNodeExtension;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Packet;
@@ -74,5 +75,10 @@ public class JetNodeExtension extends DefaultNodeExtension implements JetPacketC
     @Override
     public void accept(Packet packet) {
         extCommon.handlePacket(packet);
+    }
+
+    @Override
+    public JetInstance getJetInstance() {
+        return new JetInstanceImpl(node.hazelcastInstance);
     }
 }

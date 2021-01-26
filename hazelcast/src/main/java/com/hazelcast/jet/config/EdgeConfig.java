@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.config;
+package com.hazelcast.jet.config;
 
 import java.io.Serializable;
 

@@ -38,6 +38,7 @@ import com.hazelcast.durableexecutor.DurableExecutorService;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
 import com.hazelcast.instance.impl.TerminatedLifecycleService;
 import com.hazelcast.internal.serialization.InternalSerializationService;
+import com.hazelcast.jet.JetInstance;
 import com.hazelcast.logging.LoggingService;
 import com.hazelcast.map.IMap;
 import com.hazelcast.multimap.MultiMap;
@@ -317,5 +318,10 @@ public class HazelcastClientProxy implements HazelcastInstance, SerializationSer
     @Override
     public SqlService getSql() {
         return getClient().getSql();
+    }
+
+    @Override
+    public JetInstance getJetInstance() {
+        return null; //TODO Merge
     }
 }

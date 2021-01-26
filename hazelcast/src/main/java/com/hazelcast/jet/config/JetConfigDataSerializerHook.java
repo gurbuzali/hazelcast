@@ -22,8 +22,6 @@ import com.hazelcast.nio.serialization.DataSerializableFactory;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spi.annotation.PrivateApi;
 
-import static com.hazelcast.jet.impl.JetFactoryIdHelper.JET_CONFIG_DS_FACTORY;
-import static com.hazelcast.jet.impl.JetFactoryIdHelper.JET_CONFIG_DS_FACTORY_ID;
 
 /**
  * Hazelcast serializer hooks for the classes in the {@code
@@ -31,6 +29,9 @@ import static com.hazelcast.jet.impl.JetFactoryIdHelper.JET_CONFIG_DS_FACTORY_ID
  */
 @PrivateApi
 public final class JetConfigDataSerializerHook implements DataSerializerHook {
+
+    public static final String JET_CONFIG_DS_FACTORY = "hazelcast.serialization.ds.jet.config";
+    public static final int JET_CONFIG_DS_FACTORY_ID = -10004;
 
     /**
      * Serialization ID of the {@link JobConfig} class.
