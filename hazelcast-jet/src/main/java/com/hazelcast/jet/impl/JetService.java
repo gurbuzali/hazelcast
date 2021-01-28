@@ -53,11 +53,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static com.hazelcast.jet.core.JetProperties.JET_SHUTDOWNHOOK_ENABLED;
 import static com.hazelcast.jet.impl.util.ExceptionUtil.sneakyThrow;
 import static com.hazelcast.jet.impl.util.Util.memoizeConcurrent;
-import static com.hazelcast.spi.properties.ClusterProperty.SHUTDOWNHOOK_POLICY;
-import static java.lang.Boolean.parseBoolean;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class JetService implements ManagedService, MembershipAwareService, LiveOperationsTracker {
@@ -71,7 +68,6 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
     private final ILogger logger;
     private final LiveOperationRegistry liveOperationRegistry;
     private final AtomicReference<CompletableFuture<Void>> shutdownFuture = new AtomicReference<>();
-    private final Thread shutdownHookThread;
 
     private JetConfig config;
     private Networking networking;
@@ -90,7 +86,6 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
     public JetService(Node node) {
         this.logger = node.getLogger(getClass());
         this.liveOperationRegistry = new LiveOperationRegistry();
-        this.shutdownHookThread = shutdownHookThread(node);
 
         JetSqlCoreBackend sqlCoreBackend;
         try {
@@ -126,11 +121,6 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
 
         ClientEngineImpl clientEngine = engine.getService(ClientEngineImpl.SERVICE_NAME);
         ExceptionUtil.registerJetExceptions(clientEngine.getExceptionFactory());
-
-        if (parseBoolean(hzConfig.getProperties().getProperty(JET_SHUTDOWNHOOK_ENABLED.getName()))) {
-            logger.finest("Adding Jet shutdown hook");
-            Runtime.getRuntime().addShutdownHook(shutdownHookThread);
-        }
 
         logger.info("Setting number of cooperative threads and default parallelism to "
                 + this.config.getInstanceConfig().getCooperativeThreadCount());
@@ -178,10 +168,6 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
 
     @Override
     public void shutdown(boolean forceful) {
-        if (!Thread.currentThread().equals(shutdownHookThread)) {
-            Runtime.getRuntime().removeShutdownHook(shutdownHookThread);
-        }
-
         jobExecutionService.shutdown();
         taskletExecutionService.shutdown();
         taskletExecutionService.awaitWorkerTermination();
@@ -306,18 +292,6 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
             }
         }
         return keys;
-    }
-
-    private Thread shutdownHookThread(Node node) {
-        return new Thread(() -> {
-            HazelcastInstance instance = nodeEngine.getHazelcastInstance();
-            String policy = node.getProperties().getString(SHUTDOWNHOOK_POLICY);
-            if (policy.equals("TERMINATE")) {
-                instance.getLifecycleService().terminate();
-            } else {
-                instance.shutdown();
-            }
-        }, "jet.ShutdownThread");
     }
 
     @Nullable

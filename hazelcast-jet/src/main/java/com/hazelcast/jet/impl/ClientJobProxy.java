@@ -59,16 +59,16 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * {@link Job} proxy on client.
  */
-public class ClientJobProxy extends AbstractJobProxy<HazelcastClientInstanceImpl> {
+public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
 
     private static final long RETRY_DELAY_NS = MILLISECONDS.toNanos(200);
     private static final long RETRY_TIME_NS = SECONDS.toNanos(60);
 
-    ClientJobProxy(HazelcastClientInstanceImpl client, long jobId) {
+    ClientJobProxy(JetClientInstanceImpl client, long jobId) {
         super(client, jobId);
     }
 
-    ClientJobProxy(HazelcastClientInstanceImpl client, long jobId, Object jobDefinition, JobConfig config) {
+    ClientJobProxy(JetClientInstanceImpl client, long jobId, Object jobDefinition, JobConfig config) {
         super(client, jobId, jobDefinition, config);
     }
 
@@ -154,7 +154,7 @@ public class ClientJobProxy extends AbstractJobProxy<HazelcastClientInstanceImpl
         } catch (Throwable t) {
             throw rethrow(t);
         }
-        return getJobStateSnapshot(name);
+        return container().getJobStateSnapshot(name);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class ClientJobProxy extends AbstractJobProxy<HazelcastClientInstanceImpl
 
     @Nonnull @Override
     protected UUID masterUuid() {
-        Member masterMember = container().getClientClusterService().getMasterMember();
+        Member masterMember = container().client().getClientClusterService().getMasterMember();
         if (masterMember == null) {
             throw new IllegalStateException("Master isn't known");
         }
@@ -187,35 +187,22 @@ public class ClientJobProxy extends AbstractJobProxy<HazelcastClientInstanceImpl
 
     @Override
     protected SerializationService serializationService() {
-        return container().getSerializationService();
+        return container().client().getSerializationService();
     }
 
     @Override
     protected LoggingService loggingService() {
-        return container().getLoggingService();
+        return container().client().getLoggingService();
     }
 
     @Override
     protected boolean isRunning() {
-        return container().getLifecycleService().isRunning();
-    }
-
-    boolean existsDistributedObject(String serviceName, String objectName) {
-        return callAndRetryIfTargetNotFound(() -> {
-            ClientMessage request = JetExistsDistributedObjectCodec.encodeRequest(serviceName, objectName);
-            ClientMessage response = invocation(request, null).invoke().get();
-            return JetExistsDistributedObjectCodec.decodeResponse(response).response;
-        });
-    }
-
-    @Override
-    HazelcastInstance getInstance() {
-        return container();
+        return container().client().getLifecycleService().isRunning();
     }
 
     private ClientInvocation invocation(ClientMessage request, UUID invocationUuid) {
         return new ClientInvocation(
-                container(), request, "jobId=" + getIdString(), invocationUuid
+                container().client(), request, "jobId=" + getIdString(), invocationUuid
         );
     }
 

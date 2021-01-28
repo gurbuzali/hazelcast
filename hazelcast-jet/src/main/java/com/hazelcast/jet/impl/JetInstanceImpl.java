@@ -2,6 +2,7 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.cluster.Address;
 import com.hazelcast.instance.impl.HazelcastInstanceImpl;
+import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.util.Preconditions;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
@@ -41,9 +42,9 @@ public class JetInstanceImpl implements JetInstance {
     private final NodeEngineImpl nodeEngine;
     private final Supplier<JobRepository> jobRepository;
 
-    public JetInstanceImpl(HazelcastInstanceImpl hazelcastInstance) {
-        this.hazelcastInstance = hazelcastInstance;
-        this.nodeEngine = hazelcastInstance.node.nodeEngine;
+    public JetInstanceImpl(Node node) {
+        this.hazelcastInstance = node.hazelcastInstance;
+        this.nodeEngine = node.nodeEngine;
         this.jobRepository = Util.memoizeConcurrent(() -> new JobRepository(hazelcastInstance));
     }
 
@@ -90,7 +91,7 @@ public class JetInstanceImpl implements JetInstance {
         try {
             return future.get()
                     .stream()
-                    .map(jobId -> new JobProxy(nodeEngine, jobId))
+                    .map(jobId -> new JobProxy(this, jobId))
                     .collect(toList());
         } catch (Throwable t) {
             throw rethrow(t);
@@ -151,11 +152,11 @@ public class JetInstanceImpl implements JetInstance {
     }
 
     private Job newJobProxy(long jobId) {
-        return new JobProxy(nodeEngine, jobId);
+        return new JobProxy(this, jobId);
     }
 
     private Job newJobProxy(long jobId, Object jobDefinition, JobConfig config) {
-        return new JobProxy(nodeEngine, jobId, jobDefinition, config);
+        return new JobProxy(this, jobId, jobDefinition, config);
     }
 
     private ILogger getLogger() {
@@ -178,5 +179,9 @@ public class JetInstanceImpl implements JetInstance {
         } catch (Throwable t) {
             throw rethrow(t);
         }
+    }
+
+    public NodeEngineImpl nodeEngine() {
+        return nodeEngine;
     }
 }

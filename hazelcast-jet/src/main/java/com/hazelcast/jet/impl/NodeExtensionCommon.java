@@ -20,6 +20,7 @@ import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.instance.JetBuildInfo;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Packet;
+import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.impl.operation.PrepareForPassiveClusterOperation;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.spi.impl.NodeEngineImpl;
@@ -46,14 +47,17 @@ class NodeExtensionCommon {
     private final ILogger logger;
     private final JetService jetService;
 
-    NodeExtensionCommon(Node node, JetService jetService) {
+    private JetInstance jetInstance;
+
+    NodeExtensionCommon(Node node) {
         this.node = node;
-        this.logger = node.getLogger(getClass().getName());
-        this.jetService = jetService;
+        this.logger = node.getLogger(getClass());
+        this.jetService = new JetService(node);
     }
 
     void afterStart() {
         jetService.getJobCoordinationService().startScanningForJobs();
+        jetInstance = new JetInstanceImpl(node);
     }
 
     void beforeClusterStateChange(ClusterState requestedState) {
@@ -126,5 +130,9 @@ class NodeExtensionCommon {
         }
 
         return extensionServices;
+    }
+
+    JetInstance getJetInstance() {
+        return jetInstance;
     }
 }

@@ -18,14 +18,13 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.cluster.Address;
 import com.hazelcast.cluster.Member;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobStateSnapshot;
+import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.JobSuspensionCause;
-import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.metrics.JobMetricsImpl;
 import com.hazelcast.jet.impl.metrics.RawJobMetrics;
 import com.hazelcast.jet.impl.operation.GetJobConfigOperation;
@@ -39,7 +38,6 @@ import com.hazelcast.jet.impl.operation.SubmitJobOperation;
 import com.hazelcast.jet.impl.operation.TerminateJobOperation;
 import com.hazelcast.jet.impl.util.ImdgUtil;
 import com.hazelcast.logging.LoggingService;
-import com.hazelcast.spi.impl.NodeEngineImpl;
 import com.hazelcast.spi.impl.operationservice.Operation;
 
 import javax.annotation.Nonnull;
@@ -54,17 +52,18 @@ import static com.hazelcast.jet.impl.util.ExceptionUtil.rethrow;
 /**
  * {@link Job} proxy on member.
  */
-public class JobProxy extends AbstractJobProxy<NodeEngineImpl> {
+public class JobProxy extends AbstractJobProxy<JetInstanceImpl> {
 
-    public JobProxy(NodeEngineImpl nodeEngine, long jobId) {
-        super(nodeEngine, jobId);
+    public JobProxy(JetInstanceImpl instance, long jobId) {
+        super(instance, jobId);
     }
 
-    public JobProxy(NodeEngineImpl engine, long jobId, Object jobDefinition, JobConfig config) {
-        super(engine, jobId, jobDefinition, config);
+    public JobProxy(JetInstanceImpl instance, long jobId, Object jobDefinition, JobConfig config) {
+        super(instance, jobId, jobDefinition, config);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public JobStatus getStatus() {
         try {
             return this.<JobStatus>invokeOp(new GetJobStatusOperation(getId())).get();
@@ -83,7 +82,8 @@ public class JobProxy extends AbstractJobProxy<NodeEngineImpl> {
         }
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public JobMetricsImpl getMetrics() {
         try {
             List<RawJobMetrics> shards = this.<List<RawJobMetrics>>invokeOp(new GetJobMetricsOperation(getId())).get();
@@ -129,13 +129,13 @@ public class JobProxy extends AbstractJobProxy<NodeEngineImpl> {
 
     private JobStateSnapshot doExportSnapshot(String name, boolean cancelJob) {
         try {
-            JetService jetService = container().getService(JetService.SERVICE_NAME);
+            JetService jetService = container().nodeEngine().getService(JetService.SERVICE_NAME);
             Operation operation = jetService.createExportSnapshotOperation(getId(), name, cancelJob);
             invokeOp(operation).get();
         } catch (Exception e) {
             throw rethrow(e);
         }
-        return getJobStateSnapshot(name);
+        return container().getJobStateSnapshot(name);
     }
 
     @Override
@@ -156,9 +156,10 @@ public class JobProxy extends AbstractJobProxy<NodeEngineImpl> {
         }
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     protected UUID masterUuid() {
-        Collection<Member> members = container().getClusterService().getMembers();
+        Collection<Member> members = container().nodeEngine().getClusterService().getMembers();
         if (members.isEmpty()) {
             throw new IllegalStateException("No members in cluster");
         }
@@ -167,38 +168,29 @@ public class JobProxy extends AbstractJobProxy<NodeEngineImpl> {
 
     @Override
     protected SerializationService serializationService() {
-        return container().getSerializationService();
+        return container().nodeEngine().getSerializationService();
     }
 
     @Override
     protected LoggingService loggingService() {
-        return container().getLoggingService();
+        return container().nodeEngine().getLoggingService();
     }
 
     @Override
     protected boolean isRunning() {
-        return container().isRunning();
-    }
-
-    @Override
-    boolean existsDistributedObject(String serviceName, String objectName) {
-        return ImdgUtil.existsDistributedObject(container(), serviceName, objectName);
-    }
-
-    @Override
-    HazelcastInstance getInstance() {
-        return container().getHazelcastInstance();
+        return container().nodeEngine().isRunning();
     }
 
     private <T> CompletableFuture<T> invokeOp(Operation op) {
         return container()
+                .nodeEngine()
                 .getOperationService()
                 .createInvocationBuilder(JetService.SERVICE_NAME, op, masterAddress())
                 .invoke();
     }
 
     private Address masterAddress() {
-        Address masterAddress = container().getMasterAddress();
+        Address masterAddress = container().nodeEngine().getMasterAddress();
         if (masterAddress == null) {
             throw new IllegalStateException("Master address unknown: instance is not yet initialized or is shut down");
         }

@@ -31,7 +31,7 @@ public class JetNodeExtension extends DefaultNodeExtension implements JetPacketC
 
     public JetNodeExtension(Node node) {
         super(node);
-        extCommon = new NodeExtensionCommon(node, new JetService(node));
+        extCommon = new NodeExtensionCommon(node);
     }
 
     @Override
@@ -79,6 +79,6 @@ public class JetNodeExtension extends DefaultNodeExtension implements JetPacketC
 
     @Override
     public JetInstance getJetInstance() {
-        return new JetInstanceImpl(node.hazelcastInstance);
+        return extCommon.getJetInstance();
     }
 }
