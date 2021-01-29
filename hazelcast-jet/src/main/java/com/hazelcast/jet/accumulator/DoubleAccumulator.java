@@ -79,10 +79,13 @@ public class DoubleAccumulator {
 
     @Override
     public boolean equals(Object o) {
-        return this == o ||
-                o != null
-                        && this.getClass() == o.getClass()
-                        && Double.compare(this.value, ((DoubleAccumulator) o).value) == 0;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        return Double.compare(this.value, ((DoubleAccumulator) o).value) == 0;
     }
 
     @Override

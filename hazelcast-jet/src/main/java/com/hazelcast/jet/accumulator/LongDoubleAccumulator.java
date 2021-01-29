@@ -70,11 +70,15 @@ public class LongDoubleAccumulator {
 
     @Override
     public boolean equals(Object o) {
-        return this == o ||
-                o != null
-                && this.getClass() == o.getClass()
-                && this.longValue == ((LongDoubleAccumulator) o).longValue
-                && Double.compare(this.doubleValue, ((LongDoubleAccumulator) o).doubleValue) == 0;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        LongDoubleAccumulator that = (LongDoubleAccumulator) o;
+        return this.longValue == that.longValue
+                && Double.compare(this.doubleValue, that.doubleValue) == 0;
     }
 
     @Override

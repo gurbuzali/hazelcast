@@ -93,8 +93,7 @@ public class JobMetricsPublisher implements MetricsPublisher {
 
     private MetricsCompressor getCompressor(MetricDescriptor descriptor) {
         Long executionId = JobMetricsUtil.getExecutionIdFromMetricsDescriptor(descriptor);
-        return executionId == null ?
-                null
-                : executionIdToCompressor.computeIfAbsent(executionId, id -> new MetricsCompressor());
+        return executionId == null
+                ? null : executionIdToCompressor.computeIfAbsent(executionId, id -> new MetricsCompressor());
     }
 }

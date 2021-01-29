@@ -197,7 +197,8 @@ public final class TopologicalSorter<V> {
         // Field names identical to those used in the Wikipedia article:
         int index = -1;
         int lowlink = -1;
-        boolean onStack; // tells whether the vertex is currently on the Tarjan stack
+        // tells whether the vertex is currently on the Tarjan stack
+        boolean onStack;
 
         TarjanVertex(@Nonnull V v) {
             this.v = v;

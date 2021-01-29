@@ -127,10 +127,13 @@ public class LongAccumulator {
 
     @Override
     public boolean equals(Object o) {
-        return this == o ||
-                o != null
-                && this.getClass() == o.getClass()
-                && this.value == ((LongAccumulator) o).value;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        return this.value == ((LongAccumulator) o).value;
     }
 
     @Override

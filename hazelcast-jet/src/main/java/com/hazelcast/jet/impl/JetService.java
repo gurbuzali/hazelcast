@@ -155,8 +155,8 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
                   .invokeOnTarget(JetService.SERVICE_NAME, op, nodeEngine.getClusterService().getMasterAddress())
                   .whenCompleteAsync((response, throwable) -> {
                       if (throwable != null) {
-                          logger.warning("Failed to notify master member that this member is shutting down," +
-                                  " will retry in " + NOTIFY_MEMBER_SHUTDOWN_DELAY + " seconds", throwable);
+                          logger.warning("Failed to notify master member that this member is shutting down,"
+                                  + " will retry in " + NOTIFY_MEMBER_SHUTDOWN_DELAY + " seconds", throwable);
                           // recursive call
                           nodeEngine.getExecutionService().schedule(
                                   () -> notifyMasterWeAreShuttingDown(future), NOTIFY_MEMBER_SHUTDOWN_DELAY, SECONDS);
@@ -189,7 +189,8 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
                 .from(getNodeEngine().getSerializationService(), serializerConfigs);
     }
 
-    @SuppressWarnings("unused") // parameters are used from jet-enterprise
+    // parameters are used from jet-enterprise
+    @SuppressWarnings("unused")
     public Operation createExportSnapshotOperation(long jobId, String name, boolean cancelJob) {
         throw new UnsupportedOperationException("You need Hazelcast Jet Enterprise to use this feature");
     }

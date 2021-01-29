@@ -99,15 +99,15 @@ public final class AllOfAggregationBuilder<T> {
                         operations.get(i).accumulateFn().accept(acc[i], item);
                     }
                 })
-                .andCombine(operations.stream().anyMatch(o -> o.combineFn() == null) ? null :
-                        (acc1, acc2) -> {
+                .andCombine(operations.stream().anyMatch(o -> o.combineFn() == null) ? null
+                        : (acc1, acc2) -> {
                             for (int i = 0; i < acc1.length; i++) {
                                 operations.get(i).combineFn().accept(acc1[i], acc2[i]);
                             }
                         }
                 )
-                .andDeduct(operations.stream().anyMatch(o -> o.deductFn() == null) ? null :
-                        (acc1, acc2) -> {
+                .andDeduct(operations.stream().anyMatch(o -> o.deductFn() == null) ? null
+                        : (acc1, acc2) -> {
                             for (int i = 0; i < acc1.length; i++) {
                                 operations.get(i).deductFn().accept(acc1[i], acc2[i]);
                             }

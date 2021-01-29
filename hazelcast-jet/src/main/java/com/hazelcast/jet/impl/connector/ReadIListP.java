@@ -63,8 +63,9 @@ public final class ReadIListP extends AbstractProcessor {
         HazelcastInstance instance;
         SerializationService serializationService;
         if (isRemote()) {
-            instance = client = newHazelcastClient(asClientConfig(clientXml));
+            instance = newHazelcastClient(asClientConfig(clientXml));
             serializationService = ((HazelcastClientProxy) instance).getSerializationService();
+            client = instance;
         } else {
             instance = context.instance();
             serializationService = ((ProcCtx) context).serializationService();
@@ -88,12 +89,11 @@ public final class ReadIListP extends AbstractProcessor {
         }
     }
 
-    private Traverser<Data> createTraverser(int size,
-                                            BiFunction<Integer, Integer, List<Data>> subListSupplier) {
-        return size <= FETCH_SIZE ?
-                traverseIterable(subListSupplier.apply(0, size)) :
-                traverseStream(rangeClosed(0, size / FETCH_SIZE).mapToObj(chunkIndex -> chunkIndex * FETCH_SIZE))
-                        .flatMap(start -> traverseIterable(subListSupplier.apply(start, min(start + FETCH_SIZE, size))));
+    private Traverser<Data> createTraverser(int size, BiFunction<Integer, Integer, List<Data>> subListSupplier) {
+        return size <= FETCH_SIZE
+                ? traverseIterable(subListSupplier.apply(0, size))
+                : traverseStream(rangeClosed(0, size / FETCH_SIZE).mapToObj(chunkIndex -> chunkIndex * FETCH_SIZE))
+                .flatMap(start -> traverseIterable(subListSupplier.apply(start, min(start + FETCH_SIZE, size))));
     }
 
     @Override

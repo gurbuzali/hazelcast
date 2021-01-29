@@ -36,6 +36,7 @@ import static com.hazelcast.jet.impl.util.ExceptionUtil.sneakyThrow;
 
 public final class IOUtil {
 
+    @SuppressWarnings("checkstyle:MagicNumber")
     private static final int BUFFER_SIZE = 1 << 14;
 
     private IOUtil() {
@@ -142,10 +143,10 @@ public final class IOUtil {
      */
     @Nullable
     public static String fileNameFromUrl(@Nullable URL url) {
-        String fnamePath;
-        if (url == null || (fnamePath = url.getPath()) == null) {
+        if (url == null || url.getPath() == null) {
             return null;
         }
+        String fnamePath = url.getPath();
         // URLs always use forward slash to separate directories
         int lastSlash = fnamePath.lastIndexOf('/');
         return lastSlash < 0 ? fnamePath : fnamePath.substring(lastSlash + 1);

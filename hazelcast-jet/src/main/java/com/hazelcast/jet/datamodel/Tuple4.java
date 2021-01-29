@@ -88,11 +88,15 @@ public final class Tuple4<E0, E1, E2, E3> {
 
     @Override
     @SuppressWarnings("rawtypes")
-    public boolean equals(Object obj) {
-        final Tuple4 that;
-        return this == obj
-                || obj instanceof Tuple4
-                && Objects.equals(this.f0, (that = (Tuple4) obj).f0)
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Tuple4)) {
+            return false;
+        }
+        Tuple4 that = (Tuple4) o;
+        return Objects.equals(this.f0, that.f0)
                 && Objects.equals(this.f1, that.f1)
                 && Objects.equals(this.f2, that.f2)
                 && Objects.equals(this.f3, that.f3);

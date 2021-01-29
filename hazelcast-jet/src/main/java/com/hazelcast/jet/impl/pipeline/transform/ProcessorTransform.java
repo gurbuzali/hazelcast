@@ -155,9 +155,9 @@ public class ProcessorTransform extends AbstractTransform {
         determineLocalParallelism(processorSupplier.preferredLocalParallelism(), context, p.isPreserveOrder());
         PlannerVertex pv = p.addVertex(this, name(), determinedLocalParallelism(), processorSupplier);
         if (p.isPreserveOrder()) {
-            p.addEdges(this, pv.v, Edge::isolated);
+            p.addEdges(this, pv.vertex(), Edge::isolated);
         } else {
-            p.addEdges(this, pv.v);
+            p.addEdges(this, pv.vertex());
         }
     }
 }

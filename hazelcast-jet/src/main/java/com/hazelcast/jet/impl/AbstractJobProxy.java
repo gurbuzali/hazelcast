@@ -273,8 +273,8 @@ public abstract class AbstractJobProxy<T extends JetInstance> implements Job {
                 masterUuid();
             } catch (IllegalStateException e) {
                 // job data will be cleaned up eventually by the coordinator
-                String msg = operationName() + " failed for job " + idAndName() + " because the cluster " +
-                        "is performing  split-brain merge and the coordinator is not known";
+                String msg = operationName() + " failed for job " + idAndName() + " because the cluster "
+                        + "is performing  split-brain merge and the coordinator is not known";
                 logger.warning(msg, t);
                 future.internalCompleteExceptionally(new CancellationException(msg));
                 return;

@@ -89,9 +89,15 @@ public final class Tag<T> implements Comparable<Tag<?>>, Serializable {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public boolean equals(Object obj) {
-        return this == obj ||
-                obj instanceof Tag && this.index == ((Tag) obj).index;
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Tag)) {
+            return false;
+        }
+        return this.index == ((Tag) obj).index;
     }
 
     @Override

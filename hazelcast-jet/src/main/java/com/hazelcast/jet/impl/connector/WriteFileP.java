@@ -245,8 +245,8 @@ public final class WriteFileP<T> implements Processor {
         if (Files.exists(tempFile)) {
             Files.move(tempFile, finalFile, StandardCopyOption.ATOMIC_MOVE);
         } else if (!Files.exists(finalFile)) {
-            context.logger().warning("Neither temporary nor final file from the previous execution exists, data loss " +
-                    "might occur: " + tempFile);
+            context.logger().warning("Neither temporary nor final file from the previous execution exists, data loss "
+                    + "might occur: " + tempFile);
         }
     }
 

@@ -42,8 +42,11 @@ public class MetricsDataSerializerHook implements DataSerializerHook {
      */
     public static final int MEASUREMENT = 1;
 
-    public static final int FACTORY_ID = FactoryIdHelper.getFactoryId(JET_JOB_METRICS_DS_FACTORY,
-            JET_JOB_METRICS_DS_FACTORY_ID);
+    /**
+     * Factory ID of Jet Job Metrics
+     */
+    public static final int FACTORY_ID =
+            FactoryIdHelper.getFactoryId(JET_JOB_METRICS_DS_FACTORY, JET_JOB_METRICS_DS_FACTORY_ID);
 
     @Override
     public int getFactoryId() {

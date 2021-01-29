@@ -205,8 +205,8 @@ public final class ExceptionUtil {
         while (cause != null) {
             if (cause instanceof ClassCastException
                     && cause.getMessage().startsWith("cannot assign instance of java.lang.invoke.SerializedLambda")) {
-                throw new JetException("Class containing the lambda probably missing from class path, did you add it " +
-                        "using JobConfig.addClass()?: " + e, e);
+                throw new JetException("Class containing the lambda probably missing from class path, did you add it "
+                        + "using JobConfig.addClass()?: " + e, e);
             }
             cause = cause.getCause();
         }

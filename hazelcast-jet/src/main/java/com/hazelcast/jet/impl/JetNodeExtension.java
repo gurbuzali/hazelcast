@@ -38,8 +38,8 @@ public class JetNodeExtension extends DefaultNodeExtension implements JetPacketC
     public void beforeStart() {
         JetConfig jetConfig = node.getConfig().getJetConfig();
         if (jetConfig.getInstanceConfig().isLosslessRestartEnabled()) {
-            throw new UnsupportedOperationException("Lossless Restart is not available in the open-source version of " +
-                    "Hazelcast Jet");
+            throw new UnsupportedOperationException("Lossless Restart is not available in the open-source version of "
+                    + "Hazelcast Jet");
         }
         super.beforeStart();
     }

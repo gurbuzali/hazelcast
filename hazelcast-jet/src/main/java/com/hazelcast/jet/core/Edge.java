@@ -83,11 +83,13 @@ public class Edge implements IdentifiedDataSerializable {
         }
     }
 
-    private Vertex source; // transient field, restored during DAG deserialization
+    // transient field, restored during DAG deserialization
+    private Vertex source;
     private String sourceName;
     private int sourceOrdinal;
 
-    private Vertex destination; // transient field, restored during DAG deserialization
+    // transient field, restored during DAG deserialization
+    private Vertex destination;
     private String destName;
     private int destOrdinal;
 
@@ -578,10 +580,14 @@ public class Edge implements IdentifiedDataSerializable {
 
     @Override
     public boolean equals(Object obj) {
-        final Edge that;
-        return this == obj
-                || obj instanceof Edge
-                    && this.sourceName.equals((that = (Edge) obj).sourceName)
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Edge)) {
+            return false;
+        }
+        Edge that = (Edge) obj;
+        return this.sourceName.equals(that.sourceName)
                     && this.destName.equals(that.destName)
                     && this.sourceOrdinal == that.sourceOrdinal
                     && this.destOrdinal == that.destOrdinal;

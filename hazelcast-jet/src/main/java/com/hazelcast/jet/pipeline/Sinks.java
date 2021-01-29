@@ -882,7 +882,8 @@ public final class Sinks {
      */
     @Nonnull
     public static <T> Sink<T> remoteReliableTopic(@Nonnull String reliableTopicName, @Nonnull ClientConfig clientConfig) {
-        String clientXml = asXmlString(clientConfig); //conversion needed for serializability
+        //conversion needed for serializability
+        String clientXml = asXmlString(clientConfig);
         return SinkBuilder.<ITopic<T>>sinkBuilder("reliableTopicSink(" + reliableTopicName + "))",
                 ctx -> newHazelcastClient(asClientConfig(clientXml)).getReliableTopic(reliableTopicName))
                 .<T>receiveFn(ITopic::publish)

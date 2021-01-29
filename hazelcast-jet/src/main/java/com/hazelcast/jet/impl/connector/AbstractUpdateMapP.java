@@ -213,7 +213,7 @@ public abstract class AbstractUpdateMapP<T, K, V> extends AsyncHazelcastWriterP 
 
         private Map<Data, Object> keysToUpdate;
 
-        public ApplyValuesEntryProcessor() { //needed for (de)serialization
+        public ApplyValuesEntryProcessor() {
         }
 
         public ApplyValuesEntryProcessor(Map<Data, Object> keysToUpdate) {

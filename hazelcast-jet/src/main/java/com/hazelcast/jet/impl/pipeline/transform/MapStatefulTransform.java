@@ -55,6 +55,6 @@ public class MapStatefulTransform<T, K, S, R> extends StatefulKeyedTransformBase
         determineLocalParallelism(LOCAL_PARALLELISM_USE_DEFAULT, context, false);
         PlannerVertex pv = p.addVertex(this, name(), determinedLocalParallelism(),
                 mapStatefulP(ttl, keyFn, timestampFn, createFn, statefulMapFn, onEvictFn));
-        p.addEdges(this, pv.v, edge -> edge.partitioned(keyFn).distributed());
+        p.addEdges(this, pv.vertex(), edge -> edge.partitioned(keyFn).distributed());
     }
 }

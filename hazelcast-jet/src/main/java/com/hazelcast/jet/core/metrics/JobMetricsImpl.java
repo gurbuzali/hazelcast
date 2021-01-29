@@ -51,9 +51,10 @@ public final class JobMetricsImpl implements JobMetrics, IdentifiedDataSerializa
     private static final Collector<Measurement, ?, Map<String, List<Measurement>>> COLLECTOR =
         Collectors.groupingBy(Measurement::metric);
 
-    private Map<String, List<Measurement>> metrics; //metric name -> set of measurements
+    //metric name -> set of measurements
+    private Map<String, List<Measurement>> metrics;
 
-    JobMetricsImpl() { //needed for deserialization
+    JobMetricsImpl() {
     }
 
     private JobMetricsImpl(@Nonnull Map<String, List<Measurement>> metrics) {

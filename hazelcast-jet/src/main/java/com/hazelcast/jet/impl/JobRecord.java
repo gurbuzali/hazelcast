@@ -119,13 +119,13 @@ public class JobRecord implements IdentifiedDataSerializable {
 
     @Override
     public String toString() {
-        return "JobRecord{" +
-                "jobId=" + idToString(jobId) +
-                ", name=" + getConfig().getName() +
-                ", creationTime=" + toLocalDateTime(creationTime) +
-                ", dagJson=" + dagJson +
-                ", config=" + config +
-                ", ownedObservables=" + ownedObservables +
-                '}';
+        return "JobRecord{"
+                + "jobId=" + idToString(jobId)
+                + ", name=" + getConfig().getName()
+                + ", creationTime=" + toLocalDateTime(creationTime)
+                + ", dagJson=" + dagJson
+                + ", config=" + config
+                + ", ownedObservables=" + ownedObservables
+                + '}';
     }
 }

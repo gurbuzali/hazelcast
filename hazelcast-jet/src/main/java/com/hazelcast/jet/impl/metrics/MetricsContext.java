@@ -47,7 +47,8 @@ public class MetricsContext implements DynamicMetricsProvider {
     }
 
     private Metric metric(String name, Unit unit, BiFunction<String, Unit, AbstractMetric> metricSupplier) {
-        if (metrics == null) { //first metric being stored
+        //first metric being stored
+        if (metrics == null) {
             metrics = new ConcurrentHashMap<>();
         }
 

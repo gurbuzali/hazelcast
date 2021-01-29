@@ -1354,13 +1354,13 @@ public final class AggregateOperations {
                     op0.accumulateFn().accept(acc.f0(), item);
                     op1.accumulateFn().accept(acc.f1(), item);
                 })
-                .andCombine(combine0 == null || combine1 == null ? null :
-                        (acc1, acc2) -> {
+                .andCombine(combine0 == null || combine1 == null ? null
+                        : (acc1, acc2) -> {
                             combine0.accept(acc1.f0(), acc2.f0());
                             combine1.accept(acc1.f1(), acc2.f1());
                         })
-                .andDeduct(deduct0 == null || deduct1 == null ? null :
-                        (acc1, acc2) -> {
+                .andDeduct(deduct0 == null || deduct1 == null ? null
+                        : (acc1, acc2) -> {
                             deduct0.accept(acc1.f0(), acc2.f0());
                             deduct1.accept(acc1.f1(), acc2.f1());
                         })
@@ -1440,14 +1440,14 @@ public final class AggregateOperations {
                     op1.accumulateFn().accept(acc.f1(), item);
                     op2.accumulateFn().accept(acc.f2(), item);
                 })
-                .andCombine(combine0 == null || combine1 == null || combine2 == null ? null :
-                        (acc1, acc2) -> {
+                .andCombine(combine0 == null || combine1 == null || combine2 == null ? null
+                        : (acc1, acc2) -> {
                             combine0.accept(acc1.f0(), acc2.f0());
                             combine1.accept(acc1.f1(), acc2.f1());
                             combine2.accept(acc1.f2(), acc2.f2());
                         })
-                .andDeduct(deduct0 == null || deduct1 == null || deduct2 == null ? null :
-                        (acc1, acc2) -> {
+                .andDeduct(deduct0 == null || deduct1 == null || deduct2 == null ? null
+                        : (acc1, acc2) -> {
                             deduct0.accept(acc1.f0(), acc2.f0());
                             deduct1.accept(acc1.f1(), acc2.f1());
                             deduct2.accept(acc1.f2(), acc2.f2());
@@ -1590,13 +1590,13 @@ public final class AggregateOperations {
                 .withCreate(() -> tuple2(op0.createFn().get(), op1.createFn().get()))
                 .<T0>andAccumulate0((acc, item) -> op0.accumulateFn().accept(acc.f0(), item))
                 .<T1>andAccumulate1((acc, item) -> op1.accumulateFn().accept(acc.f1(), item))
-                .andCombine(combine0 == null || combine1 == null ? null :
-                        (acc1, acc2) -> {
+                .andCombine(combine0 == null || combine1 == null ? null
+                        : (acc1, acc2) -> {
                             combine0.accept(acc1.f0(), acc2.f0());
                             combine1.accept(acc1.f1(), acc2.f1());
                         })
-                .andDeduct(deduct0 == null || deduct1 == null ? null :
-                        (acc1, acc2) -> {
+                .andDeduct(deduct0 == null || deduct1 == null ? null
+                        : (acc1, acc2) -> {
                             deduct0.accept(acc1.f0(), acc2.f0());
                             deduct1.accept(acc1.f1(), acc2.f1());
                         })
@@ -1711,14 +1711,14 @@ public final class AggregateOperations {
                 .<T0>andAccumulate0((acc, item) -> op0.accumulateFn().accept(acc.f0(), item))
                 .<T1>andAccumulate1((acc, item) -> op1.accumulateFn().accept(acc.f1(), item))
                 .<T2>andAccumulate2((acc, item) -> op2.accumulateFn().accept(acc.f2(), item))
-                .andCombine(combine0 == null || combine1 == null || combine2 == null ? null :
-                        (acc1, acc2) -> {
+                .andCombine(combine0 == null || combine1 == null || combine2 == null ? null
+                        : (acc1, acc2) -> {
                             combine0.accept(acc1.f0(), acc2.f0());
                             combine1.accept(acc1.f1(), acc2.f1());
                             combine2.accept(acc1.f2(), acc2.f2());
                         })
-                .andDeduct(deduct0 == null || deduct1 == null || deduct2 == null ? null :
-                        (acc1, acc2) -> {
+                .andDeduct(deduct0 == null || deduct1 == null || deduct2 == null ? null
+                        : (acc1, acc2) -> {
                             deduct0.accept(acc1.f0(), acc2.f0());
                             deduct1.accept(acc1.f1(), acc2.f1());
                             deduct2.accept(acc1.f2(), acc2.f2());

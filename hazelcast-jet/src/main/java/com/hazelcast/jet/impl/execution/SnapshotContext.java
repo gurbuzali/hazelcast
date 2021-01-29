@@ -134,7 +134,9 @@ public class SnapshotContext {
                            ProcessingGuarantee guarantee
     ) {
         this.jobNameAndExecutionId = jobNameAndExecutionId;
-        this.activeSnapshotIdPhase1 = activeSnapshotIdPhase2 = currentSnapshotId = activeSnapshotId;
+        this.activeSnapshotIdPhase1 = activeSnapshotId;
+        this.activeSnapshotIdPhase2 = activeSnapshotId;
+        this.currentSnapshotId = activeSnapshotId;
         this.guarantee = guarantee;
         this.logger = logger;
     }
@@ -210,8 +212,8 @@ public class SnapshotContext {
                     + currentSnapshotId + ", new=" + snapshotId);
         }
         assert snapshotId == currentSnapshotId + 1
-                : "New snapshotId for " + jobNameAndExecutionId + " not incremented by 1. " +
-                        "Previous=" + currentSnapshotId + ", new=" + snapshotId;
+                : "New snapshotId for " + jobNameAndExecutionId + " not incremented by 1. "
+                        + "Previous=" + currentSnapshotId + ", new=" + snapshotId;
         assert currentSnapshotId == activeSnapshotIdPhase1 : "last snapshot was postponed but not started";
         assert numSsTasklets >= 0 : "numSsTasklets=" + numSsTasklets;
         assert phase1Future == null : "phase 1 already in progress";
@@ -235,8 +237,8 @@ public class SnapshotContext {
         } else {
             // the snapshot will be started once all higher priority sources are done
             // see #taskletDone()
-            logger.info("Snapshot " + snapshotId + " for " + jobNameAndExecutionId + " is postponed" +
-                    " until all higher priority vertices are completed (number of such vertices = "
+            logger.info("Snapshot " + snapshotId + " for " + jobNameAndExecutionId + " is postponed"
+                    + " until all higher priority vertices are completed (number of such vertices = "
                     + numPrioritySsTasklets + ')');
         }
         if (numSsTasklets == 0) {

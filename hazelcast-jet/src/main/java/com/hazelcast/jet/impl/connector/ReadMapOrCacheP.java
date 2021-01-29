@@ -33,7 +33,6 @@ import com.hazelcast.cluster.Address;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.BiFunctionEx;
 import com.hazelcast.function.FunctionEx;
-import com.hazelcast.instance.impl.HazelcastInstanceImpl;
 import com.hazelcast.internal.iteration.IterationPointer;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.InternalSerializationService;
@@ -169,13 +168,16 @@ public final class ReadMapOrCacheP<F extends CompletableFuture, B, R> extends Ab
         while (currentBatch.size() == currentBatchPosition && ++currentPartitionIndex < partitionIds.length) {
             IterationPointer[] partitionPointers = readPointers[currentPartitionIndex];
 
-            if (isDone(partitionPointers)) {  // partition is completed
+
+            if (isDone(partitionPointers)) {
+                // partition is completed
                 assert readFutures[currentPartitionIndex] == null : "future not null";
                 continue;
             }
 
             F future = readFutures[currentPartitionIndex];
-            if (!future.isDone()) {  // data for partition not yet available
+            if (!future.isDone()) {
+                // data for partition not yet available
                 continue;
             }
 
@@ -215,9 +217,9 @@ public final class ReadMapOrCacheP<F extends CompletableFuture, B, R> extends Ab
         } catch (ExecutionException e) {
             Throwable ex = peel(e);
             if (ex instanceof HazelcastSerializationException) {
-                throw new JetException("Serialization error when reading the map: are the key, value, " +
-                        "predicate and projection classes visible to IMDG? You need to use User Code " +
-                        "Deployment, adding the classes to JetConfig isn't enough", e);
+                throw new JetException("Serialization error when reading the map: are the key, value, "
+                        + "predicate and projection classes visible to IMDG? You need to use User Code "
+                        + "Deployment, adding the classes to JetConfig isn't enough", e);
             } else {
                 throw rethrow(ex);
             }

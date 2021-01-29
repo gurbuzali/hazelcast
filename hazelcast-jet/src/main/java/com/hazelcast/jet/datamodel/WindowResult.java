@@ -91,12 +91,15 @@ public class WindowResult<R> {
 
     @Override
     @SuppressWarnings("rawtypes")
-    public boolean equals(Object obj) {
-        WindowResult that;
-        return this == obj
-                || obj != null
-                && obj.getClass() == getClass()
-                && this.start == (that = (WindowResult) obj).start
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        WindowResult that = (WindowResult) o;
+        return this.start == that.start
                 && this.end == that.end
                 && this.isEarly == that.isEarly
                 && Objects.equals(this.result, that.result);

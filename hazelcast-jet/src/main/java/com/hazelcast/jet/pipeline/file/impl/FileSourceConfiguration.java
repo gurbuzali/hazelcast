@@ -99,13 +99,13 @@ public class FileSourceConfiguration<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "FileSourceConfiguration{" +
-                "path='" + path + '\'' +
-                ", glob='" + glob + '\'' +
-                ", format=" + format +
-                ", sharedFileSystem=" + sharedFileSystem +
-                ", ignoreFileNotFound=" + ignoreFileNotFound +
-                ", options=" + options +
-                '}';
+        return "FileSourceConfiguration{"
+                + "path='" + path + '\''
+                + ", glob='" + glob + '\''
+                + ", format=" + format
+                + ", sharedFileSystem=" + sharedFileSystem
+                + ", ignoreFileNotFound=" + ignoreFileNotFound
+                + ", options=" + options
+                + '}';
     }
 }

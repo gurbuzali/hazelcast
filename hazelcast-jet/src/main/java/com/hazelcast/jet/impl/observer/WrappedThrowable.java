@@ -33,7 +33,7 @@ public class WrappedThrowable implements IdentifiedDataSerializable {
 
     private Throwable throwable;
 
-    WrappedThrowable() { //needed for deserialization
+    WrappedThrowable() {
     }
 
     private WrappedThrowable(Throwable throwable) {

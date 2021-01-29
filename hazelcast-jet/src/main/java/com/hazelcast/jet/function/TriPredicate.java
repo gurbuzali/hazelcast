@@ -28,6 +28,10 @@ import static com.hazelcast.internal.util.Preconditions.checkNotNull;
  * Represents a predicate which accepts three arguments. This
  * is the three-arity specialization of {@link Predicate}.
  *
+ * @param <T> the type of the first argument
+ * @param <U> the type of the second argument
+ * @param <V> the type of the third argument
+ *
  * @since 3.0
  */
 @FunctionalInterface
@@ -57,7 +61,6 @@ public interface TriPredicate<T, U, V> extends Serializable {
     /**
      * Returns a composite predicate which evaluates the
      * equivalent of {@code this.test(t, u, v) && other.test(t, u, v)}.
-     *
      */
     default TriPredicate<T, U, V> and(
             @Nonnull TriPredicate<? super T, ? super U, ? super V> other

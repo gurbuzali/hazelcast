@@ -419,7 +419,8 @@ public final class Util {
         return value.replace("\"", "\\\"");
     }
 
-    @SuppressWarnings("WeakerAccess")  // used in jet-enterprise
+    // used in jet-enterprise
+    @SuppressWarnings("WeakerAccess")
     public static CompletableFuture<Void> copyMapUsingJob(HazelcastInstance instance, int queueSize,
                                                           String sourceMap, String targetMap) {
         DAG dag = new DAG();
@@ -536,7 +537,7 @@ public final class Util {
      * </ul>
      */
     @Nonnull
-    @SuppressWarnings("checkstyle:MagicNumber") // number of hours per day isn't magic :)
+    @SuppressWarnings("checkstyle:MagicNumber")
     public static String formatJobDuration(long durationMs) {
         if (durationMs == Long.MIN_VALUE) {
             return "" + Long.MIN_VALUE;

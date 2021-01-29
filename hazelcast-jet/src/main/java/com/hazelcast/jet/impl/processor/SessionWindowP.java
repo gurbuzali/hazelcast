@@ -130,8 +130,8 @@ public class SessionWindowP<K, A, R, OUT> extends AbstractProcessor {
             @Nonnull AggregateOperation<A, ? extends R> aggrOp,
             @Nonnull KeyedWindowResultFunction<? super K, ? super R, ? extends OUT> mapToOutputFn
     ) {
-        checkTrue(keyFns.size() == aggrOp.arity(), keyFns.size() + " key functions " +
-                "provided for " + aggrOp.arity() + "-arity aggregate operation");
+        checkTrue(keyFns.size() == aggrOp.arity(), keyFns.size() + " key functions "
+                + "provided for " + aggrOp.arity() + "-arity aggregate operation");
         this.timestampFns = (List<ToLongFunction<Object>>) timestampFns;
         this.keyFns = (List<Function<Object, K>>) keyFns;
         this.earlyResultsPeriod = earlyResultsPeriod;

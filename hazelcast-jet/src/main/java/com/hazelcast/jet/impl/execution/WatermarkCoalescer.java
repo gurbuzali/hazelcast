@@ -169,8 +169,8 @@ public abstract class WatermarkCoalescer {
         public long observeWm(int queueIndex, long wmValue) {
             assert queueIndex == 0 : "queueIndex=" + queueIndex;
             if (queueWm.get() >= wmValue) {
-                throw new JetException("Watermarks not monotonically increasing on queue: " +
-                        "last one=" + queueWm + ", new one=" + wmValue);
+                throw new JetException("Watermarks not monotonically increasing on queue: "
+                        + "last one=" + queueWm + ", new one=" + wmValue);
             }
             if (wmValue != IDLE_MESSAGE.timestamp()) {
                 queueWm.set(wmValue);
@@ -230,8 +230,8 @@ public abstract class WatermarkCoalescer {
         @Override
         public long observeWm(int queueIndex, long wmValue) {
             if (queueWms[queueIndex] >= wmValue) {
-                throw new JetException("Watermarks not monotonically increasing on queue: " +
-                        "last one=" + queueWms[queueIndex] + ", new one=" + wmValue);
+                throw new JetException("Watermarks not monotonically increasing on queue: "
+                        + "last one=" + queueWms[queueIndex] + ", new one=" + wmValue);
             }
 
             if (wmValue == IDLE_MESSAGE.timestamp()) {

@@ -180,7 +180,8 @@ public final class JmsSinkBuilder<T> {
         }
 
         FunctionEx<ConnectionFactory, Connection> connectionFnLocal = connectionFn;
-        @SuppressWarnings("UnnecessaryLocalVariable") // it's necessary to not capture this in the lambda
+        // it's necessary to not capture this in the lambda
+        @SuppressWarnings("UnnecessaryLocalVariable")
         SupplierEx<ConnectionFactory> factorySupplierLocal = factorySupplier;
         SupplierEx<Connection> newConnectionFn = () -> connectionFnLocal.apply(factorySupplierLocal.get());
         return Sinks.fromProcessor(sinkName(),

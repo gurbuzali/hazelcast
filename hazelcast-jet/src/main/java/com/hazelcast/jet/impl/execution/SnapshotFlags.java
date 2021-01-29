@@ -30,7 +30,8 @@ public final class SnapshotFlags {
      * If set, the snapshot is an export (with or without cancellation). If not
      * set, it's an automatic snapshot for fault tolerance.
      */
-    private static final int EXPORT = 2; // 0b10
+    // 0b10
+    private static final int EXPORT = 2;
 
     private SnapshotFlags() { }
 

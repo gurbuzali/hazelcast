@@ -71,12 +71,16 @@ public class TimestampedItem<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean equals(Object obj) {
-        TimestampedItem<T> that;
-        return obj != null
-                && this.getClass() == obj.getClass()
-                && this.timestamp == (that = (TimestampedItem<T>) obj).timestamp
+    @SuppressWarnings("rawtypes")
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        TimestampedItem that = (TimestampedItem) o;
+        return this.timestamp == that.timestamp
                 && Objects.equals(this.item, that.item);
     }
 

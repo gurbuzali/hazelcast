@@ -153,8 +153,8 @@ public class StreamJmsP<T> extends AbstractProcessor {
                     }
                     Object msgId = messageIdFn.apply(t);
                     if (msgId == null) {
-                        throw new JetException("Received a message without an ID. All messages must have an ID, " +
-                                "you can specify an extracting function using "
+                        throw new JetException("Received a message without an ID. All messages must have an ID, "
+                                + "you can specify an extracting function using "
                                 + JmsSourceBuilder.class.getSimpleName() + ".messageIdFn()");
                     }
                     seenIds.add(msgId);

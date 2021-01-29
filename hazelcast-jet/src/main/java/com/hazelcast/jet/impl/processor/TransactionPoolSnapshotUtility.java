@@ -169,8 +169,12 @@ public class TransactionPoolSnapshotUtility<TXN_ID extends TransactionId, RES ex
             return true;
         }
         activeTransactionUsed = false;
+
         // `flushed` is used to avoid double flushing when outbox.offerToSnapshot() fails
-        if (!flushed && !(flushed = transactionToCommit.flush())) {
+        if (!flushed) {
+            flushed = transactionToCommit.flush();
+        }
+        if (!flushed) {
             procContext().logger().fine("flush returned false");
             return false;
         }

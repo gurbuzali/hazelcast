@@ -152,14 +152,14 @@ public class JobSummary implements IdentifiedDataSerializable {
 
     @Override
     public String toString() {
-        return "JobSummary{" +
-                "jobId=" + idToString(jobId) +
-                ", executionId=" + idToString(executionId) +
-                ", name='" + name + '\'' +
-                ", status=" + status +
-                ", submissionTime=" + toLocalTime(submissionTime) +
-                ", completionTime=" + toLocalTime(completionTime) +
-                ", failureText=" + failureText +
-                '}';
+        return "JobSummary{"
+                + "jobId=" + idToString(jobId)
+                + ", executionId=" + idToString(executionId)
+                + ", name='" + name + '\''
+                + ", status=" + status
+                + ", submissionTime=" + toLocalTime(submissionTime)
+                + ", completionTime=" + toLocalTime(completionTime)
+                + ", failureText=" + failureText
+                + '}';
     }
 }

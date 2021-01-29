@@ -89,7 +89,7 @@ public abstract class ComputeStageImplBase<T> extends AbstractStage {
     static final FunctionAdapter DO_NOT_ADAPT = new FunctionAdapter();
 
     @Nonnull
-    public final FunctionAdapter fnAdapter;
+    protected final FunctionAdapter fnAdapter;
     final boolean isRebalanceOutput;
     final FunctionEx<? super T, ?> rebalanceKeyFn;
 
@@ -120,6 +120,11 @@ public abstract class ComputeStageImplBase<T> extends AbstractStage {
 
     ComputeStageImplBase(ComputeStageImplBase<T> toCopy, FunctionEx<? super T, ?> rebalanceKeyFn) {
         this(toCopy.transform, toCopy.fnAdapter, toCopy.pipelineImpl, true, rebalanceKeyFn);
+    }
+
+    @Nonnull
+    public FunctionAdapter getFnAdapter() {
+        return fnAdapter;
     }
 
     @Nonnull
@@ -579,9 +584,9 @@ public abstract class ComputeStageImplBase<T> extends AbstractStage {
     static void ensureJetEvents(@Nonnull ComputeStageImplBase stage, @Nonnull String name) {
         if (stage.fnAdapter != ADAPT_TO_JET_EVENT) {
             throw new IllegalStateException(
-                    name + " is missing a timestamp definition. Call" +
-                            " one of the .addTimestamps() methods on it before performing" +
-                            " the aggregation."
+                    name + " is missing a timestamp definition. Call"
+                            + " one of the .addTimestamps() methods on it before performing"
+                            + " the aggregation."
             );
         }
     }

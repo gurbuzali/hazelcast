@@ -55,10 +55,10 @@ public class SimpleEvent implements Serializable {
 
     @Override
     public String toString() {
-        return "SimpleEvent(" +
-            "timestamp=" + Util.toLocalTime(timestamp) +
-            ", sequence=" + sequence +
-            ')';
+        return "SimpleEvent("
+            + "timestamp=" + Util.toLocalTime(timestamp)
+            + ", sequence=" + sequence
+            + ')';
     }
 
     @Override
@@ -70,8 +70,8 @@ public class SimpleEvent implements Serializable {
             return false;
         }
         SimpleEvent that = (SimpleEvent) o;
-        return timestamp == that.timestamp &&
-            sequence == that.sequence;
+        return timestamp == that.timestamp
+                && sequence == that.sequence;
     }
 
     @Override

@@ -127,6 +127,6 @@ public final class PartitionedProcessorTransform<T, K> extends ProcessorTransfor
     public void addToDag(Planner p, Context context) {
         determineLocalParallelism(processorSupplier.preferredLocalParallelism(), context, p.isPreserveOrder());
         PlannerVertex pv = p.addVertex(this, name(), determinedLocalParallelism(), processorSupplier);
-        p.addEdges(this, pv.v, e -> e.partitioned(partitionKeyFn).distributed());
+        p.addEdges(this, pv.vertex(), e -> e.partitioned(partitionKeyFn).distributed());
     }
 }

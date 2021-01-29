@@ -56,7 +56,8 @@ public class LongStreamSourceP extends AbstractProcessor {
     private Traverser<Object> traverser = new AppendableTraverser<>(2);
 
     LongStreamSourceP(long startTime, long eventsPerSecond, EventTimePolicy<? super Long> eventTimePolicy) {
-        this.startNanoTime = startTime; // temporarily holds the parameter value until init
+        // temporarily holds the parameter value until init
+        this.startNanoTime = startTime;
         this.eventsPerSecond = eventsPerSecond;
         this.eventTimeMapper = new EventTimeMapper<>(eventTimePolicy);
         eventTimeMapper.addPartitions(1);
@@ -68,9 +69,10 @@ public class LongStreamSourceP extends AbstractProcessor {
         totalParallelism = context.totalParallelism();
         globalProcessorIndex = context.globalProcessorIndex();
         valueToEmit = globalProcessorIndex;
-        startNanoTime = MILLISECONDS.toNanos(startNanoTime + nanoTimeMillisToCurrentTimeMillis) +
-                valueToEmit * NANOS_PER_SECOND / eventsPerSecond;
-        lastCallNanos = lastReportNanos = startNanoTime;
+        startNanoTime = MILLISECONDS.toNanos(startNanoTime + nanoTimeMillisToCurrentTimeMillis)
+                + valueToEmit * NANOS_PER_SECOND / eventsPerSecond;
+        lastCallNanos = startNanoTime;
+        lastReportNanos = startNanoTime;
     }
 
     @Override

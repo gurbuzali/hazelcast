@@ -120,9 +120,9 @@ public class OutboxImpl implements OutboxInternal {
                 : "Offered to different ordinals after previous call returned false: expected="
                 + Arrays.toString(unfinishedItemOrdinals) + ", got=" + Arrays.toString(ordinals);
 
-        assert numRemainingInBatch != -1 : "Outbox.offer() called again after it returned false, without a " +
-                "call to reset(). You probably didn't return from Processor method after Outbox.offer() " +
-                "or AbstractProcessor.tryEmit() returned false";
+        assert numRemainingInBatch != -1 : "Outbox.offer() called again after it returned false, without a "
+                + "call to reset(). You probably didn't return from Processor method after Outbox.offer() "
+                + "or AbstractProcessor.tryEmit() returned false";
         numRemainingInBatch--;
         boolean done = true;
         if (numRemainingInBatch == -1) {
@@ -170,12 +170,17 @@ public class OutboxImpl implements OutboxInternal {
         } else {
             numRemainingInBatch = -1;
             unfinishedItem = item;
-            // Defensively copy the array as it can be mutated.
-            // We intentionally only do it when assertions are enabled to reduce the overhead.
-            //noinspection ConstantConditions,AssertWithSideEffects
-            assert (unfinishedItemOrdinals = Arrays.copyOf(ordinals, ordinals.length)) != null;
+            assertOrdinals(ordinals);
         }
         return done;
+    }
+
+    @SuppressWarnings("checkstyle:InnerAssignment")
+    private void assertOrdinals(int[] ordinals) {
+        // Defensively copy the array as it can be mutated.
+        // We intentionally only do it when assertions are enabled to reduce the overhead.
+        //noinspection ConstantConditions,AssertWithSideEffects
+        assert (unfinishedItemOrdinals = Arrays.copyOf(ordinals, ordinals.length)) != null;
     }
 
     @Override

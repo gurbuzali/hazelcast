@@ -136,8 +136,8 @@ public final class ExecutionPlanBuilder {
         for (int partitionId = 0; partitionId < partitionOwners.length; partitionId++) {
             Address address = partitionService.getPartitionOwnerOrWait(partitionId);
 
-            MemberInfo member;
-            if ((member = membersView.getMember(address)) == null) {
+            MemberInfo member = membersView.getMember(address);
+            if (member == null) {
                 // Address in partition table doesn't exist in member list,
                 // it has just joined the cluster.
                 throw new TopologyChangedException("Topology changed, " + address + " is not in original member list");

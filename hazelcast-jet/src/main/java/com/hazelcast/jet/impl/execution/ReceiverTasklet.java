@@ -258,7 +258,8 @@ public class ReceiverTasklet implements Tasklet {
     // Only one thread writes to ackedSeq
     @SuppressWarnings("NonAtomicOperationOnVolatileField")
     long ackItem(long itemWeight) {
-        return ackedSeq += itemWeight;
+        ackedSeq += itemWeight;
+        return ackedSeq;
     }
 
     /**
@@ -277,6 +278,7 @@ public class ReceiverTasklet implements Tasklet {
         return (int) (seq >> COMPRESSED_SEQ_UNIT_LOG2);
     }
 
+    @SuppressWarnings("checkstyle:TrailingComment")
     static long estimatedMemoryFootprint(long itemBlobSize) {
         final int inboxSlot = 4; // slot in ArrayDeque<ObjPtionAndSenderId> inbox
         final int objPtionAndSenderIdHeader = 16; // object header of ObjPtionAndSenderId instance

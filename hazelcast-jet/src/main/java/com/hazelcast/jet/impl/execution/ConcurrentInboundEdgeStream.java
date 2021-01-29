@@ -138,13 +138,15 @@ public final class ConcurrentInboundEdgeStream {
     private static final class RoundRobinDrain extends InboundEdgeStreamBase {
         private final ItemDetector itemDetector = new ItemDetector();
         private final WatermarkCoalescer watermarkCoalescer;
-        private final BitSet receivedBarriers; // indicates if current snapshot is received on the queue
+        // indicates if current snapshot is received on the queue
+        private final BitSet receivedBarriers;
         // Tells whether we are operating in exactly-once or at-least-once mode.
         // In other words, whether a barrier from all queues must be present before
         // draining more items from a queue where a barrier has been reached.
         // Once a terminal snapshot barrier is reached, this is always true.
         private boolean waitForAllBarriers;
-        private SnapshotBarrier currentBarrier;  // next snapshot barrier to emit
+        // next snapshot barrier to emit
+        private SnapshotBarrier currentBarrier;
 
         RoundRobinDrain(
                 @Nonnull ConcurrentConveyor<Object> conveyor,
@@ -382,8 +384,8 @@ public final class ConcurrentInboundEdgeStream {
                 }
                 // return the item
                 drainedItems.get(lastMinIndex).remove();
-                assert lastItem == null || comparator.compare(lastItem, minItem) <= 0 :
-                        "Disorder on a monotonicOrder edge";
+                assert lastItem == null || comparator.compare(lastItem, minItem) <= 0
+                        : "Disorder on a monotonicOrder edge";
                 lastItem = minItem;
                 boolean consumeResult = dest.test(lastItem);
                 assert consumeResult : "consumeResult is false";

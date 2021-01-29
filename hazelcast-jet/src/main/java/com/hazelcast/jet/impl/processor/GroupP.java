@@ -55,8 +55,8 @@ public class GroupP<K, A, R, OUT> extends AbstractProcessor {
             @Nonnull AggregateOperation<A, R> aggrOp,
             @Nonnull BiFunction<? super K, ? super R, OUT> mapToOutputFn
     ) {
-        checkTrue(groupKeyFns.size() == aggrOp.arity(), groupKeyFns.size() + " key functions " +
-                "provided for " + aggrOp.arity() + "-arity aggregate operation");
+        checkTrue(groupKeyFns.size() == aggrOp.arity(), groupKeyFns.size() + " key functions "
+                + "provided for " + aggrOp.arity() + "-arity aggregate operation");
         this.groupKeyFns = groupKeyFns;
         this.aggrOp = aggrOp;
         this.mapToOutputFn = mapToOutputFn;

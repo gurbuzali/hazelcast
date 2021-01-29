@@ -276,8 +276,8 @@ public class MasterContext {
                 errorCallback.accept(throwable);
             }
             Object oldResponse = collectedResponses.put(memberInfo, response);
-            assert oldResponse == null :
-                    "Duplicate response for " + memberInfo.getAddress() + ". Old=" + oldResponse + ", new=" + response;
+            assert oldResponse == null : "Duplicate response for " + memberInfo.getAddress()
+                    + ". Old=" + oldResponse + ", new=" + response;
             if (remainingCount.decrementAndGet() == 0 && completionCallback != null) {
                 completionCallback.accept(collectedResponses.entrySet().stream()
                         .map(e -> e.getValue() == NULL_OBJECT ? entry(e.getKey(), null) : e)

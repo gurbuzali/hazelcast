@@ -164,7 +164,8 @@ public final class PeekWrappedP<T> extends ProcessorWrapper {
 
         @Override
         public void clear() {
-            while (poll() != null) { }
+            wrappedInbox.clear();
+            // while (poll() != null) {} TODO why logging when clearing ?
         }
 
         @Override

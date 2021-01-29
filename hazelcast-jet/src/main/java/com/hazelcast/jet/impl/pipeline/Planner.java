@@ -67,8 +67,8 @@ public class Planner {
      */
     private static final int MAXIMUM_WATERMARK_GAP = 1000;
 
-    public final DAG dag = new DAG();
-    public final Map<Transform, PlannerVertex> xform2vertex = new HashMap<>();
+    private final DAG dag = new DAG();
+    private final Map<Transform, PlannerVertex> xform2vertex = new HashMap<>();
     private final PipelineImpl pipeline;
 
     Planner(PipelineImpl pipeline) {
@@ -281,8 +281,8 @@ public class Planner {
             edge.partitioned(keyFn);
         }
         if (edge.getRoutingPolicy() == Edge.RoutingPolicy.ISOLATED) {
-            throw new IllegalArgumentException("Using rebalance without a key directly breaks the order. " +
-                    "When the \"preserveOrder\" property is active, rebalance without a key is not allowed to use");
+            throw new IllegalArgumentException("Using rebalance without a key directly breaks the order. "
+                    + "When the \"preserveOrder\" property is active, rebalance without a key is not allowed to use");
         }
     }
 
@@ -292,6 +292,18 @@ public class Planner {
 
     public void addEdges(Transform transform, Vertex toVertex) {
         addEdges(transform, toVertex, e -> { });
+    }
+
+    public DAG getDag() {
+        return dag;
+    }
+
+    public PlannerVertex getPlannerVertex(Transform transform) {
+        return xform2vertex.get(transform);
+    }
+
+    public void putPlannerVertex(Transform transform, PlannerVertex plannerVertex) {
+        xform2vertex.put(transform, plannerVertex);
     }
 
     /**
@@ -311,7 +323,8 @@ public class Planner {
     }
 
     public static class PlannerVertex {
-        public final Vertex v;
+
+        private final Vertex v;
 
         private int availableOrdinal;
 
@@ -326,6 +339,10 @@ public class Planner {
 
         public int nextAvailableOrdinal() {
             return availableOrdinal++;
+        }
+
+        public Vertex vertex() {
+            return v;
         }
     }
 }

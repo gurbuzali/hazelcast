@@ -209,8 +209,8 @@ public class EventTimeMapper<T> {
      * the expensive {@code System.nanoTime()} call.
      */
     public Traverser<Object> flatMapEvent(long now, @Nullable T event, int partitionIndex, long nativeEventTime) {
-        assert traverser.isEmpty() : "the traverser returned previously not yet drained: remove all " +
-                "items from the traverser before you call this method again.";
+        assert traverser.isEmpty() : "the traverser returned previously not yet drained: remove all "
+                + "items from the traverser before you call this method again.";
         if (event == null) {
             handleNoEventInternal(now, Long.MAX_VALUE);
             return traverser;

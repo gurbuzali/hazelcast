@@ -26,7 +26,6 @@ import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.core.BroadcastKey;
-import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.core.ResettableSingletonTraverser;
 import com.hazelcast.jet.core.Watermark;
@@ -231,7 +230,8 @@ public final class AsyncTransformUsingServiceUnorderedP<C, S, T, K, R> extends A
             if (!emitFromTraverser(currentTraverser)) {
                 return false;
             }
-            restoredObjects = new ArrayDeque<>(0); // minimize the internal storage
+            // minimize the internal storage
+            restoredObjects = new ArrayDeque<>(0);
             lastReceivedWm = minRestoredWm;
             logFine(getLogger(), "restored lastReceivedWm=%s", minRestoredWm);
             return true;

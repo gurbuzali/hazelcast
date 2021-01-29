@@ -84,11 +84,15 @@ public final class Tuple2<E0, E1> implements Map.Entry<E0, E1> {
 
     @Override
     @SuppressWarnings("rawtypes")
-    public boolean equals(Object obj) {
-        final Tuple2 that;
-        return this == obj
-                || obj instanceof Tuple2
-                && Objects.equals(this.f0, (that = (Tuple2) obj).f0)
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Tuple2)) {
+            return false;
+        }
+        Tuple2 that = (Tuple2) o;
+        return Objects.equals(this.f0, that.f0)
                 && Objects.equals(this.f1, that.f1);
     }
 

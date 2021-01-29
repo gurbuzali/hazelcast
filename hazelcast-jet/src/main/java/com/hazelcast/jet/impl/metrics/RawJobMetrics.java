@@ -29,7 +29,8 @@ public final class RawJobMetrics implements IdentifiedDataSerializable {
     private long timestamp;
     private byte[] blob;
 
-    RawJobMetrics() { //needed for deserialization
+    RawJobMetrics() {
+        //needed for deserialization
     }
 
     private RawJobMetrics(long timestamp, byte[] blob) {
@@ -91,8 +92,8 @@ public final class RawJobMetrics implements IdentifiedDataSerializable {
             return true;
         }
 
-        RawJobMetrics that;
-        return Arrays.equals(blob, (that = (RawJobMetrics) obj).blob)
+        RawJobMetrics that = (RawJobMetrics) obj;
+        return Arrays.equals(blob, that.blob)
                 && this.timestamp == that.timestamp;
     }
 

@@ -27,6 +27,8 @@ import java.util.Arrays;
 import static java.lang.Math.min;
 
 public class IMapOutputStream extends OutputStream {
+
+    @SuppressWarnings("checkstyle:MagicNumber")
     private static final int CHUNK_SIZE = 1 << 17;
 
     private final String prefix;

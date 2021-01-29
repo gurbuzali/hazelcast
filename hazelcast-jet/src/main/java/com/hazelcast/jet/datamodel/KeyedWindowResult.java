@@ -93,12 +93,15 @@ public final class KeyedWindowResult<K, R> extends WindowResult<R> implements En
 
     @Override
     @SuppressWarnings("rawtypes")
-    public boolean equals(Object obj) {
-        KeyedWindowResult that;
-        return this == obj
-                || obj != null
-                && obj.getClass() == KeyedWindowResult.class
-                && this.start() == (that = (KeyedWindowResult) obj).start()
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+        KeyedWindowResult that = (KeyedWindowResult) o;
+        return this.start() == that.start()
                 && this.end() == that.end()
                 && this.isEarly() == that.isEarly()
                 && Objects.equals(this.result(), that.result())

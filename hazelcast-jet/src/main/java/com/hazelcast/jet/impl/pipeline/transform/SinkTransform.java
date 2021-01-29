@@ -55,7 +55,7 @@ public class SinkTransform<T> extends AbstractTransform {
         determineLocalParallelism(sink.metaSupplier().preferredLocalParallelism(), context, false);
         PlannerVertex pv = p.addVertex(this, name(), determinedLocalParallelism(),
                 adaptingMetaSupplier(sink.metaSupplier(), ordinalsToAdapt));
-        p.addEdges(this, pv.v, (e, ord) -> {
+        p.addEdges(this, pv.vertex(), (e, ord) -> {
             // note: have to use an all-to-one edge for the assertion sink.
             // all the items will be routed to the member with the partition key
             if (sink.getType() == TOTAL_PARALLELISM_ONE) {

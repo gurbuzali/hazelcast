@@ -19,8 +19,6 @@ package com.hazelcast.jet.impl;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobStateSnapshot;
-import com.hazelcast.jet.impl.JobRepository;
-import com.hazelcast.jet.impl.SnapshotValidationRecord;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +37,11 @@ public final class JobStateSnapshotImpl implements JobStateSnapshot {
     private final String name;
     private final SnapshotValidationRecord snapshotValidationRecord;
 
-    public JobStateSnapshotImpl(@Nonnull HazelcastInstance instance, @Nonnull String name, @Nonnull SnapshotValidationRecord record) {
+    public JobStateSnapshotImpl(
+            @Nonnull HazelcastInstance instance,
+            @Nonnull String name,
+            @Nonnull SnapshotValidationRecord record
+    ) {
         this.instance = instance;
         this.name = name;
         this.snapshotValidationRecord = record;

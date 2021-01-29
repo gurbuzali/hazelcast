@@ -475,8 +475,8 @@ public class JobRepository {
             IMap resourceMap = (IMap) map;
             long creationTime = resourceMap.getLocalMapStats().getCreationTime();
             if (isResourceMapExpired(creationTime)) {
-                logger.fine("Deleting job resource map " + map.getName() + " because the map " +
-                        "was created long ago and job record or result still doesn't exist");
+                logger.fine("Deleting job resource map " + map.getName() + " because the map "
+                        + "was created long ago and job record or result still doesn't exist");
                 resourceMap.destroy();
             }
         }

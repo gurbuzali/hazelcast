@@ -125,13 +125,13 @@ public class JobResult implements IdentifiedDataSerializable {
 
     @Override
     public String toString() {
-        return "JobResult{" +
-                "jobId=" + idToString(jobId) +
-                ", name=" + jobConfig.getName() +
-                ", creationTime=" + toLocalDateTime(creationTime) +
-                ", completionTime=" + toLocalDateTime(completionTime) +
-                ", failureText=" + failureText +
-                '}';
+        return "JobResult{"
+                + "jobId=" + idToString(jobId)
+                + ", name=" + jobConfig.getName()
+                + ", creationTime=" + toLocalDateTime(creationTime)
+                + ", completionTime=" + toLocalDateTime(completionTime)
+                + ", failureText=" + failureText
+                + '}';
     }
 
     @Override

@@ -31,7 +31,7 @@ public class JobSuspensionCauseImpl implements JobSuspensionCause, IdentifiedDat
 
     private String error;
 
-    public JobSuspensionCauseImpl() { //needed for deserialization
+    public JobSuspensionCauseImpl() {
     }
 
     private JobSuspensionCauseImpl(String error) {

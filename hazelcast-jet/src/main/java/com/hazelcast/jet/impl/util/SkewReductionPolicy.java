@@ -134,8 +134,8 @@ public class SkewReductionPolicy {
             // this is possible if force-advancing the watermark because we increase
             // the queueWmValue without receiving watermark from that queue
             if (!forceAdvanceWm) {
-                throw new JetException("Watermarks not monotonically increasing on queue: " +
-                        "last one=" + queueWms[queueIndex] + ", new one=" + wmValue);
+                throw new JetException("Watermarks not monotonically increasing on queue: "
+                        + "last one=" + queueWms[queueIndex] + ", new one=" + wmValue);
             }
             return false;
         }

@@ -33,7 +33,7 @@ public class ProcessorSupplierFromSimpleSupplier implements ProcessorSupplier, D
 
     private SupplierEx<? extends Processor> simpleSupplier;
 
-    @SuppressWarnings("unused") // for deserialization
+    @SuppressWarnings("unused")
     public ProcessorSupplierFromSimpleSupplier() {
     }
 

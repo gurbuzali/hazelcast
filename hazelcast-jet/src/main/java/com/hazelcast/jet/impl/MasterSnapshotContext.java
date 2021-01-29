@@ -53,7 +53,8 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  */
 class MasterSnapshotContext {
 
-    @SuppressWarnings("WeakerAccess") // accessed from subclass in jet-enterprise
+    // accessed from subclass in jet-enterprise
+    @SuppressWarnings("WeakerAccess")
     final MasterContext mc;
     private final ILogger logger;
 
@@ -92,7 +93,8 @@ class MasterSnapshotContext {
         this.logger = logger;
     }
 
-    @SuppressWarnings("SameParameterValue") // used by jet-enterprise
+    // used by jet-enterprise
+    @SuppressWarnings("SameParameterValue")
     void enqueueSnapshot(String snapshotMapName, boolean isTerminal, CompletableFuture<Void> future) {
         snapshotQueue.add(tuple3(snapshotMapName, isTerminal, future));
     }
@@ -209,8 +211,8 @@ class MasterSnapshotContext {
                 // Note: this method can be called after finalizeJob() is called or even after new execution started.
                 // Check the execution ID to check if a new execution didn't start yet.
                 if (executionId != mc.executionId()) {
-                    LoggingUtil.logFine(logger, "%s: ignoring responses for snapshot %s phase 1: " +
-                                    "the responses are from a different execution: %s. Responses: %s",
+                    LoggingUtil.logFine(logger, "%s: ignoring responses for snapshot %s phase 1: "
+                                    + "the responses are from a different execution: %s. Responses: %s",
                             mc.jobIdString(), snapshotId, idToString(executionId), responses);
                     return;
                 }
@@ -248,14 +250,14 @@ class MasterSnapshotContext {
                 mc.writeJobExecutionRecord(false);
 
                 if (logger.isFineEnabled()) {
-                    logger.fine(String.format("Snapshot %d phase 1 for %s completed with status %s in %dms, " +
-                                    "%,d bytes, %,d keys in %,d chunks, stored in '%s', proceeding to phase 2",
+                    logger.fine(String.format("Snapshot %d phase 1 for %s completed with status %s in %dms, "
+                                    + "%,d bytes, %,d keys in %,d chunks, stored in '%s', proceeding to phase 2",
                             snapshotId, mc.jobIdString(), isSuccess ? "SUCCESS" : "FAILURE",
                             stats.duration(), stats.numBytes(), stats.numKeys(), stats.numChunks(), snapshotMapName));
                 }
                 if (!isSuccess) {
-                    logger.warning(mc.jobIdString() + " snapshot " + snapshotId + " phase 1 failed on some member(s), " +
-                            "one of the failures: " + mergedResult.getError());
+                    logger.warning(mc.jobIdString() + " snapshot " + snapshotId + " phase 1 failed on some member(s), "
+                            + "one of the failures: " + mergedResult.getError());
                     try {
                         snapshotMap.clear();
                     } catch (Exception e) {
@@ -298,8 +300,8 @@ class MasterSnapshotContext {
     ) {
         mc.coordinationService().submitToCoordinatorThread(() -> {
             if (executionId != mc.executionId()) {
-                LoggingUtil.logFine(logger, "%s: ignoring responses for snapshot %s phase 2: " +
-                                "the responses are from a different execution: %s. Responses: %s",
+                LoggingUtil.logFine(logger, "%s: ignoring responses for snapshot %s phase 2: "
+                                + "the responses are from a different execution: %s. Responses: %s",
                         mc.jobIdString(), snapshotId, idToString(executionId), responses);
                 return;
             }
@@ -323,8 +325,8 @@ class MasterSnapshotContext {
             try {
                 // double-check the execution ID after locking
                 if (executionId != mc.executionId()) {
-                    logger.fine("Not completing terminalSnapshotFuture on " + mc.jobIdString() + ", new execution " +
-                            "already started, snapshot was for executionId=" + idToString(executionId));
+                    logger.fine("Not completing terminalSnapshotFuture on " + mc.jobIdString() + ", new execution "
+                            + "already started, snapshot was for executionId=" + idToString(executionId));
                     return;
                 }
                 assert snapshotInProgress : "snapshot not in progress";

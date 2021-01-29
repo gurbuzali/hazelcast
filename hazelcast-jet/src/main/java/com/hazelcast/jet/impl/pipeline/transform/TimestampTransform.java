@@ -53,7 +53,7 @@ public class TimestampTransform<T> extends AbstractTransform {
         PlannerVertex pv = p.addVertex(
                 this, name(), determinedLocalParallelism(), insertWatermarksP(eventTimePolicy)
         );
-        p.addEdges(this, pv.v, Edge::isolated);
+        p.addEdges(this, pv.vertex(), Edge::isolated);
     }
 
     @Nonnull

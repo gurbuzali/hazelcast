@@ -12,6 +12,8 @@
     <artifactId>hazelcast-jet</artifactId>
 
     <properties>
+        <!-- needed for CheckStyle -->
+        <main.basedir>${project.parent.basedir}</main.basedir>
         <!-- optional dependencies (required for building, but don't become module's transitive deps) -->
         <jms.api.version>2.0.1</jms.api.version>
         <classgraph.version>4.8.66</classgraph.version>

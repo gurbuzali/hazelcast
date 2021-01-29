@@ -562,8 +562,8 @@ public class MasterJobContext {
             mc.invokeOnParticipants(operationCtor, responses -> {
                 if (responses.stream().map(Entry::getValue).anyMatch(Throwable.class::isInstance)) {
                     // log errors
-                    logger.severe(mc.jobIdString() + ": some CompleteExecutionOperation invocations failed, execution " +
-                            "resources might leak: " + responses);
+                    logger.severe(mc.jobIdString() + ": some CompleteExecutionOperation invocations failed, execution "
+                            + "resources might leak: " + responses);
                 } else {
                     setJobMetrics(toList(responses, e -> (RawJobMetrics) e.getValue()));
                 }
@@ -599,8 +599,8 @@ public class MasterJobContext {
                         responses -> {
                             if (responses.stream().map(Entry::getValue).anyMatch(Objects::nonNull)) {
                                 // log errors
-                                logger.severe(mc.jobIdString() + ": some TerminateExecutionOperation invocations " +
-                                        "failed, execution might remain stuck: " + responses);
+                                logger.severe(mc.jobIdString() + ": some TerminateExecutionOperation invocations "
+                                        + "failed, execution might remain stuck: " + responses);
                             }
                         }, null, true));
     }
@@ -640,16 +640,16 @@ public class MasterJobContext {
                     nonSynchronizedAction = () -> mc.writeJobExecutionRecord(false);
                 } else if (failure != null && !isCancelled() && mc.jobConfig().isSuspendOnFailure()) {
                     mc.setJobStatus(SUSPENDED);
-                    mc.jobExecutionRecord().setSuspended("Execution failure:\n" +
-                            ExceptionUtil.stackTraceToString(failure));
+                    mc.jobExecutionRecord()
+                            .setSuspended("Execution failure:\n" + ExceptionUtil.stackTraceToString(failure));
                     nonSynchronizedAction = () -> mc.writeJobExecutionRecord(false);
                 } else {
                     long completionTime = System.currentTimeMillis();
                     boolean isSuccess = logExecutionSummary(failure, completionTime);
                     mc.setJobStatus(isSuccess ? COMPLETED : FAILED);
                     if (failure instanceof LocalMemberResetException) {
-                        logger.fine("Cancelling job " + mc.jobIdString() + " locally: member (local or remote) reset. " +
-                                "We don't delete job metadata: job will restart on majority cluster");
+                        logger.fine("Cancelling job " + mc.jobIdString() + " locally: member (local or remote) reset. "
+                                + "We don't delete job metadata: job will restart on majority cluster");
                         setFinalResult(new CancellationException());
                     } else {
                         mc.coordinationService()

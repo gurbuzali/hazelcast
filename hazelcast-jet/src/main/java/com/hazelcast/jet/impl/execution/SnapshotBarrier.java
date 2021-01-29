@@ -27,7 +27,8 @@ public final class SnapshotBarrier implements BroadcastItem {
     private final boolean isTerminal;
 
     public SnapshotBarrier(long snapshotId, boolean isTerminal) {
-        assert snapshotId >= 0; // snapshot ID starts at 0 and is only incremented
+        // snapshot ID starts at 0 and is only incremented
+        assert snapshotId >= 0;
         this.snapshotId = snapshotId;
         this.isTerminal = isTerminal;
     }
@@ -54,8 +55,8 @@ public final class SnapshotBarrier implements BroadcastItem {
             return false;
         }
         SnapshotBarrier that = (SnapshotBarrier) o;
-        return snapshotId == that.snapshotId &&
-                isTerminal == that.isTerminal;
+        return snapshotId == that.snapshotId
+                && isTerminal == that.isTerminal;
     }
 
     @Override

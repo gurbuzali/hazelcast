@@ -456,10 +456,8 @@ public class DAG implements IdentifiedDataSerializable, Iterable<Vertex> {
 
         for (Vertex v : this) {
             int localParallelism = v.determineLocalParallelism(defaultParallelism);
-            String parallelism = localParallelism == LOCAL_PARALLELISM_USE_DEFAULT ?
-                defaultParallelism == LOCAL_PARALLELISM_USE_DEFAULT ?
-                    "default"
-                    : String.valueOf(defaultParallelism)
+            String parallelism = localParallelism == LOCAL_PARALLELISM_USE_DEFAULT
+                ? defaultParallelism == LOCAL_PARALLELISM_USE_DEFAULT ? "default" : String.valueOf(defaultParallelism)
                 : String.valueOf(localParallelism);
             builder.append("\t\"")
                    .append(escapeGraphviz(v.getName()))
@@ -487,8 +485,7 @@ public class DAG implements IdentifiedDataSerializable, Iterable<Vertex> {
                 if (inOutCounts.get(e.getSourceName())[0] > 1) {
                     attributes.add("taillabel=" + e.getSourceOrdinal());
                 }
-                int queueSize = e.getConfig() == null ? EdgeConfig.DEFAULT_QUEUE_SIZE :
-                        e.getConfig().getQueueSize();
+                int queueSize = e.getConfig() == null ? EdgeConfig.DEFAULT_QUEUE_SIZE : e.getConfig().getQueueSize();
                 attributes.add("queueSize=" + queueSize);
 
                 boolean inSubgraph = e.getSourceName().equals(e.getDestName() + FIRST_STAGE_VERTEX_NAME_SUFFIX);

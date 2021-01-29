@@ -223,9 +223,9 @@ public final class AggregateOperationBuilder<A> {
         ) {
             if (exportFn == null) {
                 throw new IllegalStateException(
-                        "The export primitive is not registered. Either add the missing andExport() call" +
-                        " or use andExportFinish() to register the same function as both the export and" +
-                        " finish primitive");
+                        "The export primitive is not registered. Either add the missing andExport() call"
+                        + " or use andExportFinish() to register the same function as both the export and"
+                        + " finish primitive");
             }
             checkSerializable(finishFn, "finishFn");
             return new AggregateOperation1Impl<>(
@@ -249,8 +249,8 @@ public final class AggregateOperationBuilder<A> {
                 @Nonnull FunctionEx<? super A, ? extends R_NEW> exportFinishFn
         ) {
             if (exportFn != null) {
-                throw new IllegalStateException("The export primitive is already registered. Call" +
-                        " andFinish() if you want to register a separate finish primitive.");
+                throw new IllegalStateException("The export primitive is already registered. Call"
+                        + " andFinish() if you want to register a separate finish primitive.");
             }
             checkSerializable(exportFinishFn, "exportFinishFn");
             return new AggregateOperation1Impl<>(
@@ -362,9 +362,9 @@ public final class AggregateOperationBuilder<A> {
             checkSerializable(finishFn, "finishFn");
             if (exportFn == null) {
                 throw new IllegalStateException(
-                        "The export primitive is not registered. Either add the missing andExport() call" +
-                        " or use andExportFinish() to register the same function as both the export and" +
-                        " finish primitive");
+                        "The export primitive is not registered. Either add the missing andExport() call"
+                        + " or use andExportFinish() to register the same function as both the export and"
+                        + " finish primitive");
             }
             return new AggregateOperation2Impl<>(
                     createFn, accumulateFn0, accumulateFn1, combineFn, deductFn, exportFn, finishFn);
@@ -480,9 +480,9 @@ public final class AggregateOperationBuilder<A> {
         ) {
             if (exportFn == null) {
                 throw new IllegalStateException(
-                        "The export primitive is not registered. Either add the missing andExport() call" +
-                                " or use andExportFinish() to register the same function as both the export and" +
-                                " finish primitive");
+                        "The export primitive is not registered. Either add the missing andExport() call"
+                                + " or use andExportFinish() to register the same function as both the export and"
+                                + " finish primitive");
             }
             checkSerializable(finishFn, "finishFn");
             return new AggregateOperation3Impl<>(createFn,
@@ -623,9 +623,9 @@ public final class AggregateOperationBuilder<A> {
         ) {
             if (exportFn == null) {
                 throw new IllegalStateException(
-                        "The export primitive is not registered. Either add the missing andExport() call" +
-                                " or use andExportFinish() to register the same function as both the export and" +
-                                " finish primitive");
+                        "The export primitive is not registered. Either add the missing andExport() call"
+                                + " or use andExportFinish() to register the same function as both the export and"
+                                + " finish primitive");
             }
             checkSerializable(finishFn, "finishFn");
             return new AggregateOperationImpl<>(
@@ -649,8 +649,8 @@ public final class AggregateOperationBuilder<A> {
                 @Nonnull FunctionEx<? super A, ? extends R_NEW> exportFinishFn
         ) {
             if (exportFn != null) {
-                throw new IllegalStateException("The export primitive is already registered. Call" +
-                        " andFinish() if you want to register a separate finish primitive.");
+                throw new IllegalStateException("The export primitive is already registered. Call"
+                        + " andFinish() if you want to register a separate finish primitive.");
             }
             checkSerializable(exportFinishFn, "exportFinishFn");
             return new AggregateOperationImpl<>(

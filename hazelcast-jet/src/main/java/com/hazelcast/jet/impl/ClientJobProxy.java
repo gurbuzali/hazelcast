@@ -16,11 +16,9 @@
 
 package com.hazelcast.jet.impl;
 
-import com.hazelcast.client.impl.clientside.HazelcastClientInstanceImpl;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.spi.impl.ClientInvocation;
 import com.hazelcast.cluster.Member;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.Job;
@@ -29,7 +27,6 @@ import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.JobSuspensionCause;
 import com.hazelcast.jet.core.metrics.JobMetricsImpl;
-import com.hazelcast.jet.impl.client.protocol.codec.JetExistsDistributedObjectCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetExportSnapshotCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobConfigCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobMetricsCodec;
@@ -75,7 +72,7 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
     @Nonnull
     @Override
     public JobStatus getStatus() {
-        return callAndRetryIfTargetNotFound(()  -> {
+        return callAndRetryIfTargetNotFound(() -> {
             ClientMessage request = JetGetJobStatusCodec.encodeRequest(getId());
             ClientMessage response = invocation(request, masterUuid()).invoke().get();
             ResponseParameters parameters = JetGetJobStatusCodec.decodeResponse(response);
@@ -86,7 +83,7 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
     @Nonnull
     @Override
     public JobSuspensionCause getSuspensionCause() {
-        return callAndRetryIfTargetNotFound(()  -> {
+        return callAndRetryIfTargetNotFound(() -> {
             ClientMessage request = JetGetJobSuspensionCauseCodec.encodeRequest(getId());
             ClientMessage response = invocation(request, masterUuid()).invoke().get();
             Data data = JetGetJobSuspensionCauseCodec.decodeResponse(response);
@@ -97,7 +94,7 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
     @Nonnull
     @Override
     public JobMetricsImpl getMetrics() {
-        return callAndRetryIfTargetNotFound(()  -> {
+        return callAndRetryIfTargetNotFound(() -> {
             ClientMessage request = JetGetJobMetricsCodec.encodeRequest(getId());
             ClientMessage response = invocation(request, masterUuid()).invoke().get();
             JetGetJobMetricsCodec.ResponseParameters parameters = JetGetJobMetricsCodec.decodeResponse(response);
@@ -117,7 +114,8 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
         ClientMessage request = JetJoinSubmittedJobCodec.encodeRequest(getId());
         ClientInvocation invocation = invocation(request, masterUuid());
         // this invocation should never time out, as the job may be running for a long time
-        invocation.setInvocationTimeoutMillis(Long.MAX_VALUE); // 0 is not supported
+        // 0 is not supported so Long.MAX_VALUE
+        invocation.setInvocationTimeoutMillis(Long.MAX_VALUE);
         return invocation.invoke().thenApply(c -> null);
     }
 
@@ -176,7 +174,8 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
         });
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     protected UUID masterUuid() {
         Member masterMember = container().client().getClientClusterService().getMasterMember();
         if (masterMember == null) {
@@ -208,7 +207,7 @@ public class ClientJobProxy extends AbstractJobProxy<JetClientInstanceImpl> {
 
     private <T> T callAndRetryIfTargetNotFound(Callable<T> action) {
         long timeLimit = System.nanoTime() + RETRY_TIME_NS;
-        for (;;) {
+        for (; ; ) {
             try {
                 return action.call();
             } catch (Exception e) {

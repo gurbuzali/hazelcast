@@ -128,14 +128,14 @@ public class CoAggregateOperationBuilder {
             int index = tag.index();
             b.andAccumulate(tag, (acc, item) -> op.accumulateFn().accept(acc[index], item));
         });
-        return b.andCombine(stream(combineFns).anyMatch(Objects::isNull) ? null :
-                        (acc1, acc2) -> {
+        return b.andCombine(stream(combineFns).anyMatch(Objects::isNull) ? null
+                        : (acc1, acc2) -> {
                             for (int i = 0; i < combineFns.length; i++) {
                                 combineFns[i].accept(acc1[i], acc2[i]);
                             }
                         })
-                .andDeduct(stream(deductFns).anyMatch(Objects::isNull) ? null :
-                        (acc1, acc2) -> {
+                .andDeduct(stream(deductFns).anyMatch(Objects::isNull) ? null
+                        : (acc1, acc2) -> {
                             for (int i = 0; i < deductFns.length; i++) {
                                 deductFns[i].accept(acc1[i], acc2[i]);
                             }

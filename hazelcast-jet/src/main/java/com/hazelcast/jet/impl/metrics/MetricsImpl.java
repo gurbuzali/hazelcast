@@ -44,8 +44,8 @@ public final class MetricsImpl {
         Container container = CONTEXT.get();
         MetricsContext context = container.getContext();
         if (context == null) {
-            throw new RuntimeException("Thread %s has no metrics context set, this method can " +
-                    "be called only on threads executing the job's processors");
+            throw new RuntimeException("Thread %s has no metrics context set, this method can "
+                    + "be called only on threads executing the job's processors");
         }
         return context;
     }

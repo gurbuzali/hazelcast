@@ -49,9 +49,9 @@ public class MapTransform<T, R> extends AbstractTransform {
         determineLocalParallelism(LOCAL_PARALLELISM_USE_DEFAULT, context, p.isPreserveOrder());
         PlannerVertex pv = p.addVertex(this, name(), determinedLocalParallelism(), mapP(mapFn()));
         if (p.isPreserveOrder()) {
-            p.addEdges(this, pv.v, Edge::isolated);
+            p.addEdges(this, pv.vertex(), Edge::isolated);
         } else {
-            p.addEdges(this, pv.v);
+            p.addEdges(this, pv.vertex());
         }
     }
 }
