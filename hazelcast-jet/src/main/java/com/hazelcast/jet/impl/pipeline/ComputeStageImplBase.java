@@ -18,7 +18,6 @@ package com.hazelcast.jet.impl.pipeline;
 
 import com.hazelcast.function.BiFunctionEx;
 import com.hazelcast.function.BiPredicateEx;
-import com.hazelcast.function.ComparatorEx;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.PredicateEx;
 import com.hazelcast.function.SupplierEx;
@@ -29,20 +28,12 @@ import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.function.TriFunction;
 import com.hazelcast.jet.impl.pipeline.transform.AbstractTransform;
-import com.hazelcast.jet.impl.pipeline.transform.FlatMapStatefulTransform;
-import com.hazelcast.jet.impl.pipeline.transform.FlatMapTransform;
-import com.hazelcast.jet.impl.pipeline.transform.GlobalFlatMapStatefulTransform;
-import com.hazelcast.jet.impl.pipeline.transform.GlobalMapStatefulTransform;
 import com.hazelcast.jet.impl.pipeline.transform.HashJoinTransform;
-import com.hazelcast.jet.impl.pipeline.transform.MapStatefulTransform;
-import com.hazelcast.jet.impl.pipeline.transform.MapTransform;
 import com.hazelcast.jet.impl.pipeline.transform.MergeTransform;
 import com.hazelcast.jet.impl.pipeline.transform.PartitionedProcessorTransform;
 import com.hazelcast.jet.impl.pipeline.transform.PeekTransform;
 import com.hazelcast.jet.impl.pipeline.transform.ProcessorTransform;
 import com.hazelcast.jet.impl.pipeline.transform.SinkTransform;
-import com.hazelcast.jet.impl.pipeline.transform.SortTransform;
-import com.hazelcast.jet.impl.pipeline.transform.TimestampTransform;
 import com.hazelcast.jet.impl.pipeline.transform.Transform;
 import com.hazelcast.jet.pipeline.BatchStage;
 import com.hazelcast.jet.pipeline.GeneralStage;
@@ -60,10 +51,14 @@ import java.util.function.Function;
 
 import static com.hazelcast.internal.util.Preconditions.checkTrue;
 import static com.hazelcast.jet.Traversers.traverseIterable;
-import static com.hazelcast.jet.core.EventTimePolicy.DEFAULT_IDLE_TIMEOUT;
-import static com.hazelcast.jet.core.EventTimePolicy.eventTimePolicy;
-import static com.hazelcast.jet.core.WatermarkPolicy.limitingLag;
-import static com.hazelcast.jet.impl.JetEvent.jetEvent;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.filterTransform;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.flatMapStatefulTransform;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.flatMapTransform;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.globalFlatMapStatefulTransform;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.globalMapStatefulTransform;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.mapStatefulTransform;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.mapTransform;
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.timestampTransform;
 import static com.hazelcast.jet.impl.pipeline.transform.PartitionedProcessorTransform.filterUsingServicePartitionedTransform;
 import static com.hazelcast.jet.impl.pipeline.transform.PartitionedProcessorTransform.flatMapUsingServiceAsyncBatchedPartitionedTransform;
 import static com.hazelcast.jet.impl.pipeline.transform.PartitionedProcessorTransform.flatMapUsingServiceAsyncPartitionedTransform;
@@ -131,81 +126,52 @@ public abstract class ComputeStageImplBase<T> extends AbstractStage {
     public StreamStage<T> addTimestamps(@Nonnull ToLongFunctionEx<? super T> timestampFn, long allowedLag) {
         checkTrue(fnAdapter.equals(DO_NOT_ADAPT), "This stage already has timestamps assigned to it");
         checkSerializable(timestampFn, "timestampFn");
-        TimestampTransform<T> tsTransform = new TimestampTransform<>(transform, eventTimePolicy(
-                timestampFn,
-                (item, ts) -> jetEvent(ts, item),
-                limitingLag(allowedLag),
-                0, 0, DEFAULT_IDLE_TIMEOUT
-        ));
+        AbstractTransform tsTransform = timestampTransform(transform, allowedLag, timestampFn);
         pipelineImpl.connect(this, tsTransform);
         return new StreamStageImpl<>(tsTransform, ADAPT_TO_JET_EVENT, pipelineImpl);
     }
 
     @Nonnull
-    <RET> RET attachSort(@Nullable ComparatorEx<? super T> comparator) {
-        return attach(new SortTransform<>(this.transform, comparator), fnAdapter);
-    }
-
-    @Nonnull
-    @SuppressWarnings({"unchecked", "rawtypes"})
     <R, RET> RET attachMap(@Nonnull FunctionEx<? super T, ? extends R> mapFn) {
         checkSerializable(mapFn, "mapFn");
-        return attach(new MapTransform("map", this.transform, fnAdapter.adaptMapFn(mapFn)), fnAdapter);
+        return attach(mapTransform(transform, fnAdapter, mapFn), fnAdapter);
     }
 
     @Nonnull
-    @SuppressWarnings({"unchecked"})
     <RET> RET attachFilter(@Nonnull PredicateEx<T> filterFn) {
         checkSerializable(filterFn, "filterFn");
-        PredicateEx<T> adaptedFn = (PredicateEx<T>) fnAdapter.adaptFilterFn(filterFn);
-        return attach(new MapTransform<T, T>("filter", transform, t -> adaptedFn.test(t) ? t : null), fnAdapter);
+        return attach(filterTransform(transform, fnAdapter, filterFn), fnAdapter);
     }
 
     @Nonnull
-    @SuppressWarnings({"unchecked", "rawtypes"})
     <R, RET> RET attachFlatMap(
             @Nonnull FunctionEx<? super T, ? extends Traverser<R>> flatMapFn
     ) {
         checkSerializable(flatMapFn, "flatMapFn");
-        return attach(new FlatMapTransform("flat-map", transform, fnAdapter.adaptFlatMapFn(flatMapFn)), fnAdapter);
+        return attach(flatMapTransform(transform, fnAdapter, flatMapFn), fnAdapter);
     }
 
     @Nonnull
-    @SuppressWarnings({"unchecked", "rawtypes"})
     <S, R, RET> RET attachGlobalMapStateful(
             @Nonnull SupplierEx<? extends S> createFn,
             @Nonnull BiFunctionEx<? super S, ? super T, ? extends R> mapFn
     ) {
         checkSerializable(createFn, "createFn");
         checkSerializable(mapFn, "mapFn");
-        GlobalMapStatefulTransform<T, S, R> mapStatefulTransform = new GlobalMapStatefulTransform(
-                transform,
-                fnAdapter.adaptTimestampFn(),
-                createFn,
-                fnAdapter.<S, Object, T, R>adaptStatefulMapFn((s, k, t) -> mapFn.apply(s, t))
-        );
-        return attach(mapStatefulTransform, fnAdapter);
+        return attach(globalMapStatefulTransform(transform, fnAdapter, createFn, mapFn), fnAdapter);
     }
 
     @Nonnull
-    @SuppressWarnings({"unchecked", "rawtypes"})
     <S, R, RET> RET attachGlobalFlatMapStateful(
             @Nonnull SupplierEx<? extends S> createFn,
             @Nonnull BiFunctionEx<? super S, ? super T, ? extends Traverser<R>> flatMapFn
     ) {
         checkSerializable(createFn, "createFn");
         checkSerializable(flatMapFn, "flatMapFn");
-        GlobalFlatMapStatefulTransform<T, S, R> mapStatefulTransform = new GlobalFlatMapStatefulTransform(
-                transform,
-                fnAdapter.adaptTimestampFn(),
-                createFn,
-                fnAdapter.<S, Object, T, R>adaptStatefulFlatMapFn((s, k, t) -> flatMapFn.apply(s, t))
-        );
-        return attach(mapStatefulTransform, fnAdapter);
+        return attach(globalFlatMapStatefulTransform(transform, fnAdapter, createFn, flatMapFn), fnAdapter);
     }
 
     @Nonnull
-    @SuppressWarnings({"unchecked", "rawtypes"})
     <K, S, R, RET> RET attachMapStateful(
             long ttl,
             @Nonnull FunctionEx<? super T, ? extends K> keyFn,
@@ -219,19 +185,10 @@ public abstract class ComputeStageImplBase<T> extends AbstractStage {
         if (ttl > 0 && fnAdapter == DO_NOT_ADAPT) {
             throw new IllegalStateException("Cannot use time-to-live on a non-timestamped stream");
         }
-        MapStatefulTransform<T, K, S, R> mapStatefulTransform = new MapStatefulTransform(
-                transform,
-                ttl,
-                fnAdapter.adaptKeyFn(keyFn),
-                fnAdapter.adaptTimestampFn(),
-                createFn,
-                fnAdapter.adaptStatefulMapFn(mapFn),
-                onEvictFn != null ? fnAdapter.adaptOnEvictFn(onEvictFn) : null);
-        return attach(mapStatefulTransform, fnAdapter);
+        return attach(mapStatefulTransform(transform, fnAdapter, ttl, keyFn, createFn, mapFn, onEvictFn), fnAdapter);
     }
 
     @Nonnull
-    @SuppressWarnings({"unchecked", "rawtypes"})
     <K, S, R, RET> RET attachFlatMapStateful(
             long ttl,
             @Nonnull FunctionEx<? super T, ? extends K> keyFn,
@@ -245,15 +202,8 @@ public abstract class ComputeStageImplBase<T> extends AbstractStage {
         if (ttl > 0 && fnAdapter == DO_NOT_ADAPT) {
             throw new IllegalStateException("Cannot use time-to-live on a non-timestamped stream");
         }
-        FlatMapStatefulTransform<T, K, S, R> flatMapStatefulTransform = new FlatMapStatefulTransform(
-                transform,
-                ttl,
-                fnAdapter.adaptKeyFn(keyFn),
-                fnAdapter.adaptTimestampFn(),
-                createFn,
-                fnAdapter.adaptStatefulFlatMapFn(flatMapFn),
-                onEvictFn != null ? fnAdapter.adaptOnEvictFlatMapFn(onEvictFn) : null);
-        return attach(flatMapStatefulTransform, fnAdapter);
+        return attach(
+                flatMapStatefulTransform(transform, fnAdapter, ttl, keyFn, createFn, flatMapFn, onEvictFn), fnAdapter);
     }
 
     @Nonnull
@@ -458,12 +408,6 @@ public abstract class ComputeStageImplBase<T> extends AbstractStage {
                 adaptedPartitionKeyFn
         );
         return attach(processorTransform, fnAdapter);
-    }
-
-    @Nonnull
-    private <S> ServiceFactory<?, S> moveAttachedFilesToPipeline(@Nonnull ServiceFactory<?, S> serviceFactory) {
-        pipelineImpl.attachFiles(serviceFactory.attachedFiles());
-        return serviceFactory.withoutAttachedFiles();
     }
 
     @Nonnull

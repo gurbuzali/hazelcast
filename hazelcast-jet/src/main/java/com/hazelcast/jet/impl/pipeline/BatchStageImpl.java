@@ -41,6 +41,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static com.hazelcast.jet.impl.pipeline.TransformFactory.sortTransform;
 import static com.hazelcast.jet.impl.util.Util.checkSerializable;
 import static com.hazelcast.jet.impl.util.Util.toList;
 import static java.util.Arrays.asList;
@@ -87,12 +88,12 @@ public class BatchStageImpl<T> extends ComputeStageImplBase<T> implements BatchS
 
     @Nonnull @Override
     public BatchStage<T> sort() {
-        return attachSort(null);
+        return sortInternal(null);
     }
 
     @Nonnull @Override
     public BatchStage<T> sort(@Nonnull ComparatorEx<? super T> comparator) {
-        return attachSort(comparator);
+        return sortInternal(comparator);
     }
 
     @Nonnull @Override
@@ -297,5 +298,9 @@ public class BatchStageImpl<T> extends ComputeStageImplBase<T> implements BatchS
     @SuppressWarnings("unchecked")
     <RET> RET newStage(@Nonnull AbstractTransform transform, @Nonnull FunctionAdapter fnAdapter) {
         return (RET) new BatchStageImpl<>(transform, pipelineImpl);
+    }
+
+    private BatchStage<T> sortInternal(ComparatorEx<? super T> comparator) {
+        return attach(sortTransform(transform, comparator), fnAdapter);
     }
 }

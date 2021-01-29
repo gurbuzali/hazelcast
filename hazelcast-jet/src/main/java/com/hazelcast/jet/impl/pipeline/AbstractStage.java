@@ -19,6 +19,7 @@ package com.hazelcast.jet.impl.pipeline;
 import com.hazelcast.jet.impl.pipeline.transform.Transform;
 import com.hazelcast.jet.pipeline.GeneralStage;
 import com.hazelcast.jet.pipeline.Pipeline;
+import com.hazelcast.jet.pipeline.ServiceFactory;
 import com.hazelcast.jet.pipeline.SinkStage;
 import com.hazelcast.jet.pipeline.Stage;
 
@@ -68,4 +69,12 @@ public abstract class AbstractStage implements Stage {
     public String toString() {
         return String.valueOf(transform);
     }
+
+
+    @Nonnull
+    protected  <S> ServiceFactory<?, S> moveAttachedFilesToPipeline(@Nonnull ServiceFactory<?, S> serviceFactory) {
+        pipelineImpl.attachFiles(serviceFactory.attachedFiles());
+        return serviceFactory.withoutAttachedFiles();
+    }
+
 }
