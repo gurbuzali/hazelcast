@@ -8,7 +8,6 @@ import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobAlreadyExistsException;
 import com.hazelcast.jet.JobStateSnapshot;
-import com.hazelcast.jet.JobStateSnapshotImpl;
 import com.hazelcast.jet.ThePipeline;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobNotFoundException;
@@ -36,47 +35,13 @@ import static com.hazelcast.jet.impl.util.ExceptionUtil.rethrow;
 import static com.hazelcast.jet.impl.util.LoggingUtil.logFine;
 import static java.util.stream.Collectors.toList;
 
-public class JetInstanceImpl implements JetInstance {
+public class JetInstanceImpl extends AbstractJetInstance {
 
-    private final HazelcastInstanceImpl hazelcastInstance;
     private final NodeEngineImpl nodeEngine;
-    private final Supplier<JobRepository> jobRepository;
 
     public JetInstanceImpl(Node node) {
-        this.hazelcastInstance = node.hazelcastInstance;
+        super(node.hazelcastInstance);
         this.nodeEngine = node.nodeEngine;
-        this.jobRepository = Util.memoizeConcurrent(() -> new JobRepository(hazelcastInstance));
-    }
-
-    @Nonnull
-    @Override
-    public Job newJob(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
-        config = config.attachAll(((PipelineImpl) pipeline).attachedFiles());
-        long jobId = uploadResourcesAndAssignId(config);
-        return newJobProxy(jobId, pipeline, config);
-    }
-
-    @Nonnull
-    @Override
-    public Job newJobIfAbsent(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
-        if (config.getName() == null) {
-            return newJob(pipeline, config);
-        } else {
-            while (true) {
-                Job job = getJob(config.getName());
-                if (job != null) {
-                    JobStatus status = job.getStatus();
-                    if (status != JobStatus.FAILED && status != JobStatus.COMPLETED) {
-                        return job;
-                    }
-                }
-                try {
-                    return newJob(pipeline, config);
-                } catch (JobAlreadyExistsException e) {
-                    logFine(getLogger(), "Could not submit job with duplicate name: %s, ignoring", config.getName());
-                }
-            }
-        }
     }
 
     @Nonnull
@@ -98,76 +63,19 @@ public class JetInstanceImpl implements JetInstance {
         }
     }
 
-    @Nullable
-    @Override
-    public Job getJob(long jobId) {
-        try {
-            Job job = newJobProxy(jobId);
-            // get the status for the side-effect of throwing an exception if the jobId is invalid
-            job.getStatus();
-            return job;
-        } catch (Throwable t) {
-            if (peel(t) instanceof JobNotFoundException) {
-                return null;
-            }
-            throw rethrow(t);
-        }
-    }
-
-    @Nonnull
-    @Override
-    public List<Job> getJobs(@Nonnull String name) {
-        return Util.toList(getJobIdsByName(name), this::newJobProxy);
-    }
-
-    @Override
-    public JobStateSnapshot getJobStateSnapshot(@Nonnull String name) {
-        String mapName = exportedSnapshotMapName(name);
-
-        if (!ImdgUtil.existsDistributedObject(nodeEngine, MapService.SERVICE_NAME, mapName)) {
-            return null;
-        }
-        IMap<Object, Object> map = hazelcastInstance.getMap(mapName);
-        Object validationRecord = map.get(SnapshotValidationRecord.KEY);
-        if (validationRecord instanceof SnapshotValidationRecord) {
-            // update the cache - for robustness. For example after the map was copied
-            hazelcastInstance.getMap(JobRepository.EXPORTED_SNAPSHOTS_DETAIL_CACHE).set(name, validationRecord);
-            return new JobStateSnapshotImpl(hazelcastInstance, name, (SnapshotValidationRecord) validationRecord);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public Collection<JobStateSnapshot> getJobStateSnapshots() {
-        return hazelcastInstance.getMap(JobRepository.EXPORTED_SNAPSHOTS_DETAIL_CACHE)
-                .entrySet().stream()
-                .map(entry -> new JobStateSnapshotImpl(hazelcastInstance, (String) entry.getKey(),
-                        (SnapshotValidationRecord) entry.getValue()))
-                .collect(toList());
-    }
-
-    private long uploadResourcesAndAssignId(JobConfig config) {
-        return jobRepository.get().uploadJobResources(config);
-    }
-
-    private Job newJobProxy(long jobId) {
+    public Job newJobProxy(long jobId) {
         return new JobProxy(this, jobId);
     }
 
-    private Job newJobProxy(long jobId, Object jobDefinition, JobConfig config) {
+    public Job newJobProxy(long jobId, Object jobDefinition, JobConfig config) {
         return new JobProxy(this, jobId, jobDefinition, config);
     }
 
-    private ILogger getLogger() {
+    public ILogger getLogger() {
         return nodeEngine.getLogger(getClass());
     }
 
-    private Address getMasterAddress() {
-        return Preconditions.checkNotNull(hazelcastInstance.node.getMasterAddress(), "Cluster has not elected a master");
-    }
-
-    private List<Long> getJobIdsByName(String name) {
+    public List<Long> getJobIdsByName(String name) {
         Address masterAddress = getMasterAddress();
         Future<List<Long>> future = nodeEngine
                 .getOperationService()
@@ -181,7 +89,32 @@ public class JetInstanceImpl implements JetInstance {
         }
     }
 
+    /**
+     * Tells whether this member knows of the given object name.
+     * <p>
+     * Notes:
+     * <ul><li>
+     *     this member might not know it exists if the proxy creation operation went wrong
+     * </li><li>
+     *     this member might not know it was destroyed if the destroy operation went wrong
+     * </li><li>
+     *     it might be racy with respect to other create/destroy operations
+     * </li></ul>
+     *
+     * @param serviceName for example, {@link MapService#SERVICE_NAME}
+     * @param objectName  object name
+     * @return true, if this member knows of the object
+     */
+    @Override
+    public boolean existsDistributedObject(@Nonnull String serviceName, @Nonnull String objectName) {
+        return ImdgUtil.existsDistributedObject(nodeEngine, serviceName, objectName);
+    }
+
     public NodeEngineImpl nodeEngine() {
         return nodeEngine;
+    }
+
+    private Address getMasterAddress() {
+        return Preconditions.checkNotNull(nodeEngine.getMasterAddress(), "Cluster has not elected a master");
     }
 }

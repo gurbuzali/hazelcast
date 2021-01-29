@@ -1,59 +1,98 @@
 package com.hazelcast.jet.impl;
 
 import com.hazelcast.client.impl.clientside.HazelcastClientInstanceImpl;
-import com.hazelcast.jet.JetInstance;
+import com.hazelcast.client.impl.protocol.ClientMessage;
+import com.hazelcast.client.impl.spi.impl.ClientInvocation;
+import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.JobStateSnapshot;
-import com.hazelcast.jet.ThePipeline;
 import com.hazelcast.jet.config.JobConfig;
+import com.hazelcast.jet.impl.client.protocol.codec.JetExistsDistributedObjectCodec;
+import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobIdsByNameCodec;
+import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobIdsCodec;
+import com.hazelcast.jet.impl.util.ExceptionUtil;
+import com.hazelcast.logging.ILogger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
 
-public class JetClientInstanceImpl implements JetInstance {
-    @Nonnull
-    @Override
-    public Job newJob(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
-        return null;
+import static com.hazelcast.jet.impl.util.ExceptionUtil.rethrow;
+import static com.hazelcast.jet.impl.util.Util.toList;
+
+public class JetClientInstanceImpl extends AbstractJetInstance {
+
+    private final HazelcastClientInstanceImpl client;
+    private final SerializationService serializationService;
+
+    public JetClientInstanceImpl(HazelcastClientInstanceImpl client) {
+        super(client);
+        this.client = client;
+        this.serializationService = client.getSerializationService();
+        ExceptionUtil.registerJetExceptions(client.getClientExceptionFactory());
     }
 
-    @Nonnull
     @Override
-    public Job newJobIfAbsent(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
-        return null;
+    public Job newJobProxy(long jobId) {
+        return new ClientJobProxy(this, jobId);
+    }
+
+    @Override
+    public Job newJobProxy(long jobId, Object jobDefinition, JobConfig config) {
+        return new ClientJobProxy(this, jobId, jobDefinition, config);
+    }
+
+    @Override
+    public List<Long> getJobIdsByName(String name) {
+        return invokeRequestOnMasterAndDecodeResponse(JetGetJobIdsByNameCodec.encodeRequest(name),
+                response -> JetGetJobIdsByNameCodec.decodeResponse(response).response);
+    }
+
+    @Override
+    public boolean existsDistributedObject(@Nonnull String serviceName, @Nonnull String objectName) {
+        return invokeRequestOnAnyMemberAndDecodeResponse(
+                JetExistsDistributedObjectCodec.encodeRequest(serviceName, objectName),
+                response -> JetExistsDistributedObjectCodec.decodeResponse(response).response
+        );
+    }
+
+    @Override
+    public ILogger getLogger() {
+        return client.getLoggingService().getLogger(getClass());
     }
 
     @Nonnull
     @Override
     public List<Job> getJobs() {
-        return null;
+        return invokeRequestOnMasterAndDecodeResponse(JetGetJobIdsCodec.encodeRequest(), resp -> {
+            List<Long> jobs = JetGetJobIdsCodec.decodeResponse(resp).response;
+            return toList(jobs, jobId -> new ClientJobProxy(this, jobId));
+        });
     }
 
-    @Nullable
-    @Override
-    public Job getJob(long jobId) {
-        return null;
+    public HazelcastClientInstanceImpl client() {
+        return client;
     }
 
-    @Nonnull
-    @Override
-    public List<Job> getJobs(@Nonnull String name) {
-        return null;
+    private <S> S invokeRequestOnMasterAndDecodeResponse(ClientMessage request,
+                                                         Function<ClientMessage, Object> decoder) {
+        UUID masterUuid = client.getClientClusterService().getMasterMember().getUuid();
+        return invokeRequestAndDecodeResponse(masterUuid, request, decoder);
     }
 
-    @Override
-    public JobStateSnapshot getJobStateSnapshot(@Nonnull String name) {
-        return null;
+    private <S> S invokeRequestOnAnyMemberAndDecodeResponse(ClientMessage request,
+                                                            Function<ClientMessage, Object> decoder) {
+        return invokeRequestAndDecodeResponse(null, request, decoder);
     }
 
-    @Override
-    public Collection<JobStateSnapshot> getJobStateSnapshots() {
-        return null;
-    }
-
-    HazelcastClientInstanceImpl client() {
-        return null;
+    private <S> S invokeRequestAndDecodeResponse(UUID uuid, ClientMessage request,
+                                                 Function<ClientMessage, Object> decoder) {
+        ClientInvocation invocation = new ClientInvocation(client, request, null, uuid);
+        try {
+            ClientMessage response = invocation.invoke().get();
+            return serializationService.toObject(decoder.apply(response));
+        } catch (Throwable t) {
+            throw rethrow(t);
+        }
     }
 }

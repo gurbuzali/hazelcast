@@ -322,6 +322,6 @@ public class HazelcastClientProxy implements HazelcastInstance, SerializationSer
 
     @Override
     public JetInstance getJetInstance() {
-        return null; //TODO Merge
+        return getClient().getJetInstance();
     }
 }

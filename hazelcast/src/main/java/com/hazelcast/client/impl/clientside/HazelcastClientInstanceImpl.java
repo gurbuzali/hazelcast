@@ -827,7 +827,7 @@ public class HazelcastClientInstanceImpl implements HazelcastInstance, Serializa
 
     @Override
     public JetInstance getJetInstance() {
-        return null; //TODO Merge
+        return clientExtension.getJetInstance();
     }
 
     public void onClusterChange() {
