@@ -41,9 +41,9 @@ public class ResourceConfig implements Serializable {
     /**
      * Creates a resource config with the given properties.
      *
-     * @param url           url of the resource
-     * @param id            id of the resource
-     * @param resourceType  type of the resource
+     * @param url          url of the resource
+     * @param id           id of the resource
+     * @param resourceType type of the resource
      */
     ResourceConfig(@Nonnull URL url, @Nonnull String id, @Nonnull ResourceType resourceType) {
         Preconditions.checkNotNull(url, "url");
@@ -67,14 +67,14 @@ public class ResourceConfig implements Serializable {
         String id = ReflectionUtils.toClassResourceId(clazz.getName());
         ClassLoader cl = clazz.getClassLoader();
         if (cl == null) {
-            throw new IllegalArgumentException(clazz.getName() + ".getClassLoader() returned null, cannot" +
-                    " access the class resource. You may have added a JDK class that is loaded by the" +
-                    " bootstrap classloader. There is no need to add JDK classes to the job configuration.");
+            throw new IllegalArgumentException(clazz.getName() + ".getClassLoader() returned null, cannot"
+                    + " access the class resource. You may have added a JDK class that is loaded by the"
+                    + " bootstrap classloader. There is no need to add JDK classes to the job configuration.");
         }
         URL url = cl.getResource(id);
         if (url == null) {
-            throw new IllegalArgumentException("The classloader of " + clazz.getName() + " couldn't resolve" +
-                    " the resource URL of " + id);
+            throw new IllegalArgumentException("The classloader of " + clazz.getName() + " couldn't resolve"
+                    + " the resource URL of " + id);
         }
 
         this.id = id;
@@ -110,11 +110,11 @@ public class ResourceConfig implements Serializable {
 
     @Override
     public String toString() {
-        return "ResourceConfig{" +
-                "url=" + url +
-                ", id='" + id + '\'' +
-                ", resourceType=" + resourceType +
-                '}';
+        return "ResourceConfig{"
+                + "url=" + url
+                + ", id='" + id + '\''
+                + ", resourceType=" + resourceType
+                + '}';
     }
 
     @Override
@@ -126,9 +126,9 @@ public class ResourceConfig implements Serializable {
             return false;
         }
         ResourceConfig that = (ResourceConfig) o;
-        return url.toString().equals(that.url.toString()) &&
-                id.equals(that.id) &&
-                resourceType == that.resourceType;
+        return url.toString().equals(that.url.toString())
+                && id.equals(that.id)
+                && resourceType == that.resourceType;
     }
 
     @Override

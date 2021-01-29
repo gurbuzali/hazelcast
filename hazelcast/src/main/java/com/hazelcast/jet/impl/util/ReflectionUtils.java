@@ -270,8 +270,8 @@ public final class ReflectionUtils {
                 return false;
             }
             ClassResource that = (ClassResource) o;
-            return Objects.equals(id, that.id) &&
-                    Objects.equals(url, that.url);
+            return Objects.equals(id, that.id)
+                    && Objects.equals(url, that.url);
         }
 
         @Override

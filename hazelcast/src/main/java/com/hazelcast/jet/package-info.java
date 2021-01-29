@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet;
+/**
+ * Hazelcast Jet is a distributed computation engine running on top of
+ * Hazelcast IMDG technology. To use it, refer to the Javadoc on the
+ * {@link com.hazelcast.jet.pipeline Pipeline API} and to the Reference
+ * Manual.
+ *
+ * @since 3.0
+ */
 
-public interface ThePipeline {
-}
+package com.hazelcast.jet;

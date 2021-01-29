@@ -1186,11 +1186,11 @@ public class JobConfig implements IdentifiedDataSerializable {
     @Override
     public String toString() {
         return "JobConfig {name=" + name + ", processingGuarantee=" + processingGuarantee + ", snapshotIntervalMillis="
-                + snapshotIntervalMillis + ", autoScaling=" + autoScaling + ", suspendOnFailure=" + suspendOnFailure +
-                ", splitBrainProtectionEnabled=" + splitBrainProtectionEnabled + ", enableMetrics=" + enableMetrics +
-                ", storeMetricsAfterJobCompletion=" + storeMetricsAfterJobCompletion +
-                ", resourceConfigs=" + resourceConfigs + ", serializerConfigs=" + serializerConfigs +
-                ", classLoaderFactory=" + classLoaderFactory + ", initialSnapshotName=" + initialSnapshotName + "}";
+                + snapshotIntervalMillis + ", autoScaling=" + autoScaling + ", suspendOnFailure=" + suspendOnFailure
+                + ", splitBrainProtectionEnabled=" + splitBrainProtectionEnabled + ", enableMetrics=" + enableMetrics
+                + ", storeMetricsAfterJobCompletion=" + storeMetricsAfterJobCompletion
+                + ", resourceConfigs=" + resourceConfigs + ", serializerConfigs=" + serializerConfigs
+                + ", classLoaderFactory=" + classLoaderFactory + ", initialSnapshotName=" + initialSnapshotName + "}";
     }
 
 }

@@ -30,7 +30,15 @@ import com.hazelcast.spi.annotation.PrivateApi;
 @PrivateApi
 public final class JetConfigDataSerializerHook implements DataSerializerHook {
 
+    /**
+     * Name of the system property that specifies Jet's config data
+     * serialization factory ID
+     */
     public static final String JET_CONFIG_DS_FACTORY = "hazelcast.serialization.ds.jet.config";
+
+    /**
+     * Default Factory ID of Jet Job Config
+     */
     public static final int JET_CONFIG_DS_FACTORY_ID = -10004;
 
     /**
@@ -38,6 +46,9 @@ public final class JetConfigDataSerializerHook implements DataSerializerHook {
      */
     public static final int JOB_CONFIG = 0;
 
+    /**
+     * Factory ID of Jet Job Config
+     */
     public static final int FACTORY_ID = FactoryIdHelper.getFactoryId(JET_CONFIG_DS_FACTORY, JET_CONFIG_DS_FACTORY_ID);
 
     @Override

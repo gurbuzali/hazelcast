@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet;
-
-public interface ThePipeline {
-}
+/**
+ * Jet's core Job related interfaces.
+ *
+ * @since 3.0
+ */
+package com.hazelcast.jet.core;
