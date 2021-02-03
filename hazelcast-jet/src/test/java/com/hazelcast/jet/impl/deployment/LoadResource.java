@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet.impl.connector.deployment;
+package com.hazelcast.jet.impl.deployment;
 
 import com.hazelcast.cluster.Address;
 import com.hazelcast.jet.core.AbstractProcessor;

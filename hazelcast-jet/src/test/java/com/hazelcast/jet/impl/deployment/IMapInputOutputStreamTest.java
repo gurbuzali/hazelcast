@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet.impl.connector.deployment;
+package com.hazelcast.jet.impl.deployment;
 
 import com.hazelcast.internal.nio.IOUtil;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
-import com.hazelcast.jet.impl.deployment.IMapInputStream;
-import com.hazelcast.jet.impl.deployment.IMapOutputStream;
 import com.hazelcast.map.IMap;
 import com.hazelcast.test.HazelcastSerialClassRunner;
 import org.junit.Assert;

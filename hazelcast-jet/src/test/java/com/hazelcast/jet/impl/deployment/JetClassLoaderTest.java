@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet.impl.connector.deployment;
+package com.hazelcast.jet.impl.deployment;
 
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.core.AbstractProcessor;
 import com.hazelcast.jet.core.DAG;
 import com.hazelcast.jet.core.JetTestSupport;
-import com.hazelcast.jet.impl.deployment.JetClassLoader;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

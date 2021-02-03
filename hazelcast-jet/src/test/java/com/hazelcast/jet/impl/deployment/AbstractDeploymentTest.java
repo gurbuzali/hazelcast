@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet.impl.connector.deployment;
+package com.hazelcast.jet.impl.deployment;
 
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
@@ -23,7 +23,7 @@ import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.config.JobClassLoaderFactory;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.DAG;
-import com.hazelcast.jet.impl.connector.deployment.LoadResource.LoadResourceMetaSupplier;
+import com.hazelcast.jet.impl.deployment.LoadResource.LoadResourceMetaSupplier;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.ServiceFactories;
 import com.hazelcast.jet.pipeline.ServiceFactory;

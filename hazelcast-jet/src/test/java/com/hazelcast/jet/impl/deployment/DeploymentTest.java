@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package com.hazelcast.jet.impl.connector.deployment;
+package com.hazelcast.jet.impl.deployment;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.internal.util.FilteringClassLoader;
 import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.test.HazelcastSerialClassRunner;
 import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import static java.util.Collections.singletonList;
 
 @RunWith(HazelcastSerialClassRunner.class)
-public class ClientDeploymentTest extends AbstractDeploymentTest {
-
-    @Rule
-    public final Timeout timeoutRule = Timeout.seconds(360);
+public class DeploymentTest extends AbstractDeploymentTest {
 
     @BeforeClass
     public static void beforeClass() {
@@ -40,11 +34,11 @@ public class ClientDeploymentTest extends AbstractDeploymentTest {
         FilteringClassLoader filteringClassLoader = new FilteringClassLoader(singletonList("deployment"), null);
         config.setClassLoader(filteringClassLoader);
 
-        initializeWithClient(2, null, null);
+        initialize(2, config);
     }
 
     @Override
     protected JetInstance getJetInstance() {
-        return client().getJetInstance();
+        return instance().getJetInstance();
     }
 }
