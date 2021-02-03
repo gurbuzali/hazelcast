@@ -25,6 +25,7 @@ import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.impl.client.protocol.codec.JetExistsDistributedObjectCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobIdsByNameCodec;
 import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobIdsCodec;
+import com.hazelcast.jet.impl.client.protocol.codec.JetGetJobSummaryListCodec;
 import com.hazelcast.jet.impl.util.ExceptionUtil;
 import com.hazelcast.logging.ILogger;
 
@@ -84,6 +85,15 @@ public class JetClientInstanceImpl extends AbstractJetInstance {
             List<Long> jobs = JetGetJobIdsCodec.decodeResponse(resp).response;
             return toList(jobs, jobId -> new ClientJobProxy(this, jobId));
         });
+    }
+
+    /**
+     * Returns a list of jobs and a summary of their details.
+     */
+    @Nonnull
+    public List<JobSummary> getJobSummaryList() {
+        return invokeRequestOnMasterAndDecodeResponse(JetGetJobSummaryListCodec.encodeRequest(),
+                response -> JetGetJobSummaryListCodec.decodeResponse(response).response);
     }
 
     public HazelcastClientInstanceImpl client() {

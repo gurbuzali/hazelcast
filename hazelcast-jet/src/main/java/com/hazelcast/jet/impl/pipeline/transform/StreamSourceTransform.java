@@ -125,4 +125,9 @@ public class StreamSourceTransform<T> extends AbstractTransform implements Strea
     public long partitionIdleTimeout() {
         return partitionIdleTimeout;
     }
+
+    // used for testing
+    public FunctionEx<? super EventTimePolicy<? super T>, ? extends ProcessorMetaSupplier> getMetaSupplierFn() {
+        return metaSupplierFn;
+    }
 }
