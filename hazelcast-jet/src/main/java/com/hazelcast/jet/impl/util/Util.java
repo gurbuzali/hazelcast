@@ -17,6 +17,8 @@
 package com.hazelcast.jet.impl.util;
 
 import com.hazelcast.cluster.Address;
+import com.hazelcast.instance.impl.HazelcastInstanceImpl;
+import com.hazelcast.instance.impl.HazelcastInstanceProxy;
 import com.hazelcast.jet.config.EdgeConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetException;
@@ -641,5 +643,20 @@ public final class Util {
             }
             return projectedRow;
         };
+    }
+
+    /**
+     * Returns the implementation of {@link HazelcastInstance}, also handles
+     * proxy.
+     */
+    @Nonnull
+    public static HazelcastInstanceImpl getImpl(HazelcastInstance instance) {
+        if (instance instanceof HazelcastInstanceImpl) {
+            return (HazelcastInstanceImpl) instance;
+        }
+        if (instance instanceof HazelcastInstanceProxy) {
+            return ((HazelcastInstanceProxy) instance).getOriginal();
+        }
+        throw new IllegalArgumentException("Unknown HazelcastInstance implementation: " + instance.getClass());
     }
 }

@@ -16,6 +16,7 @@
 
 package com.hazelcast.jet.core;
 
+import com.hazelcast.jet.TheDag;
 import com.hazelcast.jet.config.EdgeConfig;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.internal.json.JsonArray;
@@ -77,7 +78,7 @@ import static java.util.stream.Collectors.joining;
  *
  * @since 3.0
  */
-public class DAG implements IdentifiedDataSerializable, Iterable<Vertex> {
+public class DAG implements IdentifiedDataSerializable, Iterable<Vertex>, TheDag {
 
     private final Set<Edge> edges = new LinkedHashSet<>();
     private final Map<String, Vertex> nameToVertex = new HashMap<>();

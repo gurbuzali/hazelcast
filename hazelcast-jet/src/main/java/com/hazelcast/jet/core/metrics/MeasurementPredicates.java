@@ -16,6 +16,8 @@
 
 package com.hazelcast.jet.core.metrics;
 
+import com.hazelcast.jet.TheMeasurement;
+
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -47,7 +49,7 @@ public final class MeasurementPredicates {
      * @param value the value the tag has to have
      * @return a filtering predicate
      */
-    public static Predicate<Measurement> tagValueEquals(String tag, String value) {
+    public static Predicate<TheMeasurement> tagValueEquals(String tag, String value) {
         return measurement -> value.equals(measurement.tag(tag));
     }
 

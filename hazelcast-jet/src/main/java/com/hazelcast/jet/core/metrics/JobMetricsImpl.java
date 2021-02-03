@@ -17,6 +17,7 @@
 package com.hazelcast.jet.core.metrics;
 
 import com.hazelcast.jet.JobMetrics;
+import com.hazelcast.jet.TheMeasurement;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -124,7 +125,7 @@ public final class JobMetricsImpl implements JobMetrics, IdentifiedDataSerializa
      * JobMetricsImpl} instance.
      */
     @Nonnull
-    public JobMetricsImpl filter(@Nonnull Predicate<Measurement> predicate) {
+    public JobMetricsImpl filter(@Nonnull Predicate<TheMeasurement> predicate) {
         Objects.requireNonNull(predicate, "predicate");
 
         Map<String, List<Measurement>> filteredMetrics =

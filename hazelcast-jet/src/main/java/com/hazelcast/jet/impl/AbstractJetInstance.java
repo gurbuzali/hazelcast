@@ -21,6 +21,7 @@ import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobAlreadyExistsException;
 import com.hazelcast.jet.JobStateSnapshot;
+import com.hazelcast.jet.TheDag;
 import com.hazelcast.jet.ThePipeline;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobNotFoundException;
@@ -54,6 +55,13 @@ public abstract class AbstractJetInstance implements JetInstance {
 
     @Nonnull
     @Override
+    public Job newJob(@Nonnull TheDag dag, @Nonnull JobConfig config) {
+        long jobId = uploadResourcesAndAssignId(config);
+        return newJobProxy(jobId, dag, config);
+    }
+
+    @Nonnull
+    @Override
     public Job newJob(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
         config = config.attachAll(((PipelineImpl) pipeline).attachedFiles());
         long jobId = uploadResourcesAndAssignId(config);
@@ -62,12 +70,22 @@ public abstract class AbstractJetInstance implements JetInstance {
 
     @Nonnull
     @Override
+    public Job newJobIfAbsent(@Nonnull TheDag dag, @Nonnull JobConfig config) {
+        return newJobIfAbsentInternal(dag, config);
+    }
+
+    @Nonnull
+    @Override
     public Job newJobIfAbsent(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
-        if (config.getName() == null) {
-            return newJob(pipeline, config);
+        return newJobIfAbsentInternal(pipeline, config);
+    }
+
+    private Job newJobIfAbsentInternal(Object jobDefinition, JobConfig jobConfig) {
+        if (jobConfig.getName() == null) {
+            return newJobInternal(jobDefinition, jobConfig);
         } else {
             while (true) {
-                Job job = getJob(config.getName());
+                Job job = getJob(jobConfig.getName());
                 if (job != null) {
                     JobStatus status = job.getStatus();
                     if (status != JobStatus.FAILED && status != JobStatus.COMPLETED) {
@@ -75,12 +93,19 @@ public abstract class AbstractJetInstance implements JetInstance {
                     }
                 }
                 try {
-                    return newJob(pipeline, config);
+                    return newJobInternal(jobDefinition, jobConfig);
                 } catch (JobAlreadyExistsException e) {
-                    logFine(getLogger(), "Could not submit job with duplicate name: %s, ignoring", config.getName());
+                    logFine(getLogger(), "Could not submit job with duplicate name: %s, ignoring", jobConfig.getName());
                 }
             }
         }
+    }
+
+    private Job newJobInternal(Object jobDefinition, JobConfig jobConfig) {
+        if (jobDefinition instanceof TheDag) {
+            return newJob((TheDag) jobDefinition, jobConfig);
+        }
+        return newJob((ThePipeline) jobDefinition, jobConfig);
     }
 
     @Override

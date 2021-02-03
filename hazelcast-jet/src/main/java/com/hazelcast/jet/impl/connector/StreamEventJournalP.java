@@ -72,6 +72,7 @@ import static com.hazelcast.jet.impl.util.Util.distributeObjects;
 import static com.hazelcast.jet.impl.util.LoggingUtil.logFinest;
 import static com.hazelcast.jet.impl.util.Util.arrayIndexOf;
 import static com.hazelcast.jet.impl.util.Util.checkSerializable;
+import static com.hazelcast.jet.impl.util.Util.getImpl;
 import static com.hazelcast.jet.pipeline.JournalInitialPosition.START_FROM_CURRENT;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -165,7 +166,7 @@ public final class StreamEventJournalP<E, T> extends AbstractProcessor {
 
         if (!isRemoteReader) {
             // try to serde projection/predicate to fail fast if they aren't known to IMDG
-            HazelcastInstanceImpl hzInstance = (HazelcastInstanceImpl) context.instance();
+            HazelcastInstanceImpl hzInstance = getImpl(context.instance());
             InternalSerializationService ss = hzInstance.getSerializationService();
             try {
                 deserializeWithCustomClassLoader(ss, hzInstance.getClass().getClassLoader(), ss.toData(predicate));

@@ -16,5 +16,18 @@
 
 package com.hazelcast.jet;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+
 public interface JobMetrics {
+
+    List<? extends TheMeasurement> get(@Nonnull String metricName);
+
+    Set<String> metrics();
+
+    JobMetrics filter(@Nonnull String tagName, @Nonnull String tagValue);
+
+    JobMetrics filter(@Nonnull Predicate<TheMeasurement> predicate);
 }

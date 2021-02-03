@@ -18,6 +18,7 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.client.impl.ClientEngineImpl;
 import com.hazelcast.config.Config;
+import com.hazelcast.internal.services.GracefulShutdownAwareService;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.impl.Node;
@@ -49,6 +50,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -57,7 +61,8 @@ import static com.hazelcast.jet.impl.util.ExceptionUtil.sneakyThrow;
 import static com.hazelcast.jet.impl.util.Util.memoizeConcurrent;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class JetService implements ManagedService, MembershipAwareService, LiveOperationsTracker {
+public class JetService implements ManagedService, MembershipAwareService, LiveOperationsTracker,
+        GracefulShutdownAwareService {
 
     public static final String SERVICE_NAME = "hz:impl:jetService";
     public static final int MAX_PARALLEL_ASYNC_OPS = 1000;
@@ -137,16 +142,23 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
 
     /**
      * Tells master to gracefully shut terminate jobs on this member. Blocks
-     * until all are down.
+     * until all are down or the timeout.
      */
-    void shutDownJobs() {
+    @Override
+    public boolean onShutdown(long timeout, TimeUnit unit) {
         if (shutdownFuture.compareAndSet(null, new CompletableFuture<>())) {
             notifyMasterWeAreShuttingDown(shutdownFuture.get());
         }
-        shutdownFuture.get().join();
-
-        assert jobExecutionService.numberOfExecutions() == 0
-                : "numberOfExecutions should be zero, but is " + jobExecutionService.numberOfExecutions();
+        try {
+            shutdownFuture.get().get(timeout, unit);
+        } catch (Exception exception) {
+            throw ExceptionUtil.rethrow(exception);
+        }
+        if (jobExecutionService.numberOfExecutions() != 0) {
+            logger.severe("numberOfExecutions should be zero, but is " + jobExecutionService.numberOfExecutions());
+            return false;
+        }
+        return true;
     }
 
     private void notifyMasterWeAreShuttingDown(CompletableFuture<Void> future) {

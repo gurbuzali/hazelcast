@@ -29,6 +29,7 @@ import com.hazelcast.jet.core.Inbox;
 import com.hazelcast.jet.core.JetDataSerializerHook;
 import com.hazelcast.jet.core.Outbox;
 import com.hazelcast.jet.impl.util.ImdgUtil;
+import com.hazelcast.jet.impl.util.Util;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.impl.proxy.MapProxyImpl;
@@ -46,6 +47,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.ToIntFunction;
+
+import static com.hazelcast.jet.impl.util.Util.getImpl;
 
 /**
  * @param <T> type of input items to this processor
@@ -165,7 +168,7 @@ public abstract class AbstractUpdateMapP<T, K, V> extends AsyncHazelcastWriterP 
         @SuppressWarnings("unchecked")
         SerializationContext(HazelcastInstance instance, IMap<K, ?> map) {
             if (ImdgUtil.isMemberInstance(instance)) {
-                NodeEngineImpl nodeEngine = ((HazelcastInstanceImpl) instance).node.nodeEngine;
+                NodeEngineImpl nodeEngine = getImpl(instance).node.nodeEngine;
                 IPartitionService partitionService = nodeEngine.getPartitionService();
                 partitionCount = partitionService.getPartitionCount();
                 partitionIdFn = partitionService::getPartitionId;

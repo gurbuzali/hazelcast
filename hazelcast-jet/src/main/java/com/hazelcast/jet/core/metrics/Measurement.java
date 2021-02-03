@@ -16,6 +16,7 @@
 
 package com.hazelcast.jet.core.metrics;
 
+import com.hazelcast.jet.TheMeasurement;
 import com.hazelcast.jet.impl.util.Util;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
  *
  * @since 3.2
  */
-public final class Measurement implements IdentifiedDataSerializable {
+public final class Measurement implements IdentifiedDataSerializable, TheMeasurement {
 
     //tag name -> tag value
     private Map<String, String> tags;
