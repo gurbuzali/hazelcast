@@ -44,7 +44,7 @@ import static com.hazelcast.jet.impl.util.Util.checkSerializable;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents an edge between two {@link Vertex vertices} in a {@link DAG}.
+ * Represents an edge between two {@link Vertex vertices} in a {@link DAGImpl}.
  * Conceptually, data travels over the edge from the source vertex to the
  * destination vertex. Practically, since the vertex is distributed across
  * the cluster and across threads in each cluster member, the edge is

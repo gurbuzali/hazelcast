@@ -17,7 +17,6 @@
 package com.hazelcast.jet.core;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.core.TestProcessors.ListSource;
 import com.hazelcast.jet.core.processor.SinkProcessors;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class MultigraphTest extends JetTestSupport {
 
     @Test
     public void test() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         List<Integer> input = IntStream.range(0, 200_000).boxed().collect(Collectors.toList());
         Vertex source = dag.newVertex("source", ListSource.supplier(input));
         Vertex sink = dag.newVertex("sink", SinkProcessors.writeListP("sink"));

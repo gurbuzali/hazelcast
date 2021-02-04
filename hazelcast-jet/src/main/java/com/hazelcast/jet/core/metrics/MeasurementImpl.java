@@ -16,7 +16,7 @@
 
 package com.hazelcast.jet.core.metrics;
 
-import com.hazelcast.jet.TheMeasurement;
+import com.hazelcast.jet.Measurement;
 import com.hazelcast.jet.impl.util.Util;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *
  * @since 3.2
  */
-public final class Measurement implements IdentifiedDataSerializable, TheMeasurement {
+public final class MeasurementImpl implements IdentifiedDataSerializable, Measurement {
 
     //tag name -> tag value
     private Map<String, String> tags;
@@ -59,10 +59,10 @@ public final class Measurement implements IdentifiedDataSerializable, TheMeasure
     private long value;
     private long timestamp;
 
-    Measurement() {
+    MeasurementImpl() {
     }
 
-    private Measurement(String metric, long value, long timestamp, @Nonnull Map<String, String> tags) {
+    private MeasurementImpl(String metric, long value, long timestamp, @Nonnull Map<String, String> tags) {
         this.metric = metric;
         this.value = value;
         this.timestamp = timestamp;
@@ -70,27 +70,27 @@ public final class Measurement implements IdentifiedDataSerializable, TheMeasure
     }
 
     /**
-     * Builds a {@link Measurement} instance based on timestamp, value and
+     * Builds a {@link MeasurementImpl} instance based on timestamp, value and
      * the metric descriptor in map form.
      */
     @Nonnull
-    public static Measurement of(
+    public static MeasurementImpl of(
             @Nonnull String metric, long value, long timestamp, @Nonnull Map<String, String> tags
     ) {
         Objects.requireNonNull(tags, "metric");
         Objects.requireNonNull(tags, "tags");
-        return new Measurement(metric, value, timestamp, tags);
+        return new MeasurementImpl(metric, value, timestamp, tags);
     }
 
     /**
-     * Returns the value associated with this {@link Measurement}.
+     * Returns the value associated with this {@link MeasurementImpl}.
      */
     public long value() {
         return value;
     }
 
     /**
-     * Returns the timestamps associated with this {@link Measurement}, the
+     * Returns the timestamps associated with this {@link MeasurementImpl}, the
      * moment when the value was gathered.
      */
     public long timestamp() {
@@ -108,7 +108,7 @@ public final class Measurement implements IdentifiedDataSerializable, TheMeasure
 
     /**
      * Returns the value associated with a specific tag, based on the metric
-     * description of this particular {@link Measurement}. For a list of
+     * description of this particular {@link MeasurementImpl}. For a list of
      * possible tag names see {@link MetricTags}.
      */
     @Nullable
@@ -150,10 +150,10 @@ public final class Measurement implements IdentifiedDataSerializable, TheMeasure
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof Measurement)) {
+        if (!(obj instanceof MeasurementImpl)) {
             return false;
         }
-        Measurement that = (Measurement) obj;
+        MeasurementImpl that = (MeasurementImpl) obj;
         return this.timestamp == that.timestamp
                 && this.value == that.value
                 && Objects.equals(this.tags, that.tags);

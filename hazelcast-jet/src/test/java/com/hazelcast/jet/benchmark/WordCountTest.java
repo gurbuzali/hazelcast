@@ -27,7 +27,7 @@ import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Util;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.AbstractProcessor;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.core.processor.SinkProcessors;
@@ -110,7 +110,7 @@ public class WordCountTest extends HazelcastTestSupport implements Serializable 
 
     private void generateMockInput() {
         logger.info("Generating input");
-        final DAG dag = new DAG();
+        final DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source",
                 (List<Address> addrs) -> (Address addr) -> ProcessorSupplier.of(
                         addr.equals(addrs.get(0)) ? MockInputP::new : noopP()));
@@ -155,7 +155,7 @@ public class WordCountTest extends HazelcastTestSupport implements Serializable 
 
     @Test
     public void testJet() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
 
         Vertex source = dag.newVertex("source", SourceProcessors.readMapP("words"));
         Vertex tokenize = dag.newVertex("tokenize",
@@ -193,7 +193,7 @@ public class WordCountTest extends HazelcastTestSupport implements Serializable 
     @Test
     @Ignore
     public void testJetTwoPhaseAggregation() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", SourceProcessors.readMapP("words"));
         Vertex mapReduce = dag.newVertex("map-reduce", MapReduceP::new);
         Vertex combineLocal = dag.newVertex("combine-local", CombineP::new);

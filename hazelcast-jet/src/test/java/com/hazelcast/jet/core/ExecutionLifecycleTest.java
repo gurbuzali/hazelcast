@@ -33,7 +33,6 @@ import com.hazelcast.jet.core.TestProcessors.MockPMS;
 import com.hazelcast.jet.core.TestProcessors.MockPS;
 import com.hazelcast.jet.core.TestProcessors.NoOutputSourceP;
 import com.hazelcast.jet.core.processor.Processors;
-import com.hazelcast.jet.impl.JetClientInstanceImpl;
 import com.hazelcast.jet.impl.JetService;
 import com.hazelcast.jet.impl.JobResult;
 import com.hazelcast.jet.impl.execution.ExecutionContext;
@@ -108,7 +107,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobCompletesSuccessfully_then_closeCalled() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT))));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT))));
 
         // When
         Job job = jetInstance().newJob(dag);
@@ -123,7 +122,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_processorCompletesSuccessfully_then_closeCalledImmediately() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", MockP::new);
         Vertex v2 = dag.newVertex("v2", () -> new NoOutputSourceP());
         dag.edge(between(v1, v2));
@@ -139,7 +138,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_pmsInitThrows_then_jobFails() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test",
                 new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT)).setInitError(MOCK_ERROR)));
 
         // When
@@ -153,9 +152,9 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_oneOfTwoJobsFails_then_theOtherContinues() throws Exception {
         // Given
-        DAG dagFaulty = new DAG().vertex(new Vertex("faulty",
+        DAGImpl dagFaulty = new DAGImpl().vertex(new Vertex("faulty",
                 new MockPMS(() -> new MockPS(() -> new MockP().setCompleteError(MOCK_ERROR), MEMBER_COUNT))));
-        DAG dagGood = new DAG();
+        DAGImpl dagGood = new DAGImpl();
         dagGood.newVertex("good", () -> new NoOutputSourceP());
 
         // When
@@ -172,7 +171,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_pmsGetThrows_then_jobFails() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("faulty",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("faulty",
                 new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT)).setGetError(MOCK_ERROR)));
 
         // When
@@ -186,7 +185,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_pmsCloseThrows_then_jobSucceeds() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test",
                 new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT)).setCloseError(MOCK_ERROR)));
 
         // When
@@ -203,7 +202,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_psInitThrows_then_jobFails() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test",
                 new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT).setInitError(MOCK_ERROR))));
 
         // When
@@ -218,7 +217,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_psGetThrows_then_jobFails() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("faulty",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("faulty",
                 new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT).setGetError(MOCK_ERROR))));
 
         // When
@@ -235,7 +234,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
         // Given
         final int localPort = instance().getCluster().getLocalMember().getAddress().getPort();
 
-        DAG dag = new DAG().vertex(new Vertex("faulty",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("faulty",
                 ProcessorMetaSupplier.of(
                         (Address address) -> ProcessorSupplier.of(
                                 address.getPort() == localPort ? noopP() : () -> {
@@ -255,7 +254,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_psCloseThrows_then_jobSucceeds() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("faulty",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("faulty",
                 new MockPMS(() -> new MockPS(MockP::new, MEMBER_COUNT).setCloseError(MOCK_ERROR))));
 
         // When
@@ -272,7 +271,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_processorInitThrows_then_failJob() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty",
                 new MockPMS(() -> new MockPS(() -> new MockP().setInitError(MOCK_ERROR), MEMBER_COUNT)));
 
@@ -289,7 +288,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_processorProcessThrows_then_failJob() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", ListSource.supplier(singletonList(1)));
         Vertex process = dag.newVertex("faulty",
                 new MockPMS(() -> new MockPS(() -> new MockP().setProcessError(MOCK_ERROR), MEMBER_COUNT)));
@@ -308,7 +307,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_processorCooperativeCompleteThrows_then_failJob() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty",
                 new MockPMS(() -> new MockPS(() -> new MockP().setCompleteError(MOCK_ERROR), MEMBER_COUNT)));
 
@@ -325,7 +324,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_processorNonCooperativeCompleteThrows_then_failJob() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty", new MockPMS(() -> new MockPS(() ->
                 new MockP().nonCooperative().setCompleteError(MOCK_ERROR), MEMBER_COUNT)));
 
@@ -342,7 +341,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_processorOnSnapshotCompleteThrows_then_failJob() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty", new MockPMS(() -> new MockPS(() ->
                 new MockP().nonCooperative().streaming().setOnSnapshotCompleteError(MOCK_ERROR), MEMBER_COUNT)));
 
@@ -360,7 +359,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_processorSaveToSnapshotThrows_then_failJob() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty", new MockPMS(() -> new MockPS(() ->
                 new MockP().nonCooperative().streaming().setSaveToSnapshotError(MOCK_ERROR), MEMBER_COUNT)));
 
@@ -378,7 +377,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_processorCloseThrows_then_jobSucceeds() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty",
                 new MockPMS(() -> new MockPS(() -> new MockP().setCloseError(MOCK_ERROR), MEMBER_COUNT)));
 
@@ -396,7 +395,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_executionCancelled_then_jobCompletedWithCancellationException() throws Exception {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test",
                 new MockPMS(() -> new MockPS(NoOutputSourceP::new, MEMBER_COUNT))));
 
         // When
@@ -413,7 +412,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_executionCancelledBeforeStart_then_jobFutureIsCancelledOnExecute() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test",
                 new MockPS(NoOutputSourceP::new, MEMBER_COUNT)));
 
         NodeEngineImpl nodeEngineImpl = getNodeEngineImpl(instance());
@@ -449,7 +448,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobCancelled_then_psCloseNotCalledBeforeTaskletsDone() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test",
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test",
                 new MockPS(() -> new NoOutputSourceP(10_000), MEMBER_COUNT)));
 
         // When
@@ -488,7 +487,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     private void when_deserializationOnMembersFails_then_jobSubmissionFails(JetInstance instance) throws Throwable {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         // this is designed to fail when member deserializes the execution plan while executing
         // the InitOperation
         dag.newVertex("faulty", (ProcessorMetaSupplier) addresses -> address -> new NotDeserializableProcessorSupplier());
@@ -514,7 +513,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     private void when_deserializationOnMasterFails_then_jobSubmissionFails(JetInstance instance) throws Throwable {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         // this is designed to fail when the master member deserializes the DAG
         dag.newVertex("faulty", new NotDeserializableProcessorMetaSupplier());
 
@@ -532,7 +531,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_serializationOnMasterFails_then_jobFails() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         // When
         dag.newVertex("v", new PmsProducingNonSerializablePs());
         Job job = jetInstance().newJob(dag);
@@ -544,7 +543,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_clientJoinBeforeAndAfterComplete_then_exceptionEquals() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex noop = dag.newVertex("noop", (SupplierEx<Processor>) NoOutputSourceP::new)
                          .localParallelism(1);
         Vertex faulty = dag.newVertex("faulty", () -> new MockP().setCompleteError(MOCK_ERROR))
@@ -589,7 +588,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_job_withNoSnapshots_completed_then_noSnapshotMapsLeft() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("noop", Processors.noopP());
         jetInstance().newJob(dag).join();
         Collection<DistributedObject> objects = instance().getDistributedObjects();
@@ -603,7 +602,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_dataSerializable_processorSupplier_notSerializable_then_jobFails() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", ProcessorMetaSupplier.of(
                 (FunctionEx<? super Address, ? extends ProcessorSupplier>)
                         address -> new NotSerializable_DataSerializable_ProcessorSupplier()));
@@ -615,7 +614,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
 
     @Test
     public void test_jobStatusCompleting() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", () -> new MockP().streaming());
         Job job = jetInstance().newJob(dag);
 
@@ -650,7 +649,7 @@ public class ExecutionLifecycleTest extends SimpleTestInClusterSupport {
         }
     }
 
-    private Job runJobExpectFailure(@Nonnull DAG dag, boolean snapshotting) {
+    private Job runJobExpectFailure(@Nonnull DAGImpl dag, boolean snapshotting) {
         Job job = null;
         try {
             JobConfig config = new JobConfig();

@@ -19,7 +19,7 @@ package com.hazelcast.jet.impl.connector;
 import com.hazelcast.collection.IList;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.test.HazelcastSerialClassRunner;
@@ -83,7 +83,7 @@ public class StreamSocketP_integrationTest extends JetTestSupport {
                 accept2.close();
             }));
 
-            DAG dag = new DAG();
+            DAGImpl dag = new DAGImpl();
             Vertex producer = dag.newVertex("producer", streamSocketP(HOST, PORT, UTF_8)).localParallelism(2);
             Vertex consumer = dag.newVertex("consumer", writeListP("consumer")).localParallelism(1);
             dag.edge(between(producer, consumer));
@@ -121,7 +121,7 @@ public class StreamSocketP_integrationTest extends JetTestSupport {
 
             Vertex producer = new Vertex("producer", streamSocketP(HOST, PORT, UTF_8)).localParallelism(1);
             Vertex sink = new Vertex("sink", noopP()).localParallelism(1);
-            DAG dag = new DAG()
+            DAGImpl dag = new DAGImpl()
                     .vertex(producer)
                     .vertex(sink)
                     .edge(between(producer, sink));

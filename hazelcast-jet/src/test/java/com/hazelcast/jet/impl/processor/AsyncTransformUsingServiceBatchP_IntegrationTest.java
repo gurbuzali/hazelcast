@@ -25,7 +25,7 @@ import com.hazelcast.jet.SimpleTestInClusterSupport;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.config.EdgeConfig;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.core.Vertex;
@@ -124,7 +124,7 @@ public class AsyncTransformUsingServiceBatchP_IntegrationTest extends SimpleTest
         int numItems = 10_000;
         journaledMap.putAll(IntStream.range(NUM_ITEMS, numItems).boxed().collect(toMap(i -> i, i -> i)));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", throttle(streamMapP(journaledMap.getName(), alwaysTrue(),
                 EventJournalMapEvent::getNewValue, START_FROM_OLDEST, eventTimePolicy(
                         i -> (long) ((Integer) i),

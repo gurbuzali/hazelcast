@@ -21,7 +21,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.pipeline.Pipeline;
@@ -70,7 +70,7 @@ public class JobLifecycleMetricsTest extends JetTestSupport {
         assertTrueEventually(() -> assertJobStats(1, 1, 1, 1, 0));
 
         //given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Throwable e = new AssertionError("mock error");
         Vertex source = dag.newVertex("source", ListSource.supplier(singletonList(1)));
         Vertex process = dag.newVertex("faulty",

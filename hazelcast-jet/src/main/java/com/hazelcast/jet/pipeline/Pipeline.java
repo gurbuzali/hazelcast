@@ -17,7 +17,7 @@
 package com.hazelcast.jet.pipeline;
 
 import com.hazelcast.jet.ThePipeline;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.impl.pipeline.PipelineImpl;
 
 import javax.annotation.Nonnull;
@@ -129,7 +129,7 @@ public interface Pipeline extends Serializable, ThePipeline {
      */
     @Nonnull
     @Deprecated()
-    DAG toDag();
+    DAGImpl toDag();
 
     /**
      * Returns a DOT format (graphviz) representation of the Pipeline.

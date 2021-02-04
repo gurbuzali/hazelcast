@@ -23,7 +23,7 @@ import com.hazelcast.internal.cluster.MemberInfo;
 import com.hazelcast.internal.cluster.impl.MembersView;
 import com.hazelcast.internal.partition.IPartitionService;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.Edge;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.core.ProcessorSupplier;
@@ -55,7 +55,7 @@ public final class ExecutionPlanBuilder {
     }
 
     public static Map<MemberInfo, ExecutionPlan> createExecutionPlans(
-            NodeEngine nodeEngine, MembersView membersView, DAG dag, long jobId, long executionId,
+            NodeEngine nodeEngine, MembersView membersView, DAGImpl dag, long jobId, long executionId,
             JobConfig jobConfig, long lastSnapshotId
     ) {
         JetConfig jetConfig = nodeEngine.getConfig().getJetConfig();
@@ -111,7 +111,7 @@ public final class ExecutionPlanBuilder {
         return plans;
     }
 
-    private static Map<String, Integer> assignVertexIds(DAG dag) {
+    private static Map<String, Integer> assignVertexIds(DAGImpl dag) {
         Map<String, Integer> vertexIdMap = new LinkedHashMap<>();
         final int[] vertexId = {0};
         dag.forEach(v -> vertexIdMap.put(v.getName(), vertexId[0]++));

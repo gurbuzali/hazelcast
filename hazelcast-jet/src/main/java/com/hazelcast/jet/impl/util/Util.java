@@ -24,7 +24,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.core.Watermark;
 import com.hazelcast.jet.function.RunnableEx;
@@ -425,7 +425,7 @@ public final class Util {
     @SuppressWarnings("WeakerAccess")
     public static CompletableFuture<Void> copyMapUsingJob(HazelcastInstance instance, int queueSize,
                                                           String sourceMap, String targetMap) {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("readMap(" + sourceMap + ')', readMapP(sourceMap));
         Vertex sink = dag.newVertex("writeMap(" + targetMap + ')', writeMapP(targetMap));
         dag.edge(between(source, sink).setConfig(new EdgeConfig().setQueueSize(queueSize)));

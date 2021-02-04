@@ -22,7 +22,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.core.AbstractProcessor;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.core.ProcessorSupplier;
@@ -77,7 +77,7 @@ public class BackpressureTest extends JetTestSupport {
 
     @Test
     public void testBackpressure() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
 
         final int member1Port = instance1.getCluster().getLocalMember().getAddress().getPort();
         final Member member2 = instance2.getCluster().getLocalMember();

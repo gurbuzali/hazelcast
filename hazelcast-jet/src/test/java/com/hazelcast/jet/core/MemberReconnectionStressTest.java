@@ -20,8 +20,6 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.nio.Connection;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.TestProcessors.MockP;
 import com.hazelcast.jet.impl.util.ImdgUtil;
 import com.hazelcast.spi.properties.ClusterProperty;
@@ -90,7 +88,7 @@ public class MemberReconnectionStressTest extends JetTestSupport {
             }
         }).start();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", () -> new MockP()).localParallelism(2);
         Vertex v2 = dag.newVertex("v2", () -> new MockP()).localParallelism(2);
         dag.edge(between(v1, v2).distributed());

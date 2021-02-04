@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 
 /**
- * Encapsulates the logic associated with a {@link DAG} edge that decides
+ * Encapsulates the logic associated with a {@link DAGImpl} edge that decides
  * on the partition ID of an item traveling over it. The partition ID
  * determines which cluster member and which instance of {@link Processor} on
  * that member an item will be forwarded to.

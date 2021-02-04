@@ -22,7 +22,7 @@ import com.hazelcast.internal.metrics.MetricDescriptor;
 import com.hazelcast.internal.metrics.impl.MetricsCompressor;
 import com.hazelcast.internal.util.MapUtil;
 import com.hazelcast.jet.core.metrics.JobMetricsImpl;
-import com.hazelcast.jet.core.metrics.Measurement;
+import com.hazelcast.jet.core.metrics.MeasurementImpl;
 import com.hazelcast.jet.core.metrics.MetricTags;
 import com.hazelcast.jet.impl.metrics.RawJobMetrics;
 
@@ -73,7 +73,7 @@ public final class JobMetricsUtil {
 
     private static class JobMetricsConsumer implements MetricConsumer {
 
-        final Map<String, List<Measurement>> metrics = new HashMap<>();
+        final Map<String, List<MeasurementImpl>> metrics = new HashMap<>();
         long timestamp;
 
         @Override
@@ -87,7 +87,7 @@ public final class JobMetricsUtil {
             consumeLong(descriptor, (long) value);
         }
 
-        private Measurement measurement(MetricDescriptor descriptor, long value) {
+        private MeasurementImpl measurement(MetricDescriptor descriptor, long value) {
             Map<String, String> tags = MapUtil.createHashMap(descriptor.tagCount());
             for (int i = 0; i < descriptor.tagCount(); i++) {
                 tags.put(descriptor.tag(i), descriptor.tagValue(i));
@@ -95,7 +95,7 @@ public final class JobMetricsUtil {
             if (descriptor.discriminator() != null || descriptor.discriminatorValue() != null) {
                 tags.put(descriptor.discriminator(), descriptor.discriminatorValue());
             }
-            return Measurement.of(descriptor.metric(), value, timestamp, tags);
+            return MeasurementImpl.of(descriptor.metric(), value, timestamp, tags);
         }
     }
 }

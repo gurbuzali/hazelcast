@@ -23,13 +23,13 @@ import com.hazelcast.internal.cluster.impl.ClusterServiceImpl;
 import com.hazelcast.internal.cluster.impl.MembersView;
 import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.Edge;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.TopologyChangedException;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.core.metrics.JobMetricsImpl;
-import com.hazelcast.jet.core.metrics.Measurement;
+import com.hazelcast.jet.core.metrics.MeasurementImpl;
 import com.hazelcast.jet.core.metrics.MetricNames;
 import com.hazelcast.jet.core.metrics.MetricTags;
 import com.hazelcast.jet.datamodel.Tuple2;
@@ -192,11 +192,11 @@ public class MasterJobContext {
             try {
                 JobExecutionRecord jobExecRec = mc.jobExecutionRecord();
                 jobExecRec.markExecuted();
-                Tuple2<DAG, ClassLoader> dagAndClassloader = resolveDagAndCL(executionIdSupplier);
+                Tuple2<DAGImpl, ClassLoader> dagAndClassloader = resolveDagAndCL(executionIdSupplier);
                 if (dagAndClassloader == null) {
                     return;
                 }
-                DAG dag = dagAndClassloader.f0();
+                DAGImpl dag = dagAndClassloader.f0();
                 ClassLoader classLoader = dagAndClassloader.f1();
                 // must call this before rewriteDagWithSnapshotRestore()
                 String dotRepresentation = dag.toDotString(defaultParallelism);
@@ -233,7 +233,7 @@ public class MasterJobContext {
     }
 
     @Nullable
-    private Tuple2<DAG, ClassLoader> resolveDagAndCL(Supplier<Long> executionIdSupplier) {
+    private Tuple2<DAGImpl, ClassLoader> resolveDagAndCL(Supplier<Long> executionIdSupplier) {
         mc.lock();
         try {
             if (isCancelled()) {
@@ -265,7 +265,7 @@ public class MasterJobContext {
                 requestedTerminationMode = null;
             }
             ClassLoader classLoader = mc.getJetService().getClassLoader(mc.jobId());
-            DAG dag;
+            DAGImpl dag;
             try {
                 dag = deserializeWithCustomClassLoader(mc.nodeEngine().getSerializationService(),
                         classLoader, mc.jobRecord().getDag());
@@ -356,7 +356,7 @@ public class MasterJobContext {
         return result;
     }
 
-    private void rewriteDagWithSnapshotRestore(DAG dag, long snapshotId, String mapName, String snapshotName) {
+    private void rewriteDagWithSnapshotRestore(DAGImpl dag, long snapshotId, String mapName, String snapshotName) {
         IMap<Object, Object> snapshotMap = mc.nodeEngine().getHazelcastInstance().getMap(mapName);
         long resolvedSnapshotId = validateSnapshot(
                 snapshotId, snapshotMap, mc.jobIdString(), snapshotName);
@@ -718,10 +718,10 @@ public class MasterJobContext {
         return sb.toString();
     }
 
-    private static Map<String, Long> mergeByVertex(List<Measurement> measurements) {
+    private static Map<String, Long> mergeByVertex(List<MeasurementImpl> measurements) {
         return measurements.stream().collect(Collectors.toMap(
                 m -> m.tag(MetricTags.VERTEX),
-                Measurement::value,
+                MeasurementImpl::value,
                 Long::sum
         ));
     }

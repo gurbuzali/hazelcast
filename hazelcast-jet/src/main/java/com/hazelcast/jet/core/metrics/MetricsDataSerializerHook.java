@@ -38,7 +38,7 @@ public class MetricsDataSerializerHook implements DataSerializerHook {
     public static final int JOB_METRICS = 0;
 
     /**
-     * Serialization ID of the {@link Measurement} class.
+     * Serialization ID of the {@link MeasurementImpl} class.
      */
     public static final int MEASUREMENT = 1;
 
@@ -65,7 +65,7 @@ public class MetricsDataSerializerHook implements DataSerializerHook {
                 case JOB_METRICS:
                     return new JobMetricsImpl();
                 case MEASUREMENT:
-                    return new Measurement();
+                    return new MeasurementImpl();
                 default:
                     throw new IllegalArgumentException("Unknown type id " + typeId);
             }

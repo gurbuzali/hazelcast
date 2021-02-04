@@ -231,10 +231,10 @@ public class JobMetrics_StreamTest extends TestInClusterSupport {
     }
 
     private long sumValueFor(JobMetrics metrics, String vertex, String metric) {
-        Collection<Measurement> measurements = ((JobMetricsImpl)metrics)
+        Collection<MeasurementImpl> measurements = ((JobMetricsImpl)metrics)
                 .filter(MeasurementPredicates.tagValueEquals(MetricTags.VERTEX, vertex)
                             .and(MeasurementPredicates.tagValueEquals(MetricTags.ORDINAL, "snapshot").negate()))
                 .get(metric);
-        return measurements.stream().mapToLong(Measurement::value).sum();
+        return measurements.stream().mapToLong(MeasurementImpl::value).sum();
     }
 }

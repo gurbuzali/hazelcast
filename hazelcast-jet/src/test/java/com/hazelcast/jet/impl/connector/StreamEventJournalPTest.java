@@ -21,7 +21,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.Processor;
@@ -217,7 +217,7 @@ public class StreamEventJournalPTest extends JetTestSupport {
 
     @Test
     public void when_processorsWithNoPartitions_then_snapshotRestoreWorks() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex vertex = dag.newVertex("src",
                 streamMapP(map.getName(), JournalInitialPosition.START_FROM_OLDEST, noEventTime()))
                 .localParallelism(8);

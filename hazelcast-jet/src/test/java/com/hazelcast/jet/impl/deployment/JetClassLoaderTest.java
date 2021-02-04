@@ -18,7 +18,7 @@ package com.hazelcast.jet.impl.deployment;
 
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.core.AbstractProcessor;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class JetClassLoaderTest extends JetTestSupport {
 
     @Test
     public void when_jobCompleted_then_classLoaderShutDown() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", LeakClassLoaderP::new).localParallelism(1);
 
         JetInstance instance = createMember().getJetInstance();

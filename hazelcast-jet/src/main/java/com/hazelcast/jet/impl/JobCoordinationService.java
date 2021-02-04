@@ -34,7 +34,7 @@ import com.hazelcast.internal.util.counters.MwCounter;
 import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.JobAlreadyExistsException;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JobNotFoundException;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.JobSuspensionCause;
@@ -205,7 +205,7 @@ public class JobCoordinationService {
 
                 int quorumSize = config.isSplitBrainProtectionEnabled() ? getQuorumSize() : 0;
                 Object jobDefinition = deserializeJobDefinition(jobId, config, serializedJobDefinition);
-                DAG dag;
+                DAGImpl dag;
                 Data serializedDag;
                 if (jobDefinition instanceof PipelineImpl) {
                     int coopThreadCount = jetConfig.getInstanceConfig().getCooperativeThreadCount();
@@ -216,7 +216,7 @@ public class JobCoordinationService {
                     });
                     serializedDag = nodeEngine().getSerializationService().toData(dag);
                 } else {
-                    dag = (DAG) jobDefinition;
+                    dag = (DAGImpl) jobDefinition;
                     serializedDag = serializedJobDefinition;
                 }
                 Set<String> ownedObservables = ownedObservables(dag);
@@ -266,7 +266,7 @@ public class JobCoordinationService {
         return res;
     }
 
-    private static Set<String> ownedObservables(DAG dag) {
+    private static Set<String> ownedObservables(DAGImpl dag) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(dag.iterator(), 0), false)
                 .map(vertex -> vertex.getMetaSupplier().getTags().get(ObservableImpl.OWNED_OBSERVABLE))
                 .filter(Objects::nonNull)
@@ -877,7 +877,7 @@ public class JobCoordinationService {
         return deserializeWithCustomClassLoader(nodeEngine().getSerializationService(), classLoader, jobDefinitionData);
     }
 
-    private String dagToJson(DAG dag) {
+    private String dagToJson(DAGImpl dag) {
         int coopThreadCount = jetConfig.getInstanceConfig().getCooperativeThreadCount();
         return dag.toJson(coopThreadCount).toString();
     }

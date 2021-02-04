@@ -52,7 +52,7 @@ public class GracefulShutdown_LiteMasterTest extends JetTestSupport {
     @Test
     public void test() {
         DummyStatefulP.parallelism = 2;
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", (SupplierEx<Processor>) DummyStatefulP::new)
                 .localParallelism(DummyStatefulP.parallelism);
         Job job = instance.getJetInstance().newJob(dag, new JobConfig()

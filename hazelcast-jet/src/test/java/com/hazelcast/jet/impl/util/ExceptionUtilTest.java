@@ -18,7 +18,7 @@ package com.hazelcast.jet.impl.util;
 
 import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.TestProcessors.MockP;
 import com.hazelcast.test.HazelcastSerialClassRunner;
@@ -72,7 +72,7 @@ public class ExceptionUtilTest extends JetTestSupport {
 
         RuntimeException exc = new RuntimeException("myException");
         try {
-            DAG dag = new DAG();
+            DAGImpl dag = new DAGImpl();
             dag.newVertex("source", () -> new MockP().setCompleteError(exc)).localParallelism(1);
             client.newJob(dag).join();
         } catch (Exception caught) {
@@ -87,7 +87,7 @@ public class ExceptionUtilTest extends JetTestSupport {
 
         RuntimeException exc = new RuntimeException("myException");
         try {
-            DAG dag = new DAG();
+            DAGImpl dag = new DAGImpl();
             dag.newVertex("source", () -> new MockP().setCompleteError(exc)).localParallelism(1);
             instance.newJob(dag).join();
         } catch (Exception caught) {

@@ -20,7 +20,7 @@ import com.hazelcast.collection.IList;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Util;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.test.HazelcastParallelClassRunner;
@@ -72,7 +72,7 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
 
     @Test
     public void when_appendingToPreexisting_then_pickupNewLines() throws Exception {
-        DAG dag = buildDag();
+        DAGImpl dag = buildDag();
 
         // this is a pre-existing file, should not be picked up
         File file = createNewFile();
@@ -94,7 +94,7 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
 
     @Test
     public void when_appendingToPreexistingIncompleteLine_then_pickupCompleteLines() throws Exception {
-        DAG dag = buildDag();
+        DAGImpl dag = buildDag();
 
         // this is a pre-existing file, should not be picked up
         File file = createNewFile();
@@ -121,7 +121,7 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
 
     @Test
     public void when_withCrlf_then_pickupCompleteLines() throws Exception {
-        DAG dag = buildDag();
+        DAGImpl dag = buildDag();
 
         // this is a pre-existing file, should not be picked up
         File file = createNewFile();
@@ -152,7 +152,7 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
     @Test
     @Ignore
     public void when_newAndModified_then_pickupAddition() throws Exception {
-        DAG dag = buildDag();
+        DAGImpl dag = buildDag();
 
         Future<Void> jobFuture = instance.newJob(dag).getFuture();
         // wait for the processor to initialize
@@ -172,7 +172,7 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
 
     @Test
     public void when_fileWithManyLines_then_emitCooperatively() throws Exception {
-        DAG dag = buildDag();
+        DAGImpl dag = buildDag();
 
         Future<Void> jobFuture = instance.newJob(dag).getFuture();
         // wait for the processor to initialize
@@ -199,7 +199,7 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
         // Here, I will start the job and in two separate threads I'll write fixed number of lines
         // to two different log files, with few ms hiccups between each line.
         // At the end, I'll check, if all the contents matches.
-        DAG dag = buildDag();
+        DAGImpl dag = buildDag();
 
         Future<Void> jobFuture = instance.newJob(dag).getFuture();
         // wait for the processor to initialize
@@ -271,8 +271,8 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
         }
     }
 
-    private DAG buildDag() {
-        DAG dag = new DAG();
+    private DAGImpl buildDag() {
+        DAGImpl dag = new DAGImpl();
         Vertex reader = dag.newVertex("reader", streamFilesP(directory.getPath(), UTF_8, "*", false, Util::entry))
                 .localParallelism(1);
         Vertex writer = dag.newVertex("writer", writeListP(list.getName())).localParallelism(1);

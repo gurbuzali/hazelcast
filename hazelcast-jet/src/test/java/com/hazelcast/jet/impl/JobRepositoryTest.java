@@ -24,7 +24,7 @@ import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.core.TestProcessors;
@@ -188,7 +188,7 @@ public class JobRepositoryTest extends JetTestSupport {
 
     @Test
     public void test_maxNumberOfJobResults() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", Processors.noopP());
 
         // create max+1 jobs
@@ -210,7 +210,7 @@ public class JobRepositoryTest extends JetTestSupport {
     }
 
     private Data createDagData() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", () -> new TestProcessors.MockP().streaming());
         return getNodeEngineImpl(instance).toData(dag);
     }

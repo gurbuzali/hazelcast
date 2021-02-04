@@ -21,9 +21,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.internal.metrics.Probe;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.TheMeasurement;
+import com.hazelcast.jet.Measurement;
 import com.hazelcast.jet.core.AbstractProcessor;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.Processor;
@@ -80,7 +80,7 @@ public class JobMetrics_StressTest extends JetTestSupport {
     }
 
     private void stressTest(Function<Job, Runnable> restart) throws Throwable {
-        DAG dag = buildDag();
+        DAGImpl dag = buildDag();
         Job job = instance.getJetInstance().newJob(dag, JOB_CONFIG_WITH_METRICS);
         try {
             assertTrueEventually(() -> assertEquals(JobStatus.RUNNING, job.getStatus()));
@@ -107,8 +107,8 @@ public class JobMetrics_StressTest extends JetTestSupport {
         }
     }
 
-    private DAG buildDag() {
-        DAG dag = new DAG();
+    private DAGImpl buildDag() {
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("p", (SupplierEx<Processor>) IncrementingProcessor::new);
         return dag;
     }
@@ -202,21 +202,21 @@ public class JobMetrics_StressTest extends JetTestSupport {
                 while (!stop) {
                     assertNotNull(job.getMetrics());
 
-                    Collection<? extends TheMeasurement> initCountMeasurements = job.getMetrics().get("initCount");
+                    Collection<? extends Measurement> initCountMeasurements = job.getMetrics().get("initCount");
                     if (initCountMeasurements.size() != TOTAL_PROCESSORS) {
                         continue;
                     }
-                    long initCountSum = initCountMeasurements.stream().mapToLong(TheMeasurement::value).sum();
+                    long initCountSum = initCountMeasurements.stream().mapToLong(Measurement::value).sum();
                     assertTrue("Metrics value should be increasing, current: " + initCountSum
                                     + ", previous: " + previousInitCountSum,
                             initCountSum >= previousInitCountSum);
                     previousInitCountSum = initCountSum;
 
-                    Collection<? extends TheMeasurement> completeCountMeasurements = job.getMetrics().get("completeCount");
+                    Collection<? extends Measurement> completeCountMeasurements = job.getMetrics().get("completeCount");
                     if (completeCountMeasurements.size() != TOTAL_PROCESSORS) {
                         continue;
                     }
-                    long completeCountSum = completeCountMeasurements.stream().mapToLong(TheMeasurement::value).sum();
+                    long completeCountSum = completeCountMeasurements.stream().mapToLong(Measurement::value).sum();
                     assertTrue("Metrics value should be increasing, current: " + completeCountSum
                                     + ", previous: " + previousCompleteCountSum,
                             completeCountSum >= previousCompleteCountSum);
@@ -224,9 +224,9 @@ public class JobMetrics_StressTest extends JetTestSupport {
                 }
                 assertTrueEventually(() -> {
                     assertNotNull(job.getMetrics());
-                    Collection<? extends TheMeasurement> initCountMeasurements = job.getMetrics().get("initCount");
+                    Collection<? extends Measurement> initCountMeasurements = job.getMetrics().get("initCount");
                     assertEquals(TOTAL_PROCESSORS, initCountMeasurements.size());
-                    long sum = initCountMeasurements.stream().mapToLong(TheMeasurement::value).sum();
+                    long sum = initCountMeasurements.stream().mapToLong(Measurement::value).sum();
                     assertEquals((RESTART_COUNT + 1) * TOTAL_PROCESSORS * TOTAL_PROCESSORS, sum);
                 }, 3);
             } catch (Throwable ex) {

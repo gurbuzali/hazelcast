@@ -23,7 +23,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.ICacheManager;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.core.processor.SourceProcessors;
 import com.hazelcast.map.EventJournalMapEvent;
@@ -100,7 +100,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
         IMap<Integer, Integer> sourceMap = instance().getMap(sourceName);
         range(0, ENTRY_COUNT).forEach(i -> sourceMap.put(i, i));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", readMapP(sourceName));
         Vertex sink = dag.newVertex("sink", writeMapP(sinkName));
 
@@ -116,7 +116,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
         IMap<Integer, Integer> sourceMap = instance().getMap(sourceName);
         range(0, ENTRY_COUNT).forEach(i -> sourceMap.put(i, i));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source",
                 readMapP(sourceName,
                         Predicates.greaterThan("this", "0"),
@@ -140,7 +140,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
         IMap<Integer, Entry<Integer, String>> sourceMap = instance().getMap(sourceName);
         range(0, ENTRY_COUNT).forEach(i -> sourceMap.put(i, entry(i, i % 2 == 0 ? null : String.valueOf(i))));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", readMapP(sourceName,
                 new TruePredicate<>(),
                 Projections.singleAttribute("value")
@@ -170,7 +170,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
         IMap<Integer, Integer> sourceMap = instance().getMap(sourceName);
         range(0, ENTRY_COUNT).forEach(i -> sourceMap.put(i, i));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", readMapP(sourceName, e -> !e.getKey().equals(0), Entry::getKey));
         Vertex sink = dag.newVertex("sink", writeListP(sinkName));
 
@@ -186,7 +186,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_streamMap() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", streamMapP(streamSourceName, START_FROM_OLDEST,
                 eventTimePolicy(Entry<Integer, Integer>::getValue, limitingLag(0), 1, 0, 10_000)));
         Vertex sink = dag.newVertex("sink", writeListP(streamSinkName));
@@ -204,7 +204,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_streamMap_withProjectionToNull_then_nullsSkipped() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", SourceProcessors.streamMapP(streamSourceName,
                 mapPutEvents(),
                 (EventJournalMapEvent<Integer, Entry<Integer, String>> entry) -> entry.getNewValue().getValue(),
@@ -224,7 +224,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_streamMap_withFilterAndProjection() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", SourceProcessors.<Integer, Integer, Integer>streamMapP(streamSourceName,
                 event -> event.getKey() != 0, EventJournalMapEvent::getKey, START_FROM_OLDEST,
                 eventTimePolicy(i -> i, limitingLag(0), 1, 0, 10_000)));
@@ -248,7 +248,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
         ICache<Integer, Integer> sourceCache = instance().getCacheManager().getCache(sourceName);
         range(0, ENTRY_COUNT).forEach(i -> sourceCache.put(i, i));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", readCacheP(sourceName));
         Vertex sink = dag.newVertex("sink", writeCacheP(sinkName));
 
@@ -261,7 +261,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_streamCache() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", streamCacheP(streamSourceName, START_FROM_OLDEST,
                 eventTimePolicy(Entry<Integer, Integer>::getValue, limitingLag(0), 1, 0, 10_000)));
         Vertex sink = dag.newVertex("sink", writeListP(streamSinkName));
@@ -279,7 +279,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_streamCache_withFilterAndProjection() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", SourceProcessors.<Integer, Integer, Integer>streamCacheP(streamSourceName,
                 event -> !event.getKey().equals(0), EventJournalCacheEvent::getKey, START_FROM_OLDEST,
                 eventTimePolicy(i -> i, limitingLag(0), 1, 0, 10_000)));
@@ -303,7 +303,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
         IList<Integer> list = instance().getList(sourceName);
         list.addAll(range(0, ENTRY_COUNT).boxed().collect(toList()));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", readListP(sourceName)).localParallelism(1);
         Vertex sink = dag.newVertex("sink", writeListP(sinkName)).localParallelism(1);
 
@@ -316,7 +316,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
 
     @Test
     public void test_defaultFilter_mapJournal() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", streamMapP(streamSourceName, START_FROM_OLDEST,
                 eventTimePolicy(Entry<Integer, Integer>::getValue, limitingLag(0), 1, 0, 10_000)));
         Vertex sink = dag.newVertex("sink", writeListP(streamSinkName));
@@ -348,7 +348,7 @@ public class HazelcastConnectorTest extends SimpleTestInClusterSupport {
 
     @Test
     public void test_defaultFilter_cacheJournal() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", streamCacheP(streamSourceName, START_FROM_OLDEST,
                 eventTimePolicy(Entry<Integer, Integer>::getValue, limitingLag(0), 1, 0, 10_000)));
         Vertex sink = dag.newVertex("sink", writeListP(streamSinkName));

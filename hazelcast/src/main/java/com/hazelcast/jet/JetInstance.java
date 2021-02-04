@@ -37,7 +37,7 @@ public interface JetInstance {
      * asynchronously start executing the job.
      */
     @Nonnull
-    default Job newJob(@Nonnull TheDag dag) {
+    default Job newJob(@Nonnull DAG dag) {
         return newJob(dag, new JobConfig());
     }
 
@@ -58,7 +58,7 @@ public interface JetInstance {
      *      an equal name
      */
     @Nonnull
-    Job newJob(@Nonnull TheDag dag, @Nonnull JobConfig config);
+    Job newJob(@Nonnull DAG dag, @Nonnull JobConfig config);
 
     /**
      * Creates and returns an executable job based on the supplied pipeline.
@@ -134,7 +134,7 @@ public interface JetInstance {
      * See also {@link #newJob}.
      */
     @Nonnull
-    Job newJobIfAbsent(@Nonnull TheDag dag, @Nonnull JobConfig config);
+    Job newJobIfAbsent(@Nonnull DAG dag, @Nonnull JobConfig config);
 
     /**
      * Returns all submitted jobs including running and completed ones.

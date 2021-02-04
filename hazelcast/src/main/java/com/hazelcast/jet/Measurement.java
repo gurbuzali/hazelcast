@@ -2,17 +2,17 @@ package com.hazelcast.jet;
 
 import javax.annotation.Nonnull;
 
-public interface TheMeasurement {
+public interface Measurement {
 
     String tag(String name);
 
     /**
-     * Returns the value associated with this {@link TheMeasurement}.
+     * Returns the value associated with this {@link Measurement}.
      */
     public long value();
 
     /**
-     * Returns the timestamps associated with this {@link TheMeasurement}, the
+     * Returns the timestamps associated with this {@link Measurement}, the
      * moment when the value was gathered.
      */
     public long timestamp();

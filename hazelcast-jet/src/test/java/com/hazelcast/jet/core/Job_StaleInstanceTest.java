@@ -19,7 +19,6 @@ package com.hazelcast.jet.core;
 import com.hazelcast.client.test.TestHazelcastFactory;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.core.TestProcessors.NoOutputSourceP;
 import com.hazelcast.test.HazelcastSerialClassRunner;
@@ -50,7 +49,7 @@ public class Job_StaleInstanceTest extends JetTestSupport {
         TestProcessors.reset(1);
         instanceFactory = new TestHazelcastFactory();
         HazelcastInstance instance = instanceFactory.newHazelcastInstance();
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", () -> new NoOutputSourceP());
         client = instanceFactory.newHazelcastClient();
         job = client.getJetInstance().newJob(dag);

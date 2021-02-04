@@ -20,13 +20,11 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.SupplierEx;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.accumulator.LongAccumulator;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.processor.Processors;
 import com.hazelcast.jet.core.processor.SinkProcessors;
@@ -138,7 +136,7 @@ public class JobRestartWithSnapshotTest extends JetTestSupport {
         The resulting contents of the sink map are compared to expected value.
         */
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
 
         SlidingWindowPolicy wDef = SlidingWindowPolicy.tumblingWinPolicy(3);
         AggregateOperation1<Object, LongAccumulator, Long> aggrOp = counting();
@@ -271,7 +269,7 @@ public class JobRestartWithSnapshotTest extends JetTestSupport {
                 singletonList(JetInitDataSerializerHook.START_EXECUTION_OP)
         );
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("p", FirstSnapshotProcessor::new).localParallelism(1);
 
         JobConfig config = new JobConfig();
@@ -290,7 +288,7 @@ public class JobRestartWithSnapshotTest extends JetTestSupport {
 
     @Test
     public void when_jobRestartedGracefully_then_noOutputDuplicated() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         int elementsInPartition = 100;
         SupplierEx<Processor> sup = () ->
                 new SequencesInPartitionsGeneratorP(3, elementsInPartition, true);

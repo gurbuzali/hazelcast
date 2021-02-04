@@ -54,7 +54,7 @@ public class SuspendResumeTest extends JetTestSupport {
     public ExpectedException expectedException = ExpectedException.none();
 
     private HazelcastInstance[] instances;
-    private DAG dag;
+    private DAGImpl dag;
     private Config config;
 
     @Before
@@ -63,7 +63,7 @@ public class SuspendResumeTest extends JetTestSupport {
         config = new Config();
         config.getJetConfig().getInstanceConfig().setCooperativeThreadCount(PARALLELISM);
         instances = createMembers(config, NODE_COUNT);
-        dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
     }
 
     @Test

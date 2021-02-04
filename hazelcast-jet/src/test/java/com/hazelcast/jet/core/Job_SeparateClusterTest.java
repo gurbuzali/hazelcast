@@ -21,17 +21,12 @@ import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.cluster.Address;
 import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobAlreadyExistsException;
-import com.hazelcast.jet.config.InstanceConfig;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.TestProcessors.MockPS;
 import com.hazelcast.jet.core.TestProcessors.NoOutputSourceP;
-import com.hazelcast.test.TestHazelcastInstanceFactory;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -82,7 +77,7 @@ public class Job_SeparateClusterTest extends JetTestSupport {
     @Test
     public void when_suspendedJobScannedOnNewMaster_then_newJobWithEqualNameFails() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig()
                 .setName("job1");
 
@@ -101,7 +96,7 @@ public class Job_SeparateClusterTest extends JetTestSupport {
 
     @Test
     public void when_joinFromClientTimesOut_then_futureShouldNotBeCompletedEarly() throws InterruptedException {
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         int timeoutSecs = 1;
         ClientConfig config = new ClientConfig()
@@ -131,7 +126,7 @@ public class Job_SeparateClusterTest extends JetTestSupport {
 
     @Test
     public void when_joinFromClientSentToNonMaster_then_futureShouldNotBeCompletedEarly() throws InterruptedException {
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         int timeoutSecs = 1;
         Address address = getAddress(instance2);
@@ -177,7 +172,7 @@ public class Job_SeparateClusterTest extends JetTestSupport {
     }
 
     private void stressTest_getJobStatus(Supplier<HazelcastInstance> submitterSupplier) throws Exception {
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         AtomicReference<Job> job = new AtomicReference<>(submitterSupplier.get().getJetInstance().newJob(dag));
 
         AtomicBoolean done = new AtomicBoolean();

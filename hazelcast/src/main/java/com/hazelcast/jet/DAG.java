@@ -1,4 +1,4 @@
 package com.hazelcast.jet;
 
-public interface TheDag {
+public interface DAG {
 }

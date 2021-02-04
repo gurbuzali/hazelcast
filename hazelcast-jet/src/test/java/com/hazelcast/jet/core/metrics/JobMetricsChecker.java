@@ -18,7 +18,7 @@ package com.hazelcast.jet.core.metrics;
 
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobMetrics;
-import com.hazelcast.jet.TheMeasurement;
+import com.hazelcast.jet.Measurement;
 
 import java.util.List;
 import java.util.function.Function;
@@ -31,20 +31,20 @@ import static org.junit.Assert.assertTrue;
 final class JobMetricsChecker {
 
     private final Job job;
-    private final Predicate<TheMeasurement> filter;
+    private final Predicate<Measurement> filter;
 
     JobMetricsChecker(Job job) {
         this(job, (IGNORED) -> true);
     }
 
-    JobMetricsChecker(Job job, Predicate<TheMeasurement> filter) {
+    JobMetricsChecker(Job job, Predicate<Measurement> filter) {
         this.job = job;
         this.filter = filter;
     }
 
     void assertNoMetricValues(String metricName) {
         JobMetrics jobMetrics = getJobMetrics();
-        List<? extends TheMeasurement> measurements = jobMetrics.get(metricName);
+        List<? extends Measurement> measurements = jobMetrics.get(metricName);
         assertTrue(
                 String.format("Did not expect measurements for metric '%s', but there were some", metricName),
                 measurements.isEmpty()
@@ -53,27 +53,27 @@ final class JobMetricsChecker {
 
     void assertSummedMetricValue(String metricName, long expectedValue) {
         assertAggregatedMetricValue(metricName, expectedValue,
-                m -> m.stream().mapToLong(TheMeasurement::value).sum());
+                m -> m.stream().mapToLong(Measurement::value).sum());
     }
 
     void assertRandomMetricValue(String metricName, long expectedValue) {
         assertAggregatedMetricValue(metricName, expectedValue,
-                m -> m.stream().limit(1).mapToLong(TheMeasurement::value).sum());
+                m -> m.stream().limit(1).mapToLong(Measurement::value).sum());
     }
 
     long assertSummedMetricValueAtLeast(String metricName, long minExpectedValue) {
         return assertAggregatedMetricValueAtLeast(metricName, minExpectedValue,
-                m -> m.stream().mapToLong(TheMeasurement::value).sum());
+                m -> m.stream().mapToLong(Measurement::value).sum());
     }
 
     long assertRandomMetricValueAtLeast(String metricName, long minExpectedValue) {
         return assertAggregatedMetricValueAtLeast(metricName, minExpectedValue,
-                m -> m.stream().limit(1).mapToLong(TheMeasurement::value).sum());
+                m -> m.stream().limit(1).mapToLong(Measurement::value).sum());
     }
 
     private void assertAggregatedMetricValue(String metricName, long expectedValue,
-                                             Function<List<? extends TheMeasurement>, Long> aggregateFn) {
-        List<? extends TheMeasurement> measurements = getJobMetrics().get(metricName);
+                                             Function<List<? extends Measurement>, Long> aggregateFn) {
+        List<? extends Measurement> measurements = getJobMetrics().get(metricName);
         assertFalse(
                 String.format("Expected measurements for metric '%s', but there were none", metricName),
                 measurements.isEmpty()
@@ -88,8 +88,8 @@ final class JobMetricsChecker {
     }
 
     private long assertAggregatedMetricValueAtLeast(String metricName, long minExpectedValue,
-                                                    Function<List<? extends TheMeasurement>, Long> aggregateFn) {
-        List<? extends TheMeasurement> measurements = getJobMetrics().get(metricName);
+                                                    Function<List<? extends Measurement>, Long> aggregateFn) {
+        List<? extends Measurement> measurements = getJobMetrics().get(metricName);
         assertFalse(
                 String.format("Expected measurements for metric '%s', but there were none", metricName),
                 measurements.isEmpty()

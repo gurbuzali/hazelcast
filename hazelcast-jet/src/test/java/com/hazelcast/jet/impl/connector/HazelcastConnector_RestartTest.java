@@ -22,14 +22,13 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.ConfigAccessor;
 import com.hazelcast.config.ServiceConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.instance.impl.HazelcastInstanceImpl;
 import com.hazelcast.internal.partition.MigrationAwareService;
 import com.hazelcast.internal.partition.PartitionMigrationEvent;
 import com.hazelcast.internal.partition.PartitionReplicationEvent;
 import com.hazelcast.internal.services.CoreService;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.TestProcessors.ListSource;
 import com.hazelcast.jet.core.Vertex;
@@ -80,7 +79,7 @@ public class HazelcastConnector_RestartTest extends JetTestSupport {
 
     @Test
     public void when_iListWrittenAndMemberShutdown_then_jobRestarts() throws Exception {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source",
                 throttle(() -> new ListSource(range(0, 1000).boxed().collect(toList())), 10));
         Vertex sink = dag.newVertex("sink", writeListP("sink"));

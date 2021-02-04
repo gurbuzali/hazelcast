@@ -17,7 +17,6 @@
 package com.hazelcast.jet.core;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
@@ -47,7 +46,7 @@ public class ParallelStressTest extends JetTestSupport {
         There's no assert in this test. If the problem reproduces, the jobs won't complete and will
         get stuck.
          */
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("p", TestProcessors.ListSource.supplier(Arrays.asList(1, 2, 3)));
 
         HazelcastInstance instance = createMember();
@@ -70,7 +69,7 @@ public class ParallelStressTest extends JetTestSupport {
         There's no assert in this test. If the problem reproduces, the jobs won't get cancelled and will
         get stuck.
          */
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("p", TestProcessors.DummyStatefulP::new);
         HazelcastInstance instance = createMember();
         JobConfig jobConfig = new JobConfig();

@@ -79,7 +79,7 @@ public class CancellationTest extends JetTestSupport {
         // Given
         JetInstance instance = createMember().getJetInstance();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", StuckSource::new);
 
         Job job = instance.newJob(dag);
@@ -100,7 +100,7 @@ public class CancellationTest extends JetTestSupport {
         createMember();
         JetInstance instance = createMember().getJetInstance();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", StuckSource::new);
 
         Job job = instance.newJob(dag);
@@ -120,7 +120,7 @@ public class CancellationTest extends JetTestSupport {
         // Given
         JetInstance instance = createMember().getJetInstance();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", StuckSource::new);
 
         Job job = instance.newJob(dag);
@@ -140,7 +140,7 @@ public class CancellationTest extends JetTestSupport {
         createMember();
         JetInstance client = createClient().getJetInstance();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", StuckSource::new);
 
         Job job = client.newJob(dag);
@@ -162,7 +162,7 @@ public class CancellationTest extends JetTestSupport {
         createMember();
         JetInstance client = createClient().getJetInstance();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", StuckSource::new);
 
         Job job = client.newJob(dag);
@@ -181,7 +181,7 @@ public class CancellationTest extends JetTestSupport {
         JetInstance instance1 = createMember().getJetInstance();
         JetInstance instance2 = createMember().getJetInstance();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", StuckSource::new);
 
         Job job = instance1.newJob(dag);
@@ -205,7 +205,7 @@ public class CancellationTest extends JetTestSupport {
         rejectOperationsBetween(instance1, instance2,
                 JetInitDataSerializerHook.FACTORY_ID, singletonList(JetInitDataSerializerHook.COMPLETE_EXECUTION_OP));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", StuckSource::new);
 
         Job job = instance1.getJetInstance().newJob(dag);
@@ -229,7 +229,7 @@ public class CancellationTest extends JetTestSupport {
         createMember();
 
         RuntimeException fault = new RuntimeException("fault");
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
 
         SingleNodeFaultSupplier supplier = new SingleNodeFaultSupplier(getAddress(instance), fault);
         dag.newVertex("faulty", supplier).localParallelism(4);
@@ -257,7 +257,7 @@ public class CancellationTest extends JetTestSupport {
         HazelcastInstance other = createMember();
 
         RuntimeException fault = new RuntimeException("fault");
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty", new SingleNodeFaultSupplier(getAddress(other), fault))
                 .localParallelism(4);
 
@@ -289,7 +289,7 @@ public class CancellationTest extends JetTestSupport {
 
     private void when_shutdown_then_jobFuturesCanceled(boolean graceful) {
         HazelcastInstance instance = createMember();
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("blocking", BlockingProcessor::new).localParallelism(1);
         instance.getJetInstance().newJob(dag);
         assertTrueEventually(() -> assertTrue(BlockingProcessor.hasStarted), ASSERTION_TIMEOUT_SECONDS);
@@ -304,7 +304,7 @@ public class CancellationTest extends JetTestSupport {
     @Test
     public void when_jobCanceled_then_jobFutureCanceled() {
         JetInstance jet = createMember().getJetInstance();
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("blocking", BlockingProcessor::new).localParallelism(1);
         Job job = jet.newJob(dag);
         assertTrueEventually(() -> assertTrue(BlockingProcessor.hasStarted), ASSERTION_TIMEOUT_SECONDS);
@@ -315,7 +315,7 @@ public class CancellationTest extends JetTestSupport {
     @Test
     public void when_cancellingCompletedJob_then_succeeds() {
         JetInstance jet = createMember().getJetInstance();
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("blocking", MockP::new).localParallelism(1);
         Job job = jet.newJob(dag);
         job.join();
@@ -328,7 +328,7 @@ public class CancellationTest extends JetTestSupport {
     @Test
     public void when_multipleClientsCancel_then_allSucceed() throws Exception {
         JetInstance jet = createMember().getJetInstance();
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("blocking", BlockingProcessor::new).localParallelism(1);
         Job job = jet.newJob(dag);
         assertTrueEventually(() -> assertTrue(BlockingProcessor.hasStarted));
@@ -352,7 +352,7 @@ public class CancellationTest extends JetTestSupport {
     public void when_cancelledDuringSnapshotPhase1_then_cancelled() {
         JetInstance jet = createMember().getJetInstance();
         SnapshotPhase1Operation.postponeResponses = true;
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("blocking", DummyStatefulP::new).localParallelism(1);
         Job job = jet.newJob(dag, new JobConfig().setSnapshotIntervalMillis(100).setProcessingGuarantee(EXACTLY_ONCE));
         sleepSeconds(2); // wait for the job to start and attempt the 1st snapshot
@@ -366,7 +366,7 @@ public class CancellationTest extends JetTestSupport {
         PacketFiltersUtil.dropOperationsFrom(instance, JetInitDataSerializerHook.FACTORY_ID,
                 singletonList(JetInitDataSerializerHook.SNAPSHOT_PHASE2_OPERATION));
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("blocking", DummyStatefulP::new).localParallelism(1);
         Job job = instance.getJetInstance().
                 newJob(dag, new JobConfig().setSnapshotIntervalMillis(100).setProcessingGuarantee(EXACTLY_ONCE));

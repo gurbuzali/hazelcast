@@ -18,8 +18,6 @@ package com.hazelcast.jet.core;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.spi.properties.ClusterProperty;
 import com.hazelcast.test.HazelcastParallelClassRunner;
 import org.junit.Before;
@@ -50,7 +48,7 @@ public class OperationTimeoutTest extends JetTestSupport {
     public void when_slowRunningOperationOnSingleNode_then_doesNotTimeout() throws Throwable {
         // Given
         HazelcastInstance instance = createMember(config);
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", SlowProcessor::new);
 
         // When
@@ -63,7 +61,7 @@ public class OperationTimeoutTest extends JetTestSupport {
         HazelcastInstance instance = createMember(config);
         createMember(config);
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("slow", SlowProcessor::new);
 
         // When

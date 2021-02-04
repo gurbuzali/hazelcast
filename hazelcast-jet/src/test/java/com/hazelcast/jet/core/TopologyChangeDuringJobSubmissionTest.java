@@ -68,7 +68,7 @@ public class TopologyChangeDuringJobSubmissionTest extends JetTestSupport {
                 SpiDataSerializerHook.F_ID, singletonList(SpiDataSerializerHook.NORMAL_RESPONSE));
 
         Future<Job> future = spawn(() -> {
-            DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, 1)));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, 1)));
             return instance2.getJetInstance().newJob(dag);
         });
 
@@ -89,7 +89,7 @@ public class TopologyChangeDuringJobSubmissionTest extends JetTestSupport {
         // Given that the job is already completed
         String jobName = "job1";
         Future<Job> future = spawn(() -> {
-            DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, 1)));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, 1)));
             return instance2.getJetInstance().newJob(dag, new JobConfig().setName(jobName));
         });
 

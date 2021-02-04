@@ -29,11 +29,11 @@ import static org.junit.Assert.assertTrue;
 
 public class MeasurementPredicatesTest {
 
-    private Measurement measurement;
+    private MeasurementImpl measurement;
 
     @Before
     public void before() {
-        measurement = Measurement.of(
+        measurement = MeasurementImpl.of(
                 "metric",
                 13L,
                 System.currentTimeMillis(),

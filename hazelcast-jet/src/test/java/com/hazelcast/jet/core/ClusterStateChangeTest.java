@@ -50,7 +50,7 @@ public class ClusterStateChangeTest extends JetTestSupport {
     private HazelcastInstance[] instances;
     private JetInstance jet;
     private Cluster cluster;
-    private DAG dag;
+    private DAGImpl dag;
 
     @Before
     public void before() {
@@ -73,7 +73,7 @@ public class ClusterStateChangeTest extends JetTestSupport {
             }
         }
 
-        dag = new DAG().vertex(new Vertex("test",
+        dag = new DAGImpl().vertex(new Vertex("test",
                 new MockPMS(() -> new MockPS(NoOutputSourceP::new, NODE_COUNT))));
     }
 

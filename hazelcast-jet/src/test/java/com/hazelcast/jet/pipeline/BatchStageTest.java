@@ -20,11 +20,10 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.BiFunctionEx;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.PredicateEx;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.Util;
 import com.hazelcast.jet.accumulator.LongAccumulator;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.core.Vertex;
@@ -1323,7 +1322,7 @@ public class BatchStageTest extends PipelineTestSupport {
                 ProcessorMetaSupplier.of(lp, ProcessorSupplier.of(noopP()))))
                 .addTimestamps(o -> 0L, 0)
                 .writeTo(Sinks.noop());
-        DAG dag = p.toDag();
+        DAGImpl dag = p.toDag();
 
         // Then
         Vertex tsVertex = dag.getVertex("add-timestamps");
@@ -1340,7 +1339,7 @@ public class BatchStageTest extends PipelineTestSupport {
                 .setLocalParallelism(lp)
                 .addTimestamps(t -> System.currentTimeMillis(), 1000)
                 .writeTo(Sinks.noop());
-        DAG dag = p.toDag();
+        DAGImpl dag = p.toDag();
 
         // Then
         Vertex tsVertex = dag.getVertex("add-timestamps");
@@ -1357,7 +1356,7 @@ public class BatchStageTest extends PipelineTestSupport {
         p.readFrom(src)
                 .addTimestamps(o -> 0L, 0)
                 .writeTo(Sinks.noop());
-        DAG dag = p.toDag();
+        DAGImpl dag = p.toDag();
 
         // Then
         Vertex tsVertex = dag.getVertex("add-timestamps");

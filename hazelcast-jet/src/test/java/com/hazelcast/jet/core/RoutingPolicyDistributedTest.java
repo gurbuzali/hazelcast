@@ -71,7 +71,7 @@ public class RoutingPolicyDistributedTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_distributedToOne_partitioned() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex producer = producer(NUMBERS);
         Vertex consumer = consumer();
 
@@ -125,7 +125,7 @@ public class RoutingPolicyDistributedTest extends SimpleTestInClusterSupport {
     }
 
     private void when_distributedToOne_notPartitioned(Consumer<Edge> configureEdgeFn, String expectedError) {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex producer = producer(NUMBERS);
         Vertex consumer = consumer();
 
@@ -142,7 +142,7 @@ public class RoutingPolicyDistributedTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_distributedToOne_and_targetMemberMissing() throws Exception {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex producer = producer(NUMBERS);
         Vertex consumer = consumer();
 
@@ -158,7 +158,7 @@ public class RoutingPolicyDistributedTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_local_fanout() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex producer = new Vertex("producer", new ListsSourceP(asList(1, 2), asList(3, 4))).localParallelism(1);
         Vertex consumer = new Vertex("consumer", consumerSup).localParallelism(2);
 
@@ -176,7 +176,7 @@ public class RoutingPolicyDistributedTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_distributed_fanout() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex producer = new Vertex("producer", new ListsSourceP(asList(1, 2), asList(3, 4))).localParallelism(1);
         Vertex consumer = new Vertex("consumer", consumerSup).localParallelism(2);
 

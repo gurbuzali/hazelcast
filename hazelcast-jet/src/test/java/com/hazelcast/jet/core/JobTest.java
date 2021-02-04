@@ -20,11 +20,9 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.SupplierEx;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobAlreadyExistsException;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.TestProcessors.Identity;
 import com.hazelcast.jet.core.TestProcessors.ListSource;
@@ -107,7 +105,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     private void testJobStatusDuringStart(HazelcastInstance submitter) {
         PSThatWaitsOnInit.initLatch = new CountDownLatch(1);
-        DAG dag = new DAG().vertex(new Vertex("test", new PSThatWaitsOnInit(Identity::new)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new PSThatWaitsOnInit(Identity::new)));
 
         // When
         Job job = submitter.getJetInstance().newJob(dag);
@@ -133,7 +131,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     private void when_jobSubmittedWithNewJobIfAbsent_then_jobStatusIsStarting(HazelcastInstance submitter) {
         PSThatWaitsOnInit.initLatch = new CountDownLatch(1);
-        DAG dag = new DAG().vertex(new Vertex("test", new PSThatWaitsOnInit(Identity::new)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new PSThatWaitsOnInit(Identity::new)));
 
         // When
         Job job = submitter.getJetInstance().newJobIfAbsent(dag, new JobConfig());
@@ -150,7 +148,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsCancelled_then_jobStatusIsCompletedEventually() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job job = jetInstance().newJob(dag);
@@ -166,7 +164,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsFailed_then_jobStatusIsCompletedEventually() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS((SupplierEx<Processor>)
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS((SupplierEx<Processor>)
                 () -> new MockP().setCompleteError(new ExpectedRuntimeException()), NODE_COUNT)));
 
         // When
@@ -184,7 +182,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsSubmitted_then_trackedJobCanQueryJobStatus() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job submittedJob = jetInstance().newJob(dag);
@@ -202,7 +200,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsSubmittedWithNewJobIfAbsent_then_trackedJobCanQueryJobStatus() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job submittedJob = jetInstance().newJobIfAbsent(dag, new JobConfig());
@@ -220,7 +218,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_namedJobIsSubmittedWithNewJobIfAbsent_then_trackedJobCanQueryJobStatus() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
         JobConfig config = new JobConfig()
                 .setName(randomName());
 
@@ -240,7 +238,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsCompleted_then_trackedJobCanQueryJobResult() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job submittedJob = jetInstance().newJob(dag);
@@ -260,7 +258,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsCancelled_then_trackedJobCanQueryJobResult() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job submittedJob = jetInstance().newJob(dag);
@@ -281,7 +279,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsFailed_then_trackedJobCanQueryJobResult() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS((SupplierEx<Processor>)
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS((SupplierEx<Processor>)
                 () -> new MockP().setCompleteError(new ExpectedRuntimeException()), NODE_COUNT)));
 
         // When
@@ -302,7 +300,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_trackedJobCancels_then_jobCompletes() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         Job submittedJob = jetInstance().newJob(dag);
 
@@ -325,7 +323,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsCompleted_then_trackedJobCanQueryJobResultFromClient() throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job submittedJob = jetInstance().newJob(dag);
@@ -354,7 +352,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     private void testGetJobByNameWhenJobIsRunning(HazelcastInstance instance) throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
         JobConfig config = new JobConfig();
         String jobName = randomName();
         config.setName(jobName);
@@ -387,7 +385,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     private void testGetJobByIdWhenJobIsRunning(HazelcastInstance instance) throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job job = jetInstance().newJob(dag);
@@ -406,7 +404,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsCompleted_then_itIsQueriedByName() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
         JobConfig config = new JobConfig();
         String jobName = randomName();
         config.setName(jobName);
@@ -428,7 +426,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsCompleted_then_itIsQueriedById() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
 
         // When
         Job job = jetInstance().newJob(dag);
@@ -465,7 +463,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     private void when_namedJobIsRunning_then_newNamedSubmitJoinsToExistingJob(HazelcastInstance instance) {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig()
                 .setName(randomName());
         Job job1 = instance.getJetInstance().newJob(dag, config);
@@ -495,7 +493,7 @@ public class JobTest extends SimpleTestInClusterSupport {
         String randomPrefix = randomName();
         try {
             for (int round = 0; round < 10; round++) {
-                DAG dag = new DAG().vertex(new Vertex("test" + round, new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+                DAGImpl dag = new DAGImpl().vertex(new Vertex("test" + round, new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
                 System.out.println("Starting round " + round);
                 JobConfig config = new JobConfig().setName(randomPrefix + round);
                 List<Future<Job>> futures = new ArrayList<>();
@@ -524,7 +522,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     private void when_namedJobIsRunning_then_newNamedJobFails(HazelcastInstance instance) {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig()
                 .setName(randomName());
 
@@ -540,7 +538,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_namedJobHasCompletedAndAnotherWasSubmitted_then_runningOneIsQueriedByName() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig();
         String jobName = randomName();
         config.setName(jobName);
@@ -567,7 +565,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_namedJobHasCompletedAndAnotherWasSubmitted_then_bothAreQueriedByName() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig();
         String jobName = randomName();
         config.setName(jobName);
@@ -599,7 +597,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobConfigChanged_then_doesNotAffectSubmittedJob() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig()
                 .setName(randomName());
 
@@ -617,7 +615,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobsAreCompleted_then_theyAreQueriedByName() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig()
                 .setName(randomName());
 
@@ -651,7 +649,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_suspendedNamedJob_then_newJobIfAbsentWithEqualNameJoinsIt() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig()
                 .setName(randomName());
 
@@ -670,7 +668,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_suspendedNamedJob_then_newJobWithEqualNameFails() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT * 2)));
         JobConfig config = new JobConfig()
                 .setName(randomName());
 
@@ -687,7 +685,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_namedJobCancelledAndJoined_then_newJobWithSameNameCanBeSubmitted() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", () -> new MockP().streaming());
         for (int i = 0; i < 10; i++) {
             JobConfig config = new JobConfig()
@@ -714,7 +712,7 @@ public class JobTest extends SimpleTestInClusterSupport {
 
     private void testJobSubmissionTimeWhenJobIsRunning(HazelcastInstance instance) throws InterruptedException {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
         JobConfig config = new JobConfig();
         String jobName = randomName();
         config.setName(jobName);
@@ -734,7 +732,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_jobIsCompleted_then_jobSubmissionTimeIsQueried() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
         JobConfig config = new JobConfig();
         String jobName = randomName();
         config.setName(jobName);
@@ -754,7 +752,7 @@ public class JobTest extends SimpleTestInClusterSupport {
     @Test
     public void when_serializerIsRegistered_then_itIsAvailableForTheJob() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", () -> new ListSource(new Value(1), new Value(2)));
         Vertex sink = dag.newVertex("sink", DiagnosticProcessors.writeLoggerP());
         dag.edge(between(source, sink).distributed().partitioned(FunctionEx.identity()));

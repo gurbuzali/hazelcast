@@ -16,7 +16,7 @@
 
 package com.hazelcast.jet.core;
 
-import com.hazelcast.jet.TheDag;
+import com.hazelcast.jet.DAG;
 import com.hazelcast.jet.config.EdgeConfig;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.internal.json.JsonArray;
@@ -78,7 +78,7 @@ import static java.util.stream.Collectors.joining;
  *
  * @since 3.0
  */
-public class DAG implements IdentifiedDataSerializable, Iterable<Vertex>, TheDag {
+public class DAGImpl implements IdentifiedDataSerializable, Iterable<Vertex>, DAG {
 
     private final Set<Edge> edges = new LinkedHashSet<>();
     private final Map<String, Vertex> nameToVertex = new HashMap<>();
@@ -181,7 +181,7 @@ public class DAG implements IdentifiedDataSerializable, Iterable<Vertex>, TheDag
      * Adds a vertex to this DAG. The vertex name must be unique.
      */
     @Nonnull
-    public DAG vertex(@Nonnull Vertex vertex) {
+    public DAGImpl vertex(@Nonnull Vertex vertex) {
         addVertex(vertex);
         return this;
     }
@@ -197,7 +197,7 @@ public class DAG implements IdentifiedDataSerializable, Iterable<Vertex>, TheDag
      * tow vertices. However, they have to have different ordinals.
      */
     @Nonnull
-    public DAG edge(@Nonnull Edge edge) {
+    public DAGImpl edge(@Nonnull Edge edge) {
         if (edge.getDestination() == null) {
             throw new IllegalArgumentException("Edge has no destination");
         }

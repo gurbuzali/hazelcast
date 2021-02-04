@@ -20,7 +20,7 @@ import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.Edge;
 import com.hazelcast.jet.core.EventTimePolicy;
 import com.hazelcast.jet.core.Processor;
@@ -67,7 +67,7 @@ public class Planner {
      */
     private static final int MAXIMUM_WATERMARK_GAP = 1000;
 
-    private final DAG dag = new DAG();
+    private final DAGImpl dag = new DAGImpl();
     private final Map<Transform, PlannerVertex> xform2vertex = new HashMap<>();
     private final PipelineImpl pipeline;
 
@@ -80,7 +80,7 @@ public class Planner {
     }
 
     @SuppressWarnings("rawtypes")
-    DAG createDag(Context context) {
+    DAGImpl createDag(Context context) {
         pipeline.makeNamesUnique();
         Map<Transform, List<Transform>> adjacencyMap = pipeline.adjacencyMap();
         validateNoLeakage(adjacencyMap);
@@ -294,7 +294,7 @@ public class Planner {
         addEdges(transform, toVertex, e -> { });
     }
 
-    public DAG getDag() {
+    public DAGImpl getDag() {
         return dag;
     }
 

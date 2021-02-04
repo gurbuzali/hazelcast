@@ -78,7 +78,7 @@ public class SnapshotFailureTest extends JetTestSupport {
         int numElements = 10;
         IMap<Object, Object> results = instance.getMap("results");
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         SupplierEx<Processor> sup = () -> new SequencesInPartitionsGeneratorP(numPartitions, numElements, false);
         Vertex generator = dag.newVertex("generator", peekOutputP(throttle(sup, 2)))
                 .localParallelism(1);

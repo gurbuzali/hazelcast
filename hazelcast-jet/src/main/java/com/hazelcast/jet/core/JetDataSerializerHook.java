@@ -35,7 +35,7 @@ import static com.hazelcast.jet.impl.JetFactoryIdHelper.JET_DS_FACTORY_ID;
 public final class JetDataSerializerHook implements DataSerializerHook {
 
     /**
-     * Serialization ID of the {@link DAG} class.
+     * Serialization ID of the {@link DAGImpl} class.
      */
     public static final int DAG = 0;
     /**
@@ -75,7 +75,7 @@ public final class JetDataSerializerHook implements DataSerializerHook {
         public IdentifiedDataSerializable create(int typeId) {
             switch (typeId) {
                 case DAG:
-                    return new DAG();
+                    return new DAGImpl();
                 case EDGE:
                     return new Edge();
                 case VERTEX:

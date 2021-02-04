@@ -19,7 +19,7 @@ package com.hazelcast.jet.impl.processor;
 import com.hazelcast.collection.IList;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.TestProcessors.ListSource;
 import com.hazelcast.jet.core.Vertex;
@@ -66,7 +66,7 @@ public class Processors_globalAggregationIntegrationTest extends JetTestSupport 
 
         AggregateOperation1<Long, ?, Long> summingOp = summingLong((Long l) -> l);
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", () -> new ListSource(sourceItems)).localParallelism(1);
         Vertex sink = dag.newVertex("sink", writeListP("sink"));
 

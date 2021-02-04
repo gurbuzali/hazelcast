@@ -17,7 +17,7 @@
 package com.hazelcast.jet.core.metrics;
 
 import com.hazelcast.jet.JobMetrics;
-import com.hazelcast.jet.TheMeasurement;
+import com.hazelcast.jet.Measurement;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -41,7 +41,7 @@ import static java.util.stream.Collectors.groupingBy;
 
 /**
  * An immutable collection of job-specific metrics, pairs of metric names
- * and sets of associated {@link Measurement}s.
+ * and sets of associated {@link MeasurementImpl}s.
  *
  * @since 3.2
  */
@@ -49,16 +49,16 @@ public final class JobMetricsImpl implements JobMetrics, IdentifiedDataSerializa
 
     private static final JobMetricsImpl EMPTY = new JobMetricsImpl(Collections.emptyMap());
 
-    private static final Collector<Measurement, ?, Map<String, List<Measurement>>> COLLECTOR =
-        Collectors.groupingBy(Measurement::metric);
+    private static final Collector<MeasurementImpl, ?, Map<String, List<MeasurementImpl>>> COLLECTOR =
+        Collectors.groupingBy(MeasurementImpl::metric);
 
     //metric name -> set of measurements
-    private Map<String, List<Measurement>> metrics;
+    private Map<String, List<MeasurementImpl>> metrics;
 
     JobMetricsImpl() {
     }
 
-    private JobMetricsImpl(@Nonnull Map<String, List<Measurement>> metrics) {
+    private JobMetricsImpl(@Nonnull Map<String, List<MeasurementImpl>> metrics) {
         this.metrics = new HashMap<>(metrics);
     }
 
@@ -73,11 +73,11 @@ public final class JobMetricsImpl implements JobMetrics, IdentifiedDataSerializa
 
     /**
      * Builds a {@link JobMetricsImpl} object based on a map of
-     * {@link Measurement}s.
+     * {@link MeasurementImpl}s.
      */
     @Nonnull
     @PrivateApi
-    public static JobMetricsImpl of(@Nonnull Map<String, List<Measurement>> metrics) {
+    public static JobMetricsImpl of(@Nonnull Map<String, List<MeasurementImpl>> metrics) {
         return new JobMetricsImpl(metrics);
     }
 
@@ -90,21 +90,21 @@ public final class JobMetricsImpl implements JobMetrics, IdentifiedDataSerializa
     }
 
     /**
-     * Returns all {@link Measurement}s associated with a given metric name.
+     * Returns all {@link MeasurementImpl}s associated with a given metric name.
      * <p>
      * For a list of job-specific metric names please see {@link MetricNames}.
      */
     @Nonnull
-    public List<Measurement> get(@Nonnull String metricName) {
+    public List<MeasurementImpl> get(@Nonnull String metricName) {
         Objects.requireNonNull(metricName);
-        List<Measurement> measurements = metrics.get(metricName);
+        List<MeasurementImpl> measurements = metrics.get(metricName);
         return measurements == null ? Collections.emptyList() : measurements;
     }
 
     /**
-     * Convenience method for {@link #filter(Predicate<Measurement>)},
+     * Convenience method for {@link #filter(Predicate< MeasurementImpl >)},
      * returns a new {@link JobMetricsImpl} instance containing only those
-     * {@link Measurement}s which have the specified tag set to the
+     * {@link MeasurementImpl}s which have the specified tag set to the
      * specified value.
      * <p>
      * For a list of available tag names, see {@link MetricTags}.
@@ -116,19 +116,19 @@ public final class JobMetricsImpl implements JobMetrics, IdentifiedDataSerializa
 
     /**
      * Returns a new {@link JobMetricsImpl} instance containing a subset of
-     * the {@link Measurement}s found in the current one. The subset is
-     * formed by those {@link Measurement}s which match the provided
+     * the {@link MeasurementImpl}s found in the current one. The subset is
+     * formed by those {@link MeasurementImpl}s which match the provided
      * {@link Predicate}.
      * <p>
-     * The metric names which have all their {@link Measurement}s filtered
+     * The metric names which have all their {@link MeasurementImpl}s filtered
      * out won't be present in the new {@link
      * JobMetricsImpl} instance.
      */
     @Nonnull
-    public JobMetricsImpl filter(@Nonnull Predicate<TheMeasurement> predicate) {
+    public JobMetricsImpl filter(@Nonnull Predicate<Measurement> predicate) {
         Objects.requireNonNull(predicate, "predicate");
 
-        Map<String, List<Measurement>> filteredMetrics =
+        Map<String, List<MeasurementImpl>> filteredMetrics =
             metrics.values().stream()
                    .flatMap(List::stream)
                    .filter(predicate)

@@ -21,8 +21,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.config.JetConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.core.TestProcessors;
@@ -52,7 +51,7 @@ public class JobMetrics_NonSharedClusterTest extends JetTestSupport {
         config.getMetricsConfig().setEnabled(false);
         HazelcastInstance instance = createMember(config);
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v1", (SupplierEx<Processor>) NoOutputSourceP::new).localParallelism(1);
         Job job = instance.getJetInstance().newJob(dag, JOB_CONFIG_WITH_METRICS);
         assertTrue(job.getMetrics().metrics().isEmpty());
@@ -65,7 +64,7 @@ public class JobMetrics_NonSharedClusterTest extends JetTestSupport {
         HazelcastInstance instance = createMember(config);
         JetInstance jetInstance = instance.getJetInstance();
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v1", (SupplierEx<Processor>) NoOutputSourceP::new).localParallelism(1);
 
         // Initial collection interval is 1 second. So let's run a job and wait until it has metrics.

@@ -43,13 +43,13 @@ public class ScaleUpTest extends JetTestSupport {
     private static final int LOCAL_PARALLELISM = 1;
 
     private JetInstance instance;
-    private DAG dag;
+    private DAGImpl dag;
     private Config config;
 
     private void setup(long scaleUpDelay) {
         TestProcessors.reset(NODE_COUNT * LOCAL_PARALLELISM);
 
-        dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
         config = new Config();
         config.getJetConfig().getInstanceConfig().setScaleUpDelayMillis(scaleUpDelay);
         instance = createMembers(config, NODE_COUNT)[0].getJetInstance();

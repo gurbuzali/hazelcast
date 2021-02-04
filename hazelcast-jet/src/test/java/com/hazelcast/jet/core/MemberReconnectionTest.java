@@ -40,7 +40,7 @@ public class MemberReconnectionTest extends JetTestSupport {
         HazelcastInstance inst2 = Hazelcast.newHazelcastInstance(config);
 
         try {
-            DAG dag = new DAG();
+            DAGImpl dag = new DAGImpl();
             Vertex v1 = dag.newVertex("v1", () -> new MockP().streaming());
             Vertex v2 = dag.newVertex("v2", () -> new MockP());
             dag.edge(between(v1, v2).distributed());

@@ -58,7 +58,7 @@ public class SuspendExecutionOnFailureTest extends TestInClusterSupport {
     @Test
     public void when_jobRunning_then_suspensionCauseThrows() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", () -> new NoOutputSourceP()));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", () -> new NoOutputSourceP()));
         Job job = jet().newJob(dag, jobConfig);
         assertJobStatusEventually(job, RUNNING);
 
@@ -73,7 +73,7 @@ public class SuspendExecutionOnFailureTest extends TestInClusterSupport {
     @Test
     public void when_jobCompleted_then_suspensionCauseThrows() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", Processors.noopP()));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", Processors.noopP()));
         Job job = jet().newJob(dag, jobConfig);
 
         // When
@@ -89,7 +89,7 @@ public class SuspendExecutionOnFailureTest extends TestInClusterSupport {
     @Test
     public void when_jobFailed_then_suspensionCauseThrows() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", () -> new NoOutputSourceP()));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", () -> new NoOutputSourceP()));
         Job job = jet().newJob(dag, jobConfig);
         assertJobStatusEventually(job, RUNNING);
 
@@ -106,7 +106,7 @@ public class SuspendExecutionOnFailureTest extends TestInClusterSupport {
     @Test
     public void when_jobSuspendedByUser_then_suspensionCauseSaysSo() {
         // Given
-        DAG dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, MEMBER_COUNT)));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, MEMBER_COUNT)));
 
         // When
         Job job = jet().newJob(dag, jobConfig);
@@ -125,7 +125,7 @@ public class SuspendExecutionOnFailureTest extends TestInClusterSupport {
     @Test
     public void when_jobSuspendedDueToFailure_then_suspensionCauseDescribeProblem() {
         // Given
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("faulty", () -> new MockP().setCompleteError(MOCK_ERROR));
 
         // When

@@ -19,7 +19,7 @@ package com.hazelcast.jet.impl.deployment;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ public class ClientDeployment_StandaloneClusterTest extends JetTestSupport {
         HazelcastInstance instance = createMember(config);
         createClient(clientConfig);
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", () -> new LoadClassesIsolated(true));
 
         instance.getJetInstance().newJob(dag).join();

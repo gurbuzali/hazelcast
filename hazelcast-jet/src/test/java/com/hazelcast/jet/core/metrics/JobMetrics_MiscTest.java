@@ -21,7 +21,7 @@ import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.TestInClusterSupport;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
@@ -33,7 +33,6 @@ import com.hazelcast.jet.core.TestProcessors.NoOutputSourceP;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.core.processor.Processors;
 import com.hazelcast.jet.impl.JobRepository;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,7 +68,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobMetricsDisabled_then_emptyMetrics() throws Throwable {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v1", MockP::new);
         dag.newVertex("v2", (SupplierEx<Processor>) NoOutputSourceP::new);
 
@@ -95,7 +94,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobRunning_then_nonEmptyMetrics() throws Throwable {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v1", MockP::new);
         dag.newVertex("v2", (SupplierEx<Processor>) NoOutputSourceP::new);
         Job job = jet().newJob(dag, JOB_CONFIG_WITH_METRICS);
@@ -117,7 +116,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobFailedBeforeStarted_then_minimalMetrics() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         RuntimeException expected = new RuntimeException("foo");
         // Job will fail in ProcessorSupplier.init method, which is called before InitExecutionOp is
         // sent. That is before any member ever knew of the job.
@@ -137,7 +136,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobNotYetRunning_then_emptyMetrics() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         BlockingInInitMetaSupplier.latch = new CountDownLatch(1);
         dag.newVertex("v1", new BlockingInInitMetaSupplier());
 
@@ -154,7 +153,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
         // members. If there is no special handling for this, then there would
         // be multiple metrics with the same name, causing problems during
         // merging.
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", Processors.noopP());
         Vertex v2 = dag.newVertex("v2", Processors.noopP());
         dag.edge(between(v1, v2).distributed());
@@ -167,7 +166,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobSuspended_then_lastExecutionMetricsReturned() throws Throwable {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", TestProcessors.MockP::new);
         Vertex v2 = dag.newVertex("v2", (SupplierEx<Processor>) TestProcessors.NoOutputSourceP::new);
         dag.edge(between(v1, v2));
@@ -203,7 +202,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobSuspended_andMetricsNotStored_then_onlyPeriodicMetricsReturned() throws Throwable {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", TestProcessors.MockP::new);
         Vertex v2 = dag.newVertex("v2", (SupplierEx<Processor>) TestProcessors.NoOutputSourceP::new);
         dag.edge(between(v1, v2));
@@ -242,7 +241,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobRestarted_then_metricsRepopulate() throws Throwable {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", TestProcessors.MockP::new);
         Vertex v2 = dag.newVertex("v2", (SupplierEx<Processor>) TestProcessors.NoOutputSourceP::new);
         dag.edge(between(v1, v2));
@@ -263,7 +262,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_jobFailed_then_MetricsReturned() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         RuntimeException e = new RuntimeException("mock error");
         Vertex source = dag.newVertex("source", TestProcessors.ListSource.supplier(singletonList(1)));
         Vertex process = dag.newVertex(
@@ -279,7 +278,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
 
     @Test
     public void when_metricsForJobDisabled_then_emptyMetrics() throws Throwable {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v1", MockP::new);
         dag.newVertex("v2", (SupplierEx<Processor>) NoOutputSourceP::new);
 
@@ -302,7 +301,7 @@ public class JobMetrics_MiscTest extends TestInClusterSupport {
         assertEmptyJobMetrics(job, true);
     }
 
-    private Job runJobExpectFailure(@Nonnull DAG dag, @Nonnull RuntimeException expectedException) {
+    private Job runJobExpectFailure(@Nonnull DAGImpl dag, @Nonnull RuntimeException expectedException) {
         Job job = null;
         try {
             job = jet().newJob(dag, JOB_CONFIG_WITH_METRICS);

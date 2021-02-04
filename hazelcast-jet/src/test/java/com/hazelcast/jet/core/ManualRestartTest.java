@@ -19,7 +19,6 @@ package com.hazelcast.jet.core;
 import com.hazelcast.client.map.helpers.AMapStore;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobRestartWithSnapshotTest.SequencesInPartitionsGeneratorP;
@@ -64,14 +63,14 @@ public class ManualRestartTest extends JetTestSupport {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    private DAG dag;
+    private DAGImpl dag;
     private HazelcastInstance[] instances;
 
     @Before
     public void setup() {
         TestProcessors.reset(NODE_COUNT * LOCAL_PARALLELISM);
 
-        dag = new DAG().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
+        dag = new DAGImpl().vertex(new Vertex("test", new MockPS(NoOutputSourceP::new, NODE_COUNT)));
         instances = createMembers(NODE_COUNT);
     }
 
@@ -149,7 +148,7 @@ public class ManualRestartTest extends JetTestSupport {
         FailingMapStore.fail = false;
         FailingMapStore.failed = false;
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source",
                 throttle(() -> new SequencesInPartitionsGeneratorP(2, 10000, true), 1000));
         Vertex sink = dag.newVertex("sink", writeListP("sink"));

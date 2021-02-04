@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
 
 public class HzSerializableProcessorSuppliersTest extends SimpleTestInClusterSupport {
 
-    private final DAG dag = new DAG();
+    private final DAGImpl dag = new DAGImpl();
     private final URL url = requireNonNull(
             getClass().getResource("DataSerializableSuppliers.jar"));
     private final ClassLoader cl = new URLClassLoader(new URL[] {url});

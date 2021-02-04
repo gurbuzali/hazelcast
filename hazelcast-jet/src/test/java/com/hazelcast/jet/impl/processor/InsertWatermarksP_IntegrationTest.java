@@ -17,7 +17,7 @@
 package com.hazelcast.jet.impl.processor;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.TestProcessors.ListSource;
 import com.hazelcast.jet.core.Vertex;
@@ -49,7 +49,7 @@ public class InsertWatermarksP_IntegrationTest extends JetTestSupport {
 
     @Test
     public void test() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", ListSource.supplier(asList(111L, 222L, 333L)));
         Vertex iwm = dag.newVertex("iwm", Processors.insertWatermarksP(eventTimePolicy(
                 (Long x) -> x, limitingLag(100), 100, 0, 0)))

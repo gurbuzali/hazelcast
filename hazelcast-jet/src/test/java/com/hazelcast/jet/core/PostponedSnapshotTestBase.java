@@ -17,7 +17,6 @@
 package com.hazelcast.jet.core;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
@@ -49,7 +48,7 @@ public class PostponedSnapshotTestBase extends JetTestSupport {
 
     @SuppressWarnings("WeakerAccess") // used by subclass in jet-enterprise
     protected Job startJob(long snapshotInterval) {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex highPrioritySource = dag.newVertex("highPrioritySource", () -> new SourceP(0)).localParallelism(1);
         Vertex lowPrioritySource = dag.newVertex("lowPrioritySource", () -> new SourceP(1)).localParallelism(1);
         Vertex sink = dag.newVertex("sink", writeLoggerP());

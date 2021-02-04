@@ -18,9 +18,7 @@ package com.hazelcast.jet.core;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.TestProcessors.DummyStatefulP;
 import com.hazelcast.jet.datamodel.Tuple3;
@@ -51,11 +49,11 @@ public class JobRestartStressTestBase extends JetTestSupport {
     }
 
     @SuppressWarnings("WeakerAccess") // has sub-classes in jet-enterprise
-    protected void stressTest(Function<Tuple3<HazelcastInstance, DAG, Job>, Job> action) throws Exception {
+    protected void stressTest(Function<Tuple3<HazelcastInstance, DAGImpl, Job>, Job> action) throws Exception {
         JobRepository jobRepository = new JobRepository(instance1);
         TestProcessors.reset(2);
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("dummy-stateful-p", DummyStatefulP::new)
            .localParallelism(1);
 

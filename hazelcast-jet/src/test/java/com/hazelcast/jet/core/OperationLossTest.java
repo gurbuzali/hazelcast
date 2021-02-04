@@ -19,10 +19,8 @@ package com.hazelcast.jet.core;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.nio.Connection;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.TestProcessors.DummyStatefulP;
 import com.hazelcast.jet.core.TestProcessors.NoOutputSourceP;
@@ -86,7 +84,7 @@ public class OperationLossTest extends SimpleTestInClusterSupport {
     private void when_operationLost_then_jobRestarts(int operationId, JobStatus expectedStatus) {
         PacketFiltersUtil.dropOperationsFrom(instance(), JetInitDataSerializerHook.FACTORY_ID,
                 singletonList(operationId));
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", () -> new NoOutputSourceP()).localParallelism(1);
         Vertex v2 = dag.newVertex("v2", mapP(identity())).localParallelism(1);
         dag.edge(between(v1, v2).distributed());
@@ -107,7 +105,7 @@ public class OperationLossTest extends SimpleTestInClusterSupport {
     public void when_completeExecutionOperationLost_then_jobCompletes() {
         PacketFiltersUtil.dropOperationsFrom(instance(), JetInitDataSerializerHook.FACTORY_ID,
                 singletonList(JetInitDataSerializerHook.COMPLETE_EXECUTION_OP));
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", () -> new DummyStatefulP()).localParallelism(1);
         Vertex v2 = dag.newVertex("v2", mapP(identity())).localParallelism(1);
         dag.edge(between(v1, v2).distributed());
@@ -128,7 +126,7 @@ public class OperationLossTest extends SimpleTestInClusterSupport {
     public void when_snapshotOperationLost_then_retried() {
         PacketFiltersUtil.dropOperationsFrom(instance(), JetInitDataSerializerHook.FACTORY_ID,
                 singletonList(JetInitDataSerializerHook.SNAPSHOT_PHASE1_OPERATION));
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", () -> new DummyStatefulP()).localParallelism(1);
         Vertex v2 = dag.newVertex("v2", mapP(identity())).localParallelism(1);
         dag.edge(between(v1, v2).distributed());
@@ -153,7 +151,7 @@ public class OperationLossTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_connectionDroppedWithoutMemberLeaving_then_jobRestarts() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", () -> new NoOutputSourceP()).localParallelism(1);
         Vertex sink = dag.newVertex("sink", DiagnosticProcessors.writeLoggerP());
         dag.edge(between(source, sink).distributed());
@@ -178,7 +176,7 @@ public class OperationLossTest extends SimpleTestInClusterSupport {
     public void when_terminateExecutionOperationLost_then_jobTerminates() {
         PacketFiltersUtil.dropOperationsFrom(instance(), JetInitDataSerializerHook.FACTORY_ID,
                 singletonList(JetInitDataSerializerHook.TERMINATE_EXECUTION_OP));
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", () -> new NoOutputSourceP()).localParallelism(1);
         Vertex v2 = dag.newVertex("v2", mapP(identity())).localParallelism(1);
         dag.edge(between(v1, v2).distributed());
@@ -201,7 +199,7 @@ public class OperationLossTest extends SimpleTestInClusterSupport {
     public void when_terminalSnapshotOperationLost_then_jobRestarts() {
         PacketFiltersUtil.dropOperationsFrom(instance(), JetInitDataSerializerHook.FACTORY_ID,
                 singletonList(JetInitDataSerializerHook.SNAPSHOT_PHASE1_OPERATION));
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex v1 = dag.newVertex("v1", () -> new NoOutputSourceP()).localParallelism(1);
         Vertex v2 = dag.newVertex("v2", mapP(identity())).localParallelism(1);
         dag.edge(between(v1, v2).distributed());

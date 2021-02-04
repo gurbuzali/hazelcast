@@ -174,9 +174,9 @@ public class JobMetrics_BatchTest extends TestInClusterSupport {
     }
 
     private long sumValueFor(JobMetrics metrics, String vertex, String metric) {
-        Collection<Measurement> measurements = ((JobMetricsImpl) metrics)
+        Collection<MeasurementImpl> measurements = ((JobMetricsImpl) metrics)
                 .filter(MeasurementPredicates.tagValueEquals(MetricTags.VERTEX, vertex))
                 .get(metric);
-        return measurements.stream().mapToLong(Measurement::value).sum();
+        return measurements.stream().mapToLong(MeasurementImpl::value).sum();
     }
 }

@@ -83,7 +83,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         Consumer<HazelcastInstance[]> beforeSplit = instances -> {
             MockPS processorSupplier = new MockPS(NoOutputSourceP::new, clusterSize);
-            DAG dag = new DAG().vertex(new Vertex("test", processorSupplier));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier));
             jobRef[0] = instances[0].getJetInstance().newJob(dag, new JobConfig().setSplitBrainProtection(true));
             assertOpenEventually(NoOutputSourceP.executionStarted);
         };
@@ -147,7 +147,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         Consumer<HazelcastInstance[]> beforeSplit = instances -> {
             MockPS processorSupplier = new MockPS(NoOutputSourceP::new, clusterSize);
-            DAG dag = new DAG().vertex(new Vertex("test", processorSupplier));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier));
             jobRef[0] = instances[0].getJetInstance().newJob(dag, new JobConfig().setSplitBrainProtection(true));
             assertOpenEventually(NoOutputSourceP.executionStarted);
         };
@@ -199,7 +199,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         Consumer<HazelcastInstance[]> beforeSplit = instances -> {
             MockPS processorSupplier = new MockPS(NoOutputSourceP::new, clusterSize);
-            DAG dag = new DAG().vertex(new Vertex("test", processorSupplier));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier));
             jobRef[0] = instances[0].getJetInstance().newJob(dag);
             assertOpenEventually(NoOutputSourceP.executionStarted);
         };
@@ -244,7 +244,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         BiConsumer<HazelcastInstance[], HazelcastInstance[]> onSplit = (firstSubCluster, secondSubCluster) -> {
             MockPS processorSupplier = new MockPS(NoOutputSourceP::new, secondSubClusterSize);
-            DAG dag = new DAG().vertex(new Vertex("test", processorSupplier));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier));
             jobRef[0] = secondSubCluster[0].getJetInstance().newJob(dag, new JobConfig().setSplitBrainProtection(true));
             assertOpenEventually(NoOutputSourceP.executionStarted);
         };
@@ -276,7 +276,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         NoOutputSourceP.executionStarted = new CountDownLatch(clusterSize * PARALLELISM);
         MockPS processorSupplier = new MockPS(NoOutputSourceP::new, clusterSize);
-        DAG dag = new DAG().vertex(new Vertex("test", processorSupplier));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier));
         Job job = instances[0].getJetInstance().newJob(dag, new JobConfig().setSplitBrainProtection(true));
         assertOpenEventually(NoOutputSourceP.executionStarted);
 
@@ -305,7 +305,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         NoOutputSourceP.executionStarted = new CountDownLatch(clusterSize * PARALLELISM);
         MockPS processorSupplier = new MockPS(NoOutputSourceP::new, clusterSize);
-        DAG dag = new DAG().vertex(new Vertex("test", processorSupplier).localParallelism(PARALLELISM));
+        DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier).localParallelism(PARALLELISM));
         Job job = instances[0].getJetInstance().newJob(dag, new JobConfig().setSplitBrainProtection(true));
         assertOpenEventually(NoOutputSourceP.executionStarted);
 
@@ -332,7 +332,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         Consumer<HazelcastInstance[]> beforeSplit = instances -> {
             MockPS processorSupplier = new MockPS(NoOutputSourceP::new, clusterSize);
-            DAG dag = new DAG().vertex(new Vertex("test", processorSupplier));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier));
             jobRef[0] = instances[2].getJetInstance().newJob(dag);
             assertOpenEventually(NoOutputSourceP.executionStarted);
         };
@@ -367,7 +367,7 @@ public class SplitBrainTest extends JetSplitBrainTestSupport {
 
         Consumer<HazelcastInstance[]> beforeSplit = instances -> {
             MockPS processorSupplier = new MockPS(NoOutputSourceP::new, clusterSize);
-            DAG dag = new DAG().vertex(new Vertex("test", processorSupplier));
+            DAGImpl dag = new DAGImpl().vertex(new Vertex("test", processorSupplier));
             jobRef[0] = instances[0].getJetInstance().newJob(dag, new JobConfig().setSplitBrainProtection(false));
             assertTrueEventually(() -> assertEquals("initCount", clusterSize, MockPS.initCount.get()), 10);
             assertOpenEventually("executionStarted", NoOutputSourceP.executionStarted);

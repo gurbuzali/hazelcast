@@ -23,11 +23,11 @@ import java.util.function.Predicate;
 
 public interface JobMetrics {
 
-    List<? extends TheMeasurement> get(@Nonnull String metricName);
+    List<? extends Measurement> get(@Nonnull String metricName);
 
     Set<String> metrics();
 
     JobMetrics filter(@Nonnull String tagName, @Nonnull String tagValue);
 
-    JobMetrics filter(@Nonnull Predicate<TheMeasurement> predicate);
+    JobMetrics filter(@Nonnull Predicate<Measurement> predicate);
 }

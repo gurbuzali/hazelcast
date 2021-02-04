@@ -19,7 +19,7 @@ package com.hazelcast.jet.pipeline;
 import com.hazelcast.collection.IList;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.aggregate.AggregateOperations;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.core.Vertex;
@@ -212,7 +212,7 @@ public class StreamSourceStageTest extends StreamSourceStageTestBase {
                 ProcessorMetaSupplier.of(lp, ProcessorSupplier.of(noopP()))))
          .withTimestamps(o -> 0L, 0)
          .writeTo(Sinks.noop());
-        DAG dag = p.toDag();
+        DAGImpl dag = p.toDag();
 
         // Then
         Vertex srcVertex = requireNonNull(dag.getVertex("src"));
@@ -233,7 +233,7 @@ public class StreamSourceStageTest extends StreamSourceStageTestBase {
          .withTimestamps(o -> 0L, 0)
          .setLocalParallelism(lp)
          .writeTo(Sinks.noop());
-        DAG dag = p.toDag();
+        DAGImpl dag = p.toDag();
 
         // Then
         Vertex srcVertex = requireNonNull(dag.getVertex("src"));
@@ -254,7 +254,7 @@ public class StreamSourceStageTest extends StreamSourceStageTestBase {
         p.readFrom(source)
          .withTimestamps(o -> 0L, 0)
          .writeTo(Sinks.noop());
-        DAG dag = p.toDag();
+        DAGImpl dag = p.toDag();
 
         // Then
         Vertex srcVertex = requireNonNull(dag.getVertex("src"));

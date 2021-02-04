@@ -22,10 +22,10 @@ import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobMetrics;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
-import com.hazelcast.jet.TheMeasurement;
+import com.hazelcast.jet.Measurement;
 import com.hazelcast.jet.accumulator.LongAccumulator;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.Edge;
 import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.core.ResettableSingletonTraverser;
@@ -165,7 +165,7 @@ public class MetricsTest extends SimpleTestInClusterSupport {
 
     @Test
     public void nonCooperativeProcessor() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
 
         Vertex source = dag.newVertex("source", TestProcessors.ListSource.supplier(asList(1L, 2L, 3L)));
         Vertex map = dag.newVertex("map", new NonCoopTransformPSupplier((FunctionEx<Long, Long>) l -> {
@@ -234,9 +234,9 @@ public class MetricsTest extends SimpleTestInClusterSupport {
 
         Job job = jetInstance().newJob(pipeline, JOB_CONFIG_WITH_METRICS);
         assertTrueEventually(() -> assertEquals(inputSize,
-                job.getMetrics().get("total").stream().mapToLong(TheMeasurement::value).sum()));
+                job.getMetrics().get("total").stream().mapToLong(Measurement::value).sum()));
         assertTrueEventually(() -> assertEquals(inputSize / 2,
-                job.getMetrics().get("dropped").stream().mapToLong(TheMeasurement::value).sum()));
+                job.getMetrics().get("dropped").stream().mapToLong(Measurement::value).sum()));
         job.join();
     }
 
@@ -427,7 +427,7 @@ public class MetricsTest extends SimpleTestInClusterSupport {
 
     @Test
     public void test_sourceSinkTag() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
 
         Vertex src = dag.newVertex("src", () -> new NoOutputSourceP());
         Vertex mid = dag.newVertex("mid", Processors.mapP(identity()));
@@ -463,7 +463,7 @@ public class MetricsTest extends SimpleTestInClusterSupport {
     private void assertSourceSinkTags(JobMetrics metrics, String vertexName, boolean beforeRestart,
                                       boolean expectedSource, boolean expectedSink) {
         // get an arbitrary measurement for the vertex, we'll assert the tag only
-        TheMeasurement measurement = metrics.filter(MetricTags.VERTEX, vertexName)
+        Measurement measurement = metrics.filter(MetricTags.VERTEX, vertexName)
                 .get(MetricNames.EMITTED_COUNT)
                 .get(0);
 
@@ -473,7 +473,7 @@ public class MetricsTest extends SimpleTestInClusterSupport {
                 expectedSink ? "true" : null, measurement.tag(MetricTags.SINK));
     }
 
-    private Job runPipeline(DAG dag) {
+    private Job runPipeline(DAGImpl dag) {
         Job job = jetInstance().newJob(dag, JOB_CONFIG_WITH_METRICS);
         job.join();
         return job;

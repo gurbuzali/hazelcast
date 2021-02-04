@@ -20,7 +20,6 @@ import com.hazelcast.collection.IList;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.ToLongFunctionEx;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.accumulator.LongAccumulator;
@@ -84,7 +83,7 @@ public class Processors_slidingWindowingIntegrationTest extends JetTestSupport {
 
         SlidingWindowPolicy wDef = slidingWinPolicy(2000, 1000);
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         boolean isBatchLocal = isBatch; // to prevent serialization of whole class
 
         FunctionEx<? super MyEvent, ?> keyFn = MyEvent::getKey;

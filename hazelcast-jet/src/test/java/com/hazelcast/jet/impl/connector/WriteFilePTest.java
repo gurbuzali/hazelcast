@@ -22,7 +22,7 @@ import com.hazelcast.jet.Job;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.AbstractProcessor;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.Vertex;
 import com.hazelcast.jet.impl.JobProxy;
 import com.hazelcast.jet.impl.JobRepository;
@@ -165,7 +165,7 @@ public class WriteFilePTest extends SimpleTestInClusterSupport {
         // Given
         int numItems = 10;
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", () -> new SlowSourceP(semaphore, numItems))
                 .localParallelism(1);
         Vertex sink = dag.newVertex("sink",
@@ -236,7 +236,7 @@ public class WriteFilePTest extends SimpleTestInClusterSupport {
     @Test
     public void test_rollByDate() {
         int numItems = 10;
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex src = dag.newVertex("src", () -> new SlowSourceP(semaphore, numItems)).localParallelism(1);
         @SuppressWarnings("Convert2MethodRef")
         Vertex sink = dag.newVertex("sink", WriteFileP.metaSupplier(
@@ -264,7 +264,7 @@ public class WriteFilePTest extends SimpleTestInClusterSupport {
     @Test
     public void test_rollByFileSize() throws Exception {
         int numItems = 10;
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex src = dag.newVertex("src", () -> new SlowSourceP(semaphore, numItems)).localParallelism(1);
         Vertex map = dag.newVertex("map", mapP((Integer i) -> i + 100));
         // maxFileSize is always large enough for 1 item but never for 2, both with windows and linux newlines
@@ -330,7 +330,7 @@ public class WriteFilePTest extends SimpleTestInClusterSupport {
 
     @Test
     public void stressTest_snapshots_noRestarts() throws Exception {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         int numItems = 5;
         Vertex source = dag.newVertex("source", () -> new SlowSourceP(semaphore, numItems))
                 .localParallelism(1);

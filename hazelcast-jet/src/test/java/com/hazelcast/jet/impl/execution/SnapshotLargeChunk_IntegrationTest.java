@@ -18,12 +18,11 @@ package com.hazelcast.jet.impl.execution;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.nio.Bits;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
 import com.hazelcast.jet.core.AbstractProcessor;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.impl.JobRepository;
 import com.hazelcast.jet.impl.SnapshotValidationRecord;
@@ -50,7 +49,7 @@ public class SnapshotLargeChunk_IntegrationTest extends JetTestSupport {
     @Test
     public void test_snapshotRestoreLargeChunk() {
         HazelcastInstance instance = createMember();
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("src", LargeStateP::new).localParallelism(1);
         Job job = instance.getJetInstance().newJob(dag, new JobConfig()
                 .setProcessingGuarantee(ProcessingGuarantee.EXACTLY_ONCE)

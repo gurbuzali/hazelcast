@@ -91,7 +91,7 @@ public class ExecutionLifecycle_RestartableExceptionTest extends TestInClusterSu
     }
 
     private void when_inProcessorMethod_then_jobRestarted(SupplierEx<Processor> supplier) {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex src = dag.newVertex("src", () -> new ListSource(1));
         Vertex v = dag.newVertex("v", new MockPS(supplier, MEMBER_COUNT));
         dag.edge(between(src, v));
@@ -102,7 +102,7 @@ public class ExecutionLifecycle_RestartableExceptionTest extends TestInClusterSu
 
     @Test
     public void when_inProcessorSupplierInit_then_jobRestarted() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", new MockPS(noopP(), MEMBER_COUNT).setInitError(RESTARTABLE_EXCEPTION));
         member.getJetInstance().newJob(dag, jobConfigWithAutoScaling);
         assertTrueEventually(() ->
@@ -111,7 +111,7 @@ public class ExecutionLifecycle_RestartableExceptionTest extends TestInClusterSu
 
     @Test
     public void when_inProcessorSupplierGet_then_jobRestarted() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", new MockPS(noopP(), MEMBER_COUNT).setGetError(RESTARTABLE_EXCEPTION));
         member.getJetInstance().newJob(dag, jobConfigWithAutoScaling);
         assertTrueEventually(() ->
@@ -120,7 +120,7 @@ public class ExecutionLifecycle_RestartableExceptionTest extends TestInClusterSu
 
     @Test
     public void when_inProcessorMetaSupplierInit_then_jobRestarted() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", new RestartableMockPMS().setInitError(RESTARTABLE_EXCEPTION));
         member.getJetInstance().newJob(dag, jobConfigWithAutoScaling);
         assertTrueEventually(() ->
@@ -129,7 +129,7 @@ public class ExecutionLifecycle_RestartableExceptionTest extends TestInClusterSu
 
     @Test
     public void when_inProcessorMetaSupplierGet_then_jobRestarted() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", new RestartableMockPMS().setGetError(RESTARTABLE_EXCEPTION));
         member.getJetInstance().newJob(dag, jobConfigWithAutoScaling);
         assertTrueEventually(() ->

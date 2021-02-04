@@ -42,7 +42,7 @@ public class DotTest {
 
     @Test
     public void when_dagToDotString() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex a = dag.newVertex("a", noopP())
                       .localParallelism(1);
         Vertex b = dag.newVertex("b", noopP());

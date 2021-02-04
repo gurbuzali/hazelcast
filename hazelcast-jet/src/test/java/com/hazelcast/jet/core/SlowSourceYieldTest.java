@@ -39,7 +39,7 @@ public class SlowSourceYieldTest extends SimpleTestInClusterSupport {
 
     @Test
     public void when_slowSource_then_completeYields() {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         Vertex source = dag.newVertex("source", SlowSourceP::new).localParallelism(1);
         Vertex sink = dag.newVertex("sink", noopP()).localParallelism(1);
         dag.edge(between(source, sink));

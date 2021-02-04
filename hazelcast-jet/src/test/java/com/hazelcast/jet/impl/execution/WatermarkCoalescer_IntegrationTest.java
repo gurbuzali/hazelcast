@@ -20,7 +20,7 @@ import com.hazelcast.collection.IList;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.core.AbstractProcessor;
-import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.core.Vertex;
@@ -62,7 +62,7 @@ public class WatermarkCoalescer_IntegrationTest extends JetTestSupport {
     @Parameter
     public Mode mode;
 
-    private DAG dag = new DAG();
+    private DAGImpl dag = new DAGImpl();
     private JetInstance instance;
     private IList<Object> sinkList;
 
@@ -83,8 +83,8 @@ public class WatermarkCoalescer_IntegrationTest extends JetTestSupport {
         sinkList = member.getList("sinkList");
     }
 
-    private static DAG createDag(Mode mode, List<Object> input1, List<Object> input2) {
-        DAG dag = new DAG();
+    private static DAGImpl createDag(Mode mode, List<Object> input1, List<Object> input2) {
+        DAGImpl dag = new DAGImpl();
 
         Vertex mapWmToString = dag.newVertex("mapWmToString", mapWatermarksToString(false)).localParallelism(1);
         Vertex sink = dag.newVertex("sink", writeListP("sinkList")).localParallelism(1);

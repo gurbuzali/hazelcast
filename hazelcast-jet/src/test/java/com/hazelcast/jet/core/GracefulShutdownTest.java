@@ -90,7 +90,7 @@ public class GracefulShutdownTest extends JetTestSupport {
     }
 
     private void when_shutDown(boolean shutdownCoordinator, boolean snapshotted) {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         final int numItems = 50_000;
         Vertex source = dag.newVertex("source", throttle(() -> new EmitIntegersP(numItems), 10_000)).localParallelism(1);
         Vertex sink = dag.newVertex("sink", SinkProcessors.writeListP("sink"));
@@ -138,7 +138,7 @@ public class GracefulShutdownTest extends JetTestSupport {
     @Test
     public void when_liteMemberShutDown_then_jobKeepsRunning() throws Exception {
         HazelcastInstance liteMember = createMember(new Config().setLiteMember(true));
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", (SupplierEx<Processor>) NoOutputSourceP::new);
         Job job = instances[0].getJetInstance().newJob(dag);
         assertJobStatusEventually(job, JobStatus.RUNNING, 10);
@@ -149,7 +149,7 @@ public class GracefulShutdownTest extends JetTestSupport {
 
     @Test
     public void when_nonParticipatingMemberShutDown_then_jobKeepsRunning() throws Exception {
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         dag.newVertex("v", (SupplierEx<Processor>) NoOutputSourceP::new);
         Job job = instances[0].getJetInstance().newJob(dag);
         assertJobStatusEventually(job, JobStatus.RUNNING, 10);
@@ -172,7 +172,7 @@ public class GracefulShutdownTest extends JetTestSupport {
         BlockingMapStore.shouldBlock = false;
         BlockingMapStore.wasBlocked = false;
 
-        DAG dag = new DAG();
+        DAGImpl dag = new DAGImpl();
         int numItems = 5000;
         Vertex source = dag.newVertex("source", throttle(() -> new EmitIntegersP(numItems), 500));
         Vertex sink = dag.newVertex("sink", SinkProcessors.writeListP("sink"));
