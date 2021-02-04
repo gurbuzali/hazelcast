@@ -35,6 +35,7 @@ import com.hazelcast.jet.core.Watermark;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.impl.LoggingServiceImpl;
 import com.hazelcast.spi.impl.SerializationServiceSupport;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
 import java.net.UnknownHostException;
@@ -304,6 +305,7 @@ public final class TestSupport {
      * @param inputs one list of input items for each input edge
      * @return {@code this} instance for fluent API
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public TestSupport inputs(@Nonnull List<List<?>> inputs, int[] priorities) {
         if (inputs.size() != priorities.length) {
             throw new IllegalArgumentException("Number of inputs must be equal to number of priorities");

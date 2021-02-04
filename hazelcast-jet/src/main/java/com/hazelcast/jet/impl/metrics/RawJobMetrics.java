@@ -19,6 +19,7 @@ package com.hazelcast.jet.impl.metrics;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -51,6 +52,7 @@ public final class RawJobMetrics implements IdentifiedDataSerializable {
     }
 
     @Nullable
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public byte[] getBlob() {
         return blob;
     }

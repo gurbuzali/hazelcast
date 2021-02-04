@@ -22,6 +22,7 @@ import com.hazelcast.jet.impl.pipeline.Planner;
 import com.hazelcast.jet.impl.pipeline.Planner.PlannerVertex;
 import com.hazelcast.jet.impl.pipeline.SinkImpl;
 import com.hazelcast.jet.impl.pipeline.PipelineImpl.Context;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -37,6 +38,7 @@ public class SinkTransform<T> extends AbstractTransform {
     private final SinkImpl<T> sink;
     private final int[] ordinalsToAdapt;
 
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public SinkTransform(@Nonnull SinkImpl<T> sink, @Nonnull List<Transform> upstream, @Nonnull int[] ordinalsToAdapt) {
         super(sink.name(), upstream);
         this.sink = sink;

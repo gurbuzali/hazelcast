@@ -21,6 +21,7 @@ import com.hazelcast.jet.impl.execution.init.EdgeDef;
 import com.hazelcast.jet.impl.util.CircularListCursor;
 import com.hazelcast.jet.impl.util.ProgressState;
 import com.hazelcast.jet.impl.util.ProgressTracker;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -212,6 +213,7 @@ public interface OutboundCollector {
         }
 
         @Override
+        @SuppressFBWarnings("EI_EXPOSE_REP")
         public int[] getPartitions() {
             return partitions;
         }

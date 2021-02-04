@@ -24,6 +24,7 @@ import com.hazelcast.jet.core.Watermark;
 import com.hazelcast.jet.impl.util.ProgressState;
 import com.hazelcast.jet.impl.util.ProgressTracker;
 import com.hazelcast.jet.impl.util.Util;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -68,6 +69,7 @@ public class OutboxImpl implements OutboxInternal {
      * @param batchSize Maximum number of items that will be allowed to offer until
      *                  {@link #reset()} is called.
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public OutboxImpl(OutboundCollector[] outstreams, boolean hasSnapshot, ProgressTracker progTracker,
                       SerializationService serializationService, int batchSize, AtomicLongArray counters) {
         this.outstreams = outstreams;
