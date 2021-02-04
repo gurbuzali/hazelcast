@@ -17,7 +17,6 @@
 package com.hazelcast.jet.core.test;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.config.ProcessingGuarantee;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
@@ -47,7 +46,8 @@ public class TestProcessorMetaSupplierContext implements ProcessorMetaSupplier.C
     private String vertexName = "testVertex";
     private ProcessingGuarantee processingGuarantee = NONE;
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public HazelcastInstance instance() {
         return instance;
     }
@@ -87,7 +87,8 @@ public class TestProcessorMetaSupplierContext implements ProcessorMetaSupplier.C
         return this;
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public JobConfig jobConfig() {
         return jobConfig;
     }
@@ -116,8 +117,8 @@ public class TestProcessorMetaSupplierContext implements ProcessorMetaSupplier.C
 
     @Override
     public int localParallelism() {
-        assert totalParallelism % localParallelism == 0 :
-                "totalParallelism=" + totalParallelism + " not divisible with localParallelism=" + localParallelism;
+        assert totalParallelism % localParallelism == 0
+                : "totalParallelism=" + totalParallelism + " not divisible with localParallelism=" + localParallelism;
         return localParallelism;
     }
 
@@ -130,7 +131,8 @@ public class TestProcessorMetaSupplierContext implements ProcessorMetaSupplier.C
         return this;
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public ILogger logger() {
         if (logger == null) {
             logger = Logger.getLogger(loggerName());
@@ -151,7 +153,8 @@ public class TestProcessorMetaSupplierContext implements ProcessorMetaSupplier.C
         return totalParallelism() / localParallelism();
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public String vertexName() {
         return vertexName;
     }

@@ -18,9 +18,7 @@ package com.hazelcast.jet.pipeline;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Traversers;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.pipeline.test.TestSources;
 import com.hazelcast.test.HazelcastSerialClassRunner;

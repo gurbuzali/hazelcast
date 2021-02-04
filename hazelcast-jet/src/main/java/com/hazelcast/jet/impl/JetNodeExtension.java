@@ -18,21 +18,14 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.MapConfig;
 import com.hazelcast.instance.impl.DefaultNodeExtension;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Packet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.spi.impl.NodeEngineImpl.JetPacketConsumer;
-import com.hazelcast.spi.merge.DiscardMergePolicy;
 
 import java.util.Map;
-
-import static com.hazelcast.jet.core.JetProperties.JOB_RESULTS_TTL_SECONDS;
-import static com.hazelcast.jet.impl.JobRepository.INTERNAL_JET_OBJECTS_PREFIX;
-import static com.hazelcast.jet.impl.JobRepository.JOB_METRICS_MAP_NAME;
-import static com.hazelcast.jet.impl.JobRepository.JOB_RESULTS_MAP_NAME;
 
 public class JetNodeExtension extends DefaultNodeExtension implements JetPacketConsumer {
     private final NodeExtensionCommon extCommon;

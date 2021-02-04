@@ -295,12 +295,12 @@ public class JsonUtilTest extends JetTestSupport {
                 return false;
             }
             TestJsonObject that = (TestJsonObject) o;
-            return age == that.age &&
-                    status == that.status &&
-                    Objects.equals(name, that.name) &&
-                    Arrays.equals(stringArray, that.stringArray) &&
-                    Objects.equals(objects, that.objects) &&
-                    Objects.equals(innerObject, that.innerObject);
+            return age == that.age
+                    && status == that.status
+                    && Objects.equals(name, that.name)
+                    && Arrays.equals(stringArray, that.stringArray)
+                    && Objects.equals(objects, that.objects)
+                    && Objects.equals(innerObject, that.innerObject);
         }
 
         @Override

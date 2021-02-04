@@ -40,8 +40,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class LoadResource extends AbstractProcessor {
 
-    private static final String EXPECTED = "AAAP|Advanced Accelerator Applications S.A. - " +
-            "American Depositary Shares|Q|N|N|100|N|N";
+    private static final String EXPECTED = "AAAP|Advanced Accelerator Applications S.A. - "
+            + "American Depositary Shares|Q|N|N|100|N|N";
 
     @Override
     public boolean complete() {

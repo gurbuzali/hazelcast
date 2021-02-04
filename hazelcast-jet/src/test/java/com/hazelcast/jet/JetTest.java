@@ -19,7 +19,6 @@ package com.hazelcast.jet;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.JetTestSupport;
 import org.junit.Test;
 
@@ -38,7 +37,7 @@ public class JetTest extends JetTestSupport {
 
         // Then
         int actualTTL = instance.getConfig().findMapConfig(INTERNAL_JET_OBJECTS_PREFIX + "fooMap")
-                                .getTimeToLiveSeconds();
+                .getTimeToLiveSeconds();
         assertEquals(MapConfig.DEFAULT_TTL_SECONDS, actualTTL);
     }
 

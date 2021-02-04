@@ -18,7 +18,6 @@ package com.hazelcast.jet.impl.connector;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.function.SupplierEx;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.impl.JobProxy;
 import com.hazelcast.jet.pipeline.Pipeline;
@@ -50,7 +49,8 @@ public final class SinkStressTestUtil {
 
     private static final int TEST_TIMEOUT_SECONDS = 120;
 
-    private SinkStressTestUtil() { }
+    private SinkStressTestUtil() {
+    }
 
     public static void test_withRestarts(
             @Nonnull HazelcastInstance instance,
@@ -72,9 +72,9 @@ public final class SinkStressTestUtil {
                 .createSnapshotFn(ctx -> ctx[0])
                 .restoreSnapshotFn((ctx, state) -> ctx[0] = state.get(0))
                 .build())
-         .withoutTimestamps()
-         .peek()
-         .writeTo(sink);
+                .withoutTimestamps()
+                .peek()
+                .writeTo(sink);
 
         JobConfig config = new JobConfig()
                 .setProcessingGuarantee(exactlyOnce ? EXACTLY_ONCE : AT_LEAST_ONCE)
@@ -84,12 +84,12 @@ public final class SinkStressTestUtil {
         long endTime = System.nanoTime() + SECONDS.toNanos(TEST_TIMEOUT_SECONDS);
         int lastCount = 0;
         String expectedRows = IntStream.range(0, numItems)
-                                       .mapToObj(i -> i + (exactlyOnce ? "=1" : ""))
-                                       .collect(joining("\n"));
+                .mapToObj(i -> i + (exactlyOnce ? "=1" : ""))
+                .collect(joining("\n"));
         // We'll restart once, then restart again after a short sleep (possibly during initialization),
         // and then assert some output so that the test isn't constantly restarting without any progress
         Long lastExecutionId = null;
-        for (;;) {
+        for (; ; ) {
             lastExecutionId = assertJobRunningEventually(instance, job, lastExecutionId);
             job.restart(graceful);
             lastExecutionId = assertJobRunningEventually(instance, job, lastExecutionId);

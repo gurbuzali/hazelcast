@@ -17,7 +17,6 @@
 package com.hazelcast.jet;
 
 import com.hazelcast.cluster.Address;
-import com.hazelcast.instance.impl.HazelcastInstanceImpl;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.jet.core.Processor;
@@ -28,7 +27,6 @@ import com.hazelcast.jet.core.test.TestProcessorSupplierContext;
 import com.hazelcast.jet.impl.execution.init.Contexts.ProcCtx;
 import com.hazelcast.jet.impl.execution.init.Contexts.ProcSupplierCtx;
 import com.hazelcast.jet.impl.processor.ProcessorWrapper;
-import com.hazelcast.jet.impl.util.Util;
 import com.hazelcast.spi.impl.NodeEngine;
 
 import javax.annotation.Nonnull;

@@ -200,8 +200,8 @@ public class ReadFilesPTest extends SimpleTestInClusterSupport {
 
     private Pipeline pipelineJson(boolean asMap) {
         Pipeline p = Pipeline.create();
-        BatchSource<?> source  = asMap ? Sources.json(directory.getPath()) :
-                Sources.json(directory.getPath(), TestPerson.class);
+        BatchSource<?> source  = asMap ? Sources.json(directory.getPath())
+                : Sources.json(directory.getPath(), TestPerson.class);
         p.readFrom(source)
          .writeTo(Sinks.list(listJson));
 
@@ -239,9 +239,9 @@ public class ReadFilesPTest extends SimpleTestInClusterSupport {
                 return false;
             }
             TestPerson that = (TestPerson) o;
-            return age == that.age &&
-                    status == that.status &&
-                    Objects.equals(name, that.name);
+            return age == that.age
+                    && status == that.status
+                    && Objects.equals(name, that.name);
         }
 
         @Override

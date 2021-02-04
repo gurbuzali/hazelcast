@@ -24,9 +24,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.impl.Node;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.function.RunnableEx;
 import com.hazelcast.jet.impl.JetService;
 import com.hazelcast.jet.impl.JobExecutionRecord;
@@ -167,7 +165,7 @@ public abstract class JetTestSupport extends HazelcastTestSupport {
      *     // Subsequent steps can fail because the job is restarting.
      *     assertJobStatusEventually(job, RUNNING);
      * }</pre>
-     *
+     * <p>
      * This method allows an equivalent code:
      * <pre>{@code
      *     long oldExecutionId = assertJobRunningEventually(instance, job, null);
@@ -178,9 +176,9 @@ public abstract class JetTestSupport extends HazelcastTestSupport {
      * }</pre>
      *
      * @param ignoredExecutionId If job is running and has this execution ID,
-     *      wait longer. If null, no execution ID is ignored.
+     *                           wait longer. If null, no execution ID is ignored.
      * @return the execution ID of the new execution or 0 if {@code
-     *      ignoredExecutionId == null}
+     * ignoredExecutionId == null}
      */
     public static long assertJobRunningEventually(HazelcastInstance instance, Job job, Long ignoredExecutionId) {
         Long executionId;
@@ -278,7 +276,7 @@ public abstract class JetTestSupport extends HazelcastTestSupport {
      * to, shut it down so that next tests don't run on a messed-up cluster.
      *
      * @param instances cluster instances, must contain at least
-     *                            one instance
+     *                  one instance
      */
     public void cleanUpCluster(HazelcastInstance... instances) {
         for (Job job : instances[0].getJetInstance().getJobs()) {
@@ -323,7 +321,7 @@ public abstract class JetTestSupport extends HazelcastTestSupport {
 
             sleepMillis(500);
             SUPPORT_LOGGER.warning("Failed to cancel the job and it is " + status + ", retrying. Failure: "
-                            + cancellationFailure, cancellationFailure);
+                    + cancellationFailure, cancellationFailure);
         }
         // if we got here, 10 attempts to cancel the job have failed. Cluster is in bad shape probably, shut it down
         try {
@@ -333,8 +331,8 @@ public abstract class JetTestSupport extends HazelcastTestSupport {
         } catch (Exception e) {
             // ignore, proceed to throwing RuntimeException
         }
-        throw new RuntimeException(numAttempts + " attempts to cancel the job failed" +
-                (instancesToShutDown.length > 0 ? ", shut down the cluster" : ""));
+        throw new RuntimeException(numAttempts + " attempts to cancel the job failed"
+                + (instancesToShutDown.length > 0 ? ", shut down the cluster" : ""));
     }
 
     /**

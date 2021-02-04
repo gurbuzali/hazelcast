@@ -19,7 +19,6 @@ package com.hazelcast.jet.pipeline;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.test.SerialTest;
 import org.junit.After;
@@ -59,8 +58,8 @@ public class LoggerSinkTest extends JetTestSupport {
 
         // When
         p.readFrom(Sources.<Integer>list(srcName))
-         .map(i -> i + "-shouldBeSeenOnTheSystemOutput")
-         .writeTo(Sinks.logger());
+                .map(i -> i + "-shouldBeSeenOnTheSystemOutput")
+                .writeTo(Sinks.logger());
 
         jet.newJob(p).join();
 

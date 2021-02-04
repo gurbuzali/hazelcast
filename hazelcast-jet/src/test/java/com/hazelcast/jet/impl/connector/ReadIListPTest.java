@@ -18,7 +18,6 @@ package com.hazelcast.jet.impl.connector;
 
 import com.hazelcast.collection.IList;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.processor.SourceProcessors;
 import com.hazelcast.jet.core.test.TestSupport;

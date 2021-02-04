@@ -20,10 +20,8 @@ import com.hazelcast.collection.IList;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.internal.util.UuidUtil;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.aggregate.AggregateOperations;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.core.JobStatus;
@@ -37,10 +35,7 @@ import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.hazelcast.jet.config.ProcessingGuarantee.EXACTLY_ONCE;
@@ -68,7 +63,7 @@ public class SourceBuilder_TopologyChangeTest extends JetTestSupport {
 
     @Test
     public void test_restartJob_nodeTerminated() {
-        testTopologyChange(this::createInstance, node -> node.getLifecycleService().terminate(),false);
+        testTopologyChange(this::createInstance, node -> node.getLifecycleService().terminate(), false);
     }
 
     @Test

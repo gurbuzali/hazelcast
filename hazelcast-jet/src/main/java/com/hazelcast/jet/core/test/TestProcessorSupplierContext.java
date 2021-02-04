@@ -18,7 +18,6 @@ package com.hazelcast.jet.core.test;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ManagedContext;
-import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.ProcessingGuarantee;
 import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.logging.ILogger;
@@ -42,32 +41,38 @@ public class TestProcessorSupplierContext
     private ManagedContext managedContext = object -> object;
     private final Map<String, File> attached = new HashMap<>();
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public TestProcessorSupplierContext setLogger(@Nonnull ILogger logger) {
         return (TestProcessorContext) super.setLogger(logger);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public TestProcessorSupplierContext setInstance(@Nonnull HazelcastInstance instance) {
         return (TestProcessorSupplierContext) super.setInstance(instance);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public TestProcessorSupplierContext setVertexName(@Nonnull String vertexName) {
         return (TestProcessorSupplierContext) super.setVertexName(vertexName);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public TestProcessorSupplierContext setTotalParallelism(int totalParallelism) {
         return (TestProcessorSupplierContext) super.setTotalParallelism(totalParallelism);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public TestProcessorSupplierContext setLocalParallelism(int localParallelism) {
         return (TestProcessorSupplierContext) super.setLocalParallelism(localParallelism);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public TestProcessorSupplierContext setProcessingGuarantee(@Nonnull ProcessingGuarantee processingGuarantee) {
         return (TestProcessorSupplierContext) super.setProcessingGuarantee(processingGuarantee);
     }
@@ -79,17 +84,20 @@ public class TestProcessorSupplierContext
         return memberIndex;
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public File attachedDirectory(@Nonnull String id) {
         return attachedFile(id);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public File recreateAttachedDirectory(@Nonnull String id) {
         return attachedDirectory(id);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public File attachedFile(@Nonnull String id) {
         File file = attached.get(id);
         if (file == null) {
@@ -98,12 +106,14 @@ public class TestProcessorSupplierContext
         return file;
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public File recreateAttachedFile(@Nonnull String id) {
         return attachedFile(id);
     }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public ManagedContext managedContext() {
         return managedContext;
     }

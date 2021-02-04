@@ -18,7 +18,6 @@ package com.hazelcast.jet.impl;
 
 import com.hazelcast.client.impl.ClientEngineImpl;
 import com.hazelcast.config.Config;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.metrics.impl.MetricsService;
@@ -28,6 +27,7 @@ import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.internal.services.ManagedService;
 import com.hazelcast.internal.services.MembershipAwareService;
 import com.hazelcast.internal.services.MembershipServiceEvent;
+import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobNotFoundException;
 import com.hazelcast.jet.impl.execution.TaskletExecutionService;
@@ -49,9 +49,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -155,18 +152,18 @@ public class JetService implements ManagedService, MembershipAwareService, LiveO
     private void notifyMasterWeAreShuttingDown(CompletableFuture<Void> future) {
         Operation op = new NotifyMemberShutdownOperation();
         nodeEngine.getOperationService()
-                  .invokeOnTarget(JetService.SERVICE_NAME, op, nodeEngine.getClusterService().getMasterAddress())
-                  .whenCompleteAsync((response, throwable) -> {
-                      if (throwable != null) {
-                          logger.warning("Failed to notify master member that this member is shutting down,"
-                                  + " will retry in " + NOTIFY_MEMBER_SHUTDOWN_DELAY + " seconds", throwable);
-                          // recursive call
-                          nodeEngine.getExecutionService().schedule(
-                                  () -> notifyMasterWeAreShuttingDown(future), NOTIFY_MEMBER_SHUTDOWN_DELAY, SECONDS);
-                      } else {
-                          future.complete(null);
-                      }
-                  });
+                .invokeOnTarget(JetService.SERVICE_NAME, op, nodeEngine.getClusterService().getMasterAddress())
+                .whenCompleteAsync((response, throwable) -> {
+                    if (throwable != null) {
+                        logger.warning("Failed to notify master member that this member is shutting down,"
+                                + " will retry in " + NOTIFY_MEMBER_SHUTDOWN_DELAY + " seconds", throwable);
+                        // recursive call
+                        nodeEngine.getExecutionService().schedule(
+                                () -> notifyMasterWeAreShuttingDown(future), NOTIFY_MEMBER_SHUTDOWN_DELAY, SECONDS);
+                    } else {
+                        future.complete(null);
+                    }
+                });
     }
 
     @Override

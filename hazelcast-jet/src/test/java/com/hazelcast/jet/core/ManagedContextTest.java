@@ -21,7 +21,6 @@ import com.hazelcast.core.ManagedContext;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.ServiceFactories;
@@ -67,7 +66,7 @@ public class ManagedContextTest extends JetTestSupport {
         Pipeline p = Pipeline.create();
         p.readFrom(Sources.batchFromProcessor("testSource",
                 ProcessorMetaSupplier.preferLocalParallelismOne(processorSupplier)))
-         .writeTo(assertAnyOrder(singletonList(INJECTED_VALUE)));
+                .writeTo(assertAnyOrder(singletonList(INJECTED_VALUE)));
 
         // When
         jet.newJob(p).join();
@@ -89,8 +88,8 @@ public class ManagedContextTest extends JetTestSupport {
                 ServiceFactories.sharedService(serviceSupplier);
         Pipeline p = Pipeline.create();
         p.readFrom(TestSources.items("item"))
-         .mapUsingService(serviceFactory, (c, item) -> item + c.injectedValue)
-         .writeTo(assertAnyOrder(singletonList("item" + INJECTED_VALUE)));
+                .mapUsingService(serviceFactory, (c, item) -> item + c.injectedValue)
+                .writeTo(assertAnyOrder(singletonList("item" + INJECTED_VALUE)));
 
         // When
         jet.newJob(p).join();
@@ -132,8 +131,8 @@ public class ManagedContextTest extends JetTestSupport {
 
     private void testSinks(SupplierEx<? extends AnotherSinkContext> sinkSupplier) {
         Sink<Object> sink = SinkBuilder.sinkBuilder("sink", c -> sinkSupplier.get())
-                                       .receiveFn((c, i) -> assertEquals(INJECTED_VALUE, c.injectedValue))
-                                       .build();
+                .receiveFn((c, i) -> assertEquals(INJECTED_VALUE, c.injectedValue))
+                .build();
 
         Pipeline pipeline = Pipeline.create();
         pipeline.readFrom(TestSources.items(1))

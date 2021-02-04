@@ -21,8 +21,6 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.cluster.Address;
 import com.hazelcast.collection.IList;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.MulticastConfig;
-import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.Job;
@@ -41,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -165,11 +162,11 @@ public abstract class PipelineTestSupport extends TestInClusterSupport {
     ) {
         if (distinctKeyFn != null) {
             stream = stream.collect(toMap(distinctKeyFn, identity(), (t0, t1) -> t1))
-                           .values().stream();
+                    .values().stream();
         }
         return stream.map(formatFn)
-                     .sorted()
-                     .collect(joining("\n"));
+                .sorted()
+                .collect(joining("\n"));
     }
 
     /**

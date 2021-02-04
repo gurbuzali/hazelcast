@@ -102,8 +102,8 @@ public class JobMetrics_StreamTest extends TestInClusterSupport {
         List<String> sink = instance().getList(sinkListName);
 
         JobConfig jobConfig = new JobConfig()
-            .setStoreMetricsAfterJobCompletion(true)
-            .setProcessingGuarantee(ProcessingGuarantee.EXACTLY_ONCE);
+                .setStoreMetricsAfterJobCompletion(true)
+                .setProcessingGuarantee(ProcessingGuarantee.EXACTLY_ONCE);
         // When
         Job job = jet().newJob(createPipeline(), jobConfig);
 
@@ -231,9 +231,9 @@ public class JobMetrics_StreamTest extends TestInClusterSupport {
     }
 
     private long sumValueFor(JobMetrics metrics, String vertex, String metric) {
-        Collection<MeasurementImpl> measurements = ((JobMetricsImpl)metrics)
+        Collection<MeasurementImpl> measurements = ((JobMetricsImpl) metrics)
                 .filter(MeasurementPredicates.tagValueEquals(MetricTags.VERTEX, vertex)
-                            .and(MeasurementPredicates.tagValueEquals(MetricTags.ORDINAL, "snapshot").negate()))
+                        .and(MeasurementPredicates.tagValueEquals(MetricTags.ORDINAL, "snapshot").negate()))
                 .get(metric);
         return measurements.stream().mapToLong(MeasurementImpl::value).sum();
     }

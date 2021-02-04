@@ -84,7 +84,7 @@ import static org.junit.Assert.assertTrue;
 
 public class StreamStageTest extends PipelineStreamTestSupport {
 
-    private static BiFunction<String, Integer, String> ENRICHING_FORMAT_FN =
+    private static final BiFunction<String, Integer, String> ENRICHING_FORMAT_FN =
             (prefix, i) -> String.format("%s-%04d", prefix, i);
 
     @Rule
@@ -111,7 +111,7 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         // When
         StreamStage<Integer> stage = streamStageFromList(emptyList());
         StreamStage<Integer> filter = stage.filter(i -> i < 10)
-                                           .setLocalParallelism(localParallelism);
+                .setLocalParallelism(localParallelism);
 
         // Then
         assertEquals(localParallelism, transformOf(filter).localParallelism());
@@ -353,7 +353,7 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         assertVertexCount(p.toDag(), 5);
         execute();
         assertEquals(
-                streamToString(input.stream().map(t -> t  + "-ab"), identity()),
+                streamToString(input.stream().map(t -> t + "-ab"), identity()),
                 streamToString(sinkList.stream(), Object::toString));
     }
 
@@ -398,10 +398,10 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         StreamStage<String> mapped = streamStageFromList(input).mapUsingServiceAsync(
                 serviceFactory, (executor, i) -> {
                     CompletableFuture<String> f = new CompletableFuture<>();
-                     executor.schedule(() -> {
-                         f.complete(formatFn.apply(suffix, i));
-                     }, 10, TimeUnit.MILLISECONDS);
-                     return f;
+                    executor.schedule(() -> {
+                        f.complete(formatFn.apply(suffix, i));
+                    }, 10, TimeUnit.MILLISECONDS);
+                    return f;
                 }
         );
 
@@ -866,10 +866,10 @@ public class StreamStageTest extends PipelineStreamTestSupport {
 
         // When
         StreamStage<Long> stage = streamStageFromList(input)
-            .mapStateful(LongAccumulator::new, (acc, i) -> {
-                acc.add(1);
-                return (acc.get() == input.size()) ? acc.get() : null;
-            });
+                .mapStateful(LongAccumulator::new, (acc, i) -> {
+                    acc.add(1);
+                    return (acc.get() == input.size()) ? acc.get() : null;
+                });
         // Then
         stage.writeTo(assertOrdered(Collections.singletonList((long) itemCount)));
         execute();
@@ -996,10 +996,10 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         assertEquals(
                 streamToString(
                         input.stream()
-                             .filter(i -> {
-                                 int sum = i * (i + 1) / 2;
-                                 return sum % 2 == 0;
-                             }),
+                                .filter(i -> {
+                                    int sum = i * (i + 1) / 2;
+                                    return sum % 2 == 0;
+                                }),
                         formatFn),
                 streamToString(sinkStreamOf(Integer.class), formatFn)
         );
@@ -1025,14 +1025,14 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         assertEquals(
                 streamToString(
                         input.stream()
-                             .map(i -> {
-                                 // Using direct formula to sum the sequence of even/odd numbers:
-                                 int first = i % 2;
-                                 long count = i / 2 + 1;
-                                 long sum = (first + i) * count / 2;
-                                 return sum % 2 == 0 ? i : null;
-                             })
-                             .filter(Objects::nonNull),
+                                .map(i -> {
+                                    // Using direct formula to sum the sequence of even/odd numbers:
+                                    int first = i % 2;
+                                    long count = i / 2 + 1;
+                                    long sum = (first + i) * count / 2;
+                                    return sum % 2 == 0 ? i : null;
+                                })
+                                .filter(Objects::nonNull),
                         formatFn),
                 streamToString(sinkStreamOf(Integer.class), formatFn)
         );
@@ -1057,10 +1057,10 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         assertEquals(
                 streamToString(
                         input.stream()
-                             .flatMap(i -> {
-                                 long sum = i * (i + 1) / 2;
-                                 return Stream.of(sum, sum);
-                             }),
+                                .flatMap(i -> {
+                                    long sum = i * (i + 1) / 2;
+                                    return Stream.of(sum, sum);
+                                }),
                         formatFn),
                 streamToString(sinkStreamOf(Long.class), formatFn)
         );
@@ -1147,13 +1147,13 @@ public class StreamStageTest extends PipelineStreamTestSupport {
 
         // Then
         rolling.window(tumbling(1))
-               .aggregate(identity)
-               .writeTo(sink);
+                .aggregate(identity)
+                .writeTo(sink);
         execute();
         assertEquals(
                 LongStream.range(0, itemCount)
-                          .mapToObj(i -> String.format("(%04d %04d)", i + 1, i))
-                          .collect(joining("\n")),
+                        .mapToObj(i -> String.format("(%04d %04d)", i + 1, i))
+                        .collect(joining("\n")),
                 streamToString(
                         this.<Long>sinkStreamOfWinResult(),
                         wr -> String.format("(%04d %04d)", wr.end(), wr.result()))
@@ -1380,7 +1380,7 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         // When
         StreamStage<String> mapped = streamStageFromList(input)
                 .apply(s -> s.map(i -> i + 1)
-                             .map(String::valueOf));
+                        .map(String::valueOf));
 
         // Then
         mapped.writeTo(sink);
@@ -1462,9 +1462,9 @@ public class StreamStageTest extends PipelineStreamTestSupport {
 
         // When
         streamStageFromList(input)
-         .filter(filterFn)
-         .peek(Object::toString)
-         .writeTo(sink);
+                .filter(filterFn)
+                .peek(Object::toString)
+                .writeTo(sink);
 
         // Then
         execute();

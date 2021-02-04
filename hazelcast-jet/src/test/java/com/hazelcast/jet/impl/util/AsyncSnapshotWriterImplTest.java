@@ -26,8 +26,6 @@ import com.hazelcast.internal.partition.InternalPartitionService;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.internal.serialization.impl.HeapData;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.core.JetTestSupport;
 import com.hazelcast.jet.impl.JetService;
 import com.hazelcast.jet.impl.execution.SnapshotContext;
@@ -87,9 +85,9 @@ public class AsyncSnapshotWriterImplTest extends JetTestSupport {
     public void before() {
         Config config = new Config();
         config.getMapConfig(ALWAYS_FAILING_MAP)
-              .getMapStoreConfig()
-              .setEnabled(true)
-              .setImplementation(new AlwaysFailingMapStore());
+                .getMapStoreConfig()
+                .setEnabled(true)
+                .setImplementation(new AlwaysFailingMapStore());
 
         HazelcastInstance instance = createMember(config);
         HazelcastInstanceImpl impl = getImpl(instance);
@@ -156,8 +154,8 @@ public class AsyncSnapshotWriterImplTest extends JetTestSupport {
         assertTrueAllTheTime(() ->
                 assertTrue(
                         map.entrySet().stream()
-                           .map(Entry::toString)
-                           .collect(joining(", ", "[", "]")),
+                                .map(Entry::toString)
+                                .collect(joining(", ", "[", "]")),
                         map.isEmpty()), 1);
         // this entry will cause automatic flush
         assertTrue(writer.offer(entry));

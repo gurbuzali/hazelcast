@@ -19,16 +19,11 @@ package com.hazelcast.jet.core;
 import com.hazelcast.cluster.Address;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.instance.EndpointQualifier;
-import com.hazelcast.instance.impl.HazelcastInstanceImpl;
-import com.hazelcast.instance.impl.HazelcastInstanceProxy;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.instance.impl.NodeState;
 import com.hazelcast.internal.server.FirewallingServer.FirewallingServerConnectionManager;
 import com.hazelcast.internal.server.ServerConnectionManager;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 import com.hazelcast.spi.properties.ClusterProperty;
@@ -42,10 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static com.hazelcast.internal.util.Preconditions.checkPositive;
-import static java.util.stream.Collectors.toList;
 
 /**
  * A support class for high-level split-brain tests. It will form a
@@ -141,16 +134,17 @@ public abstract class JetSplitBrainTestSupport extends JetTestSupport {
     /**
      * Starts a new {@code JetInstance} which is only able to communicate
      * with members on one of the two brains.
-     * @param firstSubCluster jet instances in the first sub cluster
-     * @param secondSubCluster jet instances in the first sub cluster
+     *
+     * @param firstSubCluster         jet instances in the first sub cluster
+     * @param secondSubCluster        jet instances in the first sub cluster
      * @param createOnFirstSubCluster if true, new instance is created on the first sub cluster.
      * @return a HazelcastInstance whose {@code MockJoiner} has blacklisted the other brain's
-     *         members and its connection manager blocks connections to other brain's members
+     * members and its connection manager blocks connections to other brain's members
      * @see TestHazelcastInstanceFactory#newHazelcastInstance(Address, com.hazelcast.config.Config, Address[])
      */
     protected final HazelcastInstance createHazelcastInstanceInBrain(HazelcastInstance[] firstSubCluster,
-                                                               HazelcastInstance[] secondSubCluster,
-                                                               boolean createOnFirstSubCluster) {
+                                                                     HazelcastInstance[] secondSubCluster,
+                                                                     boolean createOnFirstSubCluster) {
         Address newMemberAddress = nextAddress();
         HazelcastInstance[] instancesToBlock = createOnFirstSubCluster ? secondSubCluster : firstSubCluster;
 

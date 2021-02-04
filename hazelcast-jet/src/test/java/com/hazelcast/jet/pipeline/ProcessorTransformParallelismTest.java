@@ -188,14 +188,14 @@ public class ProcessorTransformParallelismTest {
     }
 
     private static Object[] createParamSet(
-            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> cooperative_defaultLP,
-            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> cooperative_explicitLP,
-            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> nonCooperative_defaultLP,
-            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> nonCooperative_explicitLP,
+            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> cooperativeDefaultLP,
+            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> cooperativeExplicitLP,
+            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> nonCooperativeDefaultLP,
+            FunctionEx<StreamStage<Integer>, StreamStage<Integer>> nonCooperativeExplicitLP,
             String transformName
     ) {
-        return new Object[]{cooperative_defaultLP, cooperative_explicitLP, nonCooperative_defaultLP,
-                nonCooperative_explicitLP, transformName};
+        return new Object[]{cooperativeDefaultLP, cooperativeExplicitLP, nonCooperativeDefaultLP,
+                nonCooperativeExplicitLP, transformName};
     }
 
     @Test
@@ -241,7 +241,7 @@ public class ProcessorTransformParallelismTest {
     private DAGImpl applyTransformAndGetDag(FunctionEx<StreamStage<Integer>, StreamStage<Integer>> transform) {
         Pipeline p = Pipeline.create();
         StreamStage<Integer> source = p.readFrom(TestSources.items(1))
-                                       .addTimestamps(t -> 0, 0);
+                .addTimestamps(t -> 0, 0);
         StreamStage<Integer> applied = source.apply(transform);
         applied.writeTo(Sinks.noop());
         return p.toDag();

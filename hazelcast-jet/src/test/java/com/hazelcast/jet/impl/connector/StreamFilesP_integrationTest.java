@@ -255,9 +255,9 @@ public class StreamFilesP_integrationTest extends JetTestSupport {
                  BufferedWriter bw = new BufferedWriter(osw)
             ) {
                 for (int i = 0; i < numLines; i++) {
-                    bw.write(prefix + ' ' + i +
-                            " Lorem ipsum dolor sit amet, consectetur adipiscing elit," +
-                            " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\n");
+                    bw.write(prefix + ' ' + i
+                            + " Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+                            + " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\n");
                     bw.flush();
                     osw.flush();
                     fos.flush();

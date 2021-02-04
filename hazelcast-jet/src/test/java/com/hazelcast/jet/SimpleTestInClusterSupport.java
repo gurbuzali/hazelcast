@@ -83,8 +83,8 @@ public abstract class SimpleTestInClusterSupport extends JetTestSupport {
         }
         // after each test ditch all jobs and objects
         List<Job> jobs = instances[0].getJetInstance().getJobs();
-        SUPPORT_LOGGER.info("Ditching " + jobs.size() + " jobs in SimpleTestInClusterSupport.@After: " +
-                jobs.stream().map(j -> idToString(j.getId())).collect(joining(", ", "[", "]")));
+        SUPPORT_LOGGER.info("Ditching " + jobs.size() + " jobs in SimpleTestInClusterSupport.@After: "
+                + jobs.stream().map(j -> idToString(j.getId())).collect(joining(", ", "[", "]")));
         for (Job job : jobs) {
             ditchJob(job, instances());
         }

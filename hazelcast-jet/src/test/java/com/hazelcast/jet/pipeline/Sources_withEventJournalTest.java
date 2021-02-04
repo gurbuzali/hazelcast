@@ -18,7 +18,6 @@ package com.hazelcast.jet.pipeline;
 
 import com.hazelcast.cache.EventJournalCacheEvent;
 import com.hazelcast.cache.ICache;
-import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.collection.IList;
 import com.hazelcast.config.CacheSimpleConfig;
@@ -124,9 +123,9 @@ public class Sources_withEventJournalTest extends PipelineTestSupport {
 
         // When we start the job...
         p.readFrom(source)
-         .withoutTimestamps()
-         .map(entryValue())
-         .writeTo(sink);
+                .withoutTimestamps()
+                .map(entryValue())
+                .writeTo(sink);
         jet().newJob(p);
 
         // Then eventually we get all the map values in the sink.
@@ -148,7 +147,7 @@ public class Sources_withEventJournalTest extends PipelineTestSupport {
         // The values we got are exactly all the original values
         // and all the updated values.
         List<Integer> expected = Stream.concat(input.stream().map(i -> Integer.MIN_VALUE + i), input.stream())
-                                       .collect(toList());
+                .collect(toList());
         assertEquals(toBag(expected), sinkToBag());
     }
 
@@ -331,12 +330,12 @@ public class Sources_withEventJournalTest extends PipelineTestSupport {
     public void remoteMapJournal_withUnknownValueClass() throws Exception {
         // Given
         URL jarResource = Thread.currentThread().getContextClassLoader()
-                                .getResource("deployment/sample-pojo-1.0-car.jar");
+                .getResource("deployment/sample-pojo-1.0-car.jar");
         assertNotNull("jar not found", jarResource);
         ClassLoader cl = new URLClassLoader(new URL[]{jarResource});
         Class<?> carClz = cl.loadClass("com.sample.pojo.car.Car");
         Object car = carClz.getConstructor(String.class, String.class)
-                                 .newInstance("make", "model");
+                .newInstance("make", "model");
         IMap<String, Object> map = remoteHz.getMap(srcName);
         // the class of the value is unknown to the remote IMDG member, it will be only known to Jet
         map.put("key", car);
@@ -389,9 +388,9 @@ public class Sources_withEventJournalTest extends PipelineTestSupport {
 
         // When we start the job...
         p.readFrom(source)
-         .withoutTimestamps()
-         .map(entryValue())
-         .writeTo(sink);
+                .withoutTimestamps()
+                .map(entryValue())
+                .writeTo(sink);
         jet().newJob(p);
 
         // Then eventually we get all the cache values in the sink.
@@ -413,7 +412,7 @@ public class Sources_withEventJournalTest extends PipelineTestSupport {
         // The values we got are exactly all the original values
         // and all the updated values.
         List<Integer> expected = Stream.concat(input.stream().map(i -> Integer.MIN_VALUE + i), input.stream())
-                                       .collect(toList());
+                .collect(toList());
         assertEquals(toBag(expected), sinkToBag());
     }
 
@@ -457,8 +456,8 @@ public class Sources_withEventJournalTest extends PipelineTestSupport {
 
         // When we start the job...
         p.readFrom(source)
-         .withoutTimestamps()
-         .writeTo(sink);
+                .withoutTimestamps()
+                .writeTo(sink);
         jet().newJob(p);
 
         // Then eventually we get all the map values in the sink.
@@ -485,12 +484,12 @@ public class Sources_withEventJournalTest extends PipelineTestSupport {
     public void remoteCacheJournal_withUnknownValueClass() throws Exception {
         // Given
         URL jarResource = Thread.currentThread().getContextClassLoader()
-                                .getResource("deployment/sample-pojo-1.0-car.jar");
+                .getResource("deployment/sample-pojo-1.0-car.jar");
         assertNotNull("jar not found", jarResource);
         ClassLoader cl = new URLClassLoader(new URL[]{jarResource});
         Class<?> carClz = cl.loadClass("com.sample.pojo.car.Car");
         Object car = carClz.getConstructor(String.class, String.class)
-                                 .newInstance("make", "model");
+                .newInstance("make", "model");
         String cacheName = JOURNALED_CACHE_PREFIX + randomName();
         ICache<String, Object> cache = remoteHz.getCacheManager().getCache(cacheName);
         // the class of the value is unknown to the remote IMDG member, it will be only known to Jet

@@ -17,7 +17,6 @@
 package com.hazelcast.jet.pipeline;
 
 import com.hazelcast.cache.ICache;
-import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.config.CacheSimpleConfig;
 import com.hazelcast.config.Config;
@@ -112,8 +111,8 @@ public class SourcesTest extends PipelineTestSupport {
         p.readFrom(source).writeTo(sink);
         execute();
         List<Entry<String, Integer>> expected = input.stream()
-                                                     .map(i -> entry(String.valueOf(i), i))
-                                                     .collect(toList());
+                .map(i -> entry(String.valueOf(i), i))
+                .collect(toList());
         assertEquals(toBag(expected), sinkToBag());
     }
 
@@ -130,8 +129,8 @@ public class SourcesTest extends PipelineTestSupport {
         p.readFrom(source).writeTo(sink);
         execute();
         List<Entry<String, Integer>> expected = input.stream()
-                                                     .map(i -> entry(String.valueOf(i), i))
-                                                     .collect(toList());
+                .map(i -> entry(String.valueOf(i), i))
+                .collect(toList());
         assertEquals(toBag(expected), sinkToBag());
     }
 
@@ -240,8 +239,8 @@ public class SourcesTest extends PipelineTestSupport {
         p.readFrom(source).writeTo(sink);
         execute();
         List<Entry<String, Integer>> expected = input.stream()
-                                                     .map(i -> entry(String.valueOf(i), i))
-                                                     .collect(toList());
+                .map(i -> entry(String.valueOf(i), i))
+                .collect(toList());
         assertEquals(toBag(expected), sinkToBag());
     }
 
@@ -281,12 +280,12 @@ public class SourcesTest extends PipelineTestSupport {
     public void remoteMapWithUnknownValueClass_whenQueryingIsNotNecessary() throws Exception {
         // Given
         URL jarResource = Thread.currentThread().getContextClassLoader()
-                                .getResource("deployment/sample-pojo-1.0-car.jar");
+                .getResource("deployment/sample-pojo-1.0-car.jar");
         assertNotNull("jar not found", jarResource);
         ClassLoader cl = new URLClassLoader(new URL[]{jarResource});
         Class<?> personClz = cl.loadClass("com.sample.pojo.car.Car");
         Object person = personClz.getConstructor(String.class, String.class)
-                                 .newInstance("make", "model");
+                .newInstance("make", "model");
         IMap<String, Object> map = remoteHz.getMap(srcName);
         // the class of the value is unknown to the remote IMDG member, it will be only known to Jet
         map.put("key", person);
@@ -317,8 +316,8 @@ public class SourcesTest extends PipelineTestSupport {
         p.readFrom(source).writeTo(sink);
         execute();
         List<Entry<String, Integer>> expected = input.stream()
-                                                     .map(i -> entry(String.valueOf(i), i))
-                                                     .collect(toList());
+                .map(i -> entry(String.valueOf(i), i))
+                .collect(toList());
         assertEquals(toBag(expected), sinkToBag());
     }
 
@@ -335,8 +334,8 @@ public class SourcesTest extends PipelineTestSupport {
         p.readFrom(source).writeTo(sink);
         execute();
         List<Entry<String, Integer>> expected = input.stream()
-                                                     .map(i -> entry(String.valueOf(i), i))
-                                                     .collect(toList());
+                .map(i -> entry(String.valueOf(i), i))
+                .collect(toList());
         assertEquals(toBag(expected), sinkToBag());
     }
 
@@ -344,12 +343,12 @@ public class SourcesTest extends PipelineTestSupport {
     public void remoteCacheWithUnknownValueClass() throws Exception {
         // Given
         URL jarResource = Thread.currentThread().getContextClassLoader()
-                                .getResource("deployment/sample-pojo-1.0-car.jar");
+                .getResource("deployment/sample-pojo-1.0-car.jar");
         assertNotNull("jar not found", jarResource);
         ClassLoader cl = new URLClassLoader(new URL[]{jarResource});
         Class<?> personClz = cl.loadClass("com.sample.pojo.car.Car");
         Object person = personClz.getConstructor(String.class, String.class)
-                                 .newInstance("make", "model");
+                .newInstance("make", "model");
         ICache<String, Object> cache = remoteHz.getCacheManager().getCache(srcName);
         // the class of the value is unknown to the remote IMDG member, it will be only known to Jet
         cache.put("key", person);

@@ -26,7 +26,6 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.jet.Observable;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
-import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
@@ -71,11 +70,11 @@ public class JobSerializerTest extends SimpleTestInClusterSupport {
     public static void beforeClass() {
         Config config = new Config();
         config.addCacheConfig(new CacheSimpleConfig().setName(SOURCE_CACHE_NAME))
-              .addCacheConfig(new CacheSimpleConfig().setName(SINK_CACHE_NAME));
+                .addCacheConfig(new CacheSimpleConfig().setName(SINK_CACHE_NAME));
 
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.getSerializationConfig()
-                    .addSerializerConfig(new SerializerConfig().setTypeClass(Value.class).setClass(ValueSerializer.class));
+                .addSerializerConfig(new SerializerConfig().setTypeClass(Value.class).setClass(ValueSerializer.class));
 
         initializeWithClient(1, config, clientConfig);
     }
