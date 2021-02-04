@@ -72,6 +72,12 @@ public class JetNodeExtension extends DefaultNodeExtension implements JetPacketC
     }
 
     @Override
+    public void beforeShutdown() {
+        extCommon.beforeShutdown();
+        super.beforeShutdown();
+    }
+
+    @Override
     public Map<String, Object> createExtensionServices() {
         return extCommon.createExtensionServices();
     }

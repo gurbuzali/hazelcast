@@ -66,6 +66,7 @@ public class MemberReconnectionStressTest extends JetTestSupport {
         eventually successfully complete.
          */
         Config config = new Config();
+        config.getNetworkConfig().getJoin().getMulticastConfig().setLoopbackModeEnabled(true);
         // The connection drop often causes regular IMap operations to fail - shorten the timeout so that
         // it recovers more quickly
         config.setProperty(ClusterProperty.OPERATION_CALL_TIMEOUT_MILLIS.getName(), "2000");

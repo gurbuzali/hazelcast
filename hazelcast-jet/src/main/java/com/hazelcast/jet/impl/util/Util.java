@@ -431,9 +431,7 @@ public final class Util {
         dag.edge(between(source, sink).setConfig(new EdgeConfig().setQueueSize(queueSize)));
         JobConfig jobConfig = new JobConfig()
                 .setName("copy-" + sourceMap + "-to-" + targetMap);
-        //return instance.newJob(dag, jobConfig).getFuture();
-        //TODO MERGE
-        return null;
+        return instance.getJetInstance().newJob(dag, jobConfig).getFuture();
     }
 
     /**
