@@ -295,7 +295,7 @@ public class AggregateOperationsTest {
     @Test
     public void when_allOfWithoutCombine_then_noCombine() {
         AggregateOperation1<Long, ?, Tuple2<Long, Long>> composite =
-                allOf(AggregateOperation
+                allOf(AggregateOperations
                                 .withCreate(LongAccumulator::new)
                                 .<Long>andAccumulate(LongAccumulator::addAllowingOverflow)
                                 .andExportFinish(LongAccumulator::get),

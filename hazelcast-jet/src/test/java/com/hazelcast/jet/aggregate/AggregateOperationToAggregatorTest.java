@@ -38,7 +38,7 @@ public class AggregateOperationToAggregatorTest extends PipelineTestSupport {
     @Test
     public void test_missingCombineFn() {
         AggregateOperation1<Object, Void, Void> aggrOp =
-            AggregateOperation.<Void>withCreate(() -> null)
+            AggregateOperations.<Void>withCreate(() -> null)
             .andAccumulate((v, t) -> { })
             .andExportFinish(v -> v);
 

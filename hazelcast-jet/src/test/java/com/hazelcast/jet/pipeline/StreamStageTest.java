@@ -19,11 +19,13 @@ package com.hazelcast.jet.pipeline;
 import com.hazelcast.function.BiFunctionEx;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.PredicateEx;
+import com.hazelcast.jet.DAG;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.Util;
 import com.hazelcast.jet.accumulator.LongAccumulator;
 import com.hazelcast.jet.aggregate.AggregateOperation;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
+import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.core.DAGImpl;
 import com.hazelcast.jet.core.processor.Processors;
 import com.hazelcast.jet.datamodel.ItemsByTag;
@@ -308,10 +310,11 @@ public class StreamStageTest extends PipelineStreamTestSupport {
                 streamToString(sinkList.stream(), Object::toString));
     }
 
-    private void assertVertexCount(DAGImpl dag, int expectedCount) {
+    private void assertVertexCount(DAG dag, int expectedCount) {
+        DAGImpl dagImpl = (DAGImpl) dag;
         int[] count = {0};
-        dag.iterator().forEachRemaining(v -> count[0]++);
-        assertEquals("unexpected vertex count in DAG:\n" + dag.toDotString(), expectedCount, count[0]);
+        dagImpl.iterator().forEachRemaining(v -> count[0]++);
+        assertEquals("unexpected vertex count in DAG:\n" + dagImpl.toDotString(), expectedCount, count[0]);
     }
 
     @Test
@@ -358,7 +361,7 @@ public class StreamStageTest extends PipelineStreamTestSupport {
     }
 
     private void assertContainsFused(boolean expectedContains) {
-        String dotString = p.toDag().toDotString();
+        String dotString = ((DAGImpl)p.toDag()).toDotString();
         assertEquals(dotString, expectedContains, dotString.contains("fused"));
     }
 
@@ -1137,7 +1140,7 @@ public class StreamStageTest extends PipelineStreamTestSupport {
     public void when_rollingAggregateWithTimestamps_then_timestampsPropagated() {
         // Given
         List<Integer> input = sequence(itemCount);
-        AggregateOperation1<Integer, LongAccumulator, Integer> identity = AggregateOperation
+        AggregateOperation1<Integer, LongAccumulator, Integer> identity = AggregateOperations
                 .withCreate(LongAccumulator::new)
                 .<Integer>andAccumulate((acc, i) -> acc.set((long) i))
                 .andExportFinish(acc -> (int) acc.get());
@@ -1339,7 +1342,7 @@ public class StreamStageTest extends PipelineStreamTestSupport {
         BatchStage<Entry<Integer, String>> enrichingStage2 = enrichingStage(input, prefixB);
 
         // When
-        StreamHashJoinBuilder<Integer> builder = streamStageFromList(input).hashJoinBuilder();
+        StreamHashJoinBuilder<Integer> builder = JoinBuilders.streamHashJoinBuilder(streamStageFromList(input));
         Tag<String> tagA = builder.add(enrichingStage1, joinMapEntries(wholeItem()));
         Tag<String> tagB = builder.add(enrichingStage2, joinMapEntries(wholeItem()));
         @SuppressWarnings("Convert2MethodRef")

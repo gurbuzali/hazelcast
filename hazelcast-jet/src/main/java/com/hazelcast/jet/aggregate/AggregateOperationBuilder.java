@@ -37,9 +37,7 @@ import static java.util.stream.IntStream.range;
 
 /**
  * A builder object that can be used to construct the definition of an
- * aggregate operation in a step-by-step manner. Please refer to
- * {@link AggregateOperation#withCreate(SupplierEx)
- * AggregateOperation.withCreate()} for more details.
+ * aggregate operation in a step-by-step manner.
  *
  * @param <A> the type of the accumulator
  *
@@ -50,7 +48,37 @@ public final class AggregateOperationBuilder<A> {
     @Nonnull
     private final SupplierEx<A> createFn;
 
-    AggregateOperationBuilder(@Nonnull SupplierEx<A> createFn) {
+    /**
+     * Returns a builder object, initialized with the supplied {@code createFn
+     * create} primitive, that can be used to construct the definition of an
+     * aggregate operation in a step-by-step manner.
+     * <p>
+     * The same builder is used to construct both fixed- and variable-arity
+     * aggregate operations:
+     * <ul><li>
+     *     For fixed arity use {@link
+     *     AggregateOperationBuilder#andAccumulate0(BiConsumerEx)
+     *     andAccumulate0()}, optionally followed by {@code .andAccumulate1()},
+     *     {@code .andAccumulate2()}. The return type of these methods changes as the
+     *     static types of the contributing streams are captured.
+     * </li><li>
+     *     For variable arity use {@link AggregateOperationBuilder#andAccumulate(Tag,
+     *     BiConsumerEx) andAccumulate(tag)}.
+     * </li></ul>
+     * The {@link AggregateOperationBuilder.Arity1#andExportFinish
+     * andExportFinish()} method returns the constructed aggregate operation.
+     * Its static type receives all the type parameters captured in the above
+     * method calls. For optimization purposes you may want to specify a {@code
+     * finish} primitive that is different from {@code export}, for example
+     * return the accumulator itself without copying. In that case you'll use
+     * {@code builder.andExport(exportFn).andFinish(finishFn)}.
+     * <p>
+     * The given function must be stateless and {@linkplain
+     * Processor#isCooperative() cooperative}.
+     *
+     * @param createFn the {@code create} primitive
+     */
+    public AggregateOperationBuilder(@Nonnull SupplierEx<A> createFn) {
         this.createFn = createFn;
     }
 

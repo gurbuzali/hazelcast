@@ -22,12 +22,12 @@ import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobAlreadyExistsException;
 import com.hazelcast.jet.JobStateSnapshot;
 import com.hazelcast.jet.DAG;
-import com.hazelcast.jet.ThePipeline;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.core.JobNotFoundException;
 import com.hazelcast.jet.core.JobStatus;
 import com.hazelcast.jet.impl.pipeline.PipelineImpl;
 import com.hazelcast.jet.impl.util.Util;
+import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.impl.MapService;
@@ -62,7 +62,7 @@ public abstract class AbstractJetInstance implements JetInstance {
 
     @Nonnull
     @Override
-    public Job newJob(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
+    public Job newJob(@Nonnull Pipeline pipeline, @Nonnull JobConfig config) {
         config = config.attachAll(((PipelineImpl) pipeline).attachedFiles());
         long jobId = uploadResourcesAndAssignId(config);
         return newJobProxy(jobId, pipeline, config);
@@ -76,7 +76,7 @@ public abstract class AbstractJetInstance implements JetInstance {
 
     @Nonnull
     @Override
-    public Job newJobIfAbsent(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config) {
+    public Job newJobIfAbsent(@Nonnull Pipeline pipeline, @Nonnull JobConfig config) {
         return newJobIfAbsentInternal(pipeline, config);
     }
 
@@ -105,7 +105,7 @@ public abstract class AbstractJetInstance implements JetInstance {
         if (jobDefinition instanceof DAG) {
             return newJob((DAG) jobDefinition, jobConfig);
         }
-        return newJob((ThePipeline) jobDefinition, jobConfig);
+        return newJob((Pipeline) jobDefinition, jobConfig);
     }
 
     @Override

@@ -244,6 +244,6 @@ public class ProcessorTransformParallelismTest {
                 .addTimestamps(t -> 0, 0);
         StreamStage<Integer> applied = source.apply(transform);
         applied.writeTo(Sinks.noop());
-        return p.toDag();
+        return (DAGImpl) p.toDag();
     }
 }

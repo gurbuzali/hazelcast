@@ -21,6 +21,7 @@ import com.hazelcast.jet.SimpleTestInClusterSupport;
 import com.hazelcast.jet.Util;
 import com.hazelcast.jet.aggregate.AggregateOperation;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
+import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.core.processor.Processors;
 import com.hazelcast.jet.core.test.TestSupport;
 import com.hazelcast.test.HazelcastParallelClassRunner;
@@ -293,7 +294,7 @@ public class ProcessorsTest extends SimpleTestInClusterSupport {
     }
 
     private static <T> AggregateOperation1<T, List<T>, String> aggregateToListAndString() {
-        return AggregateOperation
+        return AggregateOperations
                 .<List<T>>withCreate(ArrayList::new)
                 .<T>andAccumulate(List::add)
                 .andCombine(List::addAll)

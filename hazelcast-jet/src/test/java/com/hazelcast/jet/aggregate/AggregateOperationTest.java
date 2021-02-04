@@ -49,7 +49,7 @@ public class AggregateOperationTest {
         FunctionEx<LongAccumulator, Long> finishFn = LongAccumulator::get;
 
         // When
-        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperation
+        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperations
                 .withCreate(createFn)
                 .andAccumulate(tag0(), accFn0)
                 .andAccumulate(tag1(), accFn1)
@@ -69,7 +69,7 @@ public class AggregateOperationTest {
     @Test(expected = IllegalArgumentException.class)
     public void when_askForNonexistentTag_then_exception() {
         // Given
-        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperation
+        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperations
                 .withCreate(LongAccumulator::new)
                 .andAccumulate(tag0(), (acc, item) -> acc.add(1))
                 .andAccumulate(tag1(), (acc, item) -> acc.add(10))
@@ -82,7 +82,7 @@ public class AggregateOperationTest {
     @Test
     public void when_withIdentityFinish() {
         // Given
-        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperation
+        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperations
                 .withCreate(LongAccumulator::new)
                 .andAccumulate(tag0(), (x, y) -> { })
                 .andExportFinish(LongAccumulator::get);
@@ -98,7 +98,7 @@ public class AggregateOperationTest {
     @Test
     public void when_withCombiningAccumulateFn_then_accumulateFnCombines() {
         // Given
-        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperation
+        AggregateOperation<LongAccumulator, Long> aggrOp = AggregateOperations
                 .withCreate(LongAccumulator::new)
                 .andAccumulate(tag0(), (acc, item) -> acc.add(1))
                 .andAccumulate(tag1(), (acc, item) -> acc.add(10))
@@ -143,7 +143,7 @@ public class AggregateOperationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void when_duplicateTag_then_exception() {
-        AggregateOperation
+        AggregateOperations
                 .withCreate(LongAccumulator::new)
                 .andAccumulate(tag0(), (acc, item) -> acc.add(1))
                 .andAccumulate(tag0(), (acc, item) -> acc.add(10));
@@ -151,7 +151,7 @@ public class AggregateOperationTest {
 
     @Test(expected = IllegalStateException.class)
     public void when_tagsNonContiguous_then_exception() {
-        AggregateOperation
+        AggregateOperations
                 .withCreate(LongAccumulator::new)
                 .andAccumulate(tag0(), (acc, item) -> acc.add(1))
                 .andAccumulate(tag2(), (acc, item) -> acc.add(10))

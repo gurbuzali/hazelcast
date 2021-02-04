@@ -68,7 +68,7 @@ import static com.hazelcast.jet.impl.util.Util.checkSerializable;
  * Utility class with factory methods for several useful aggregate
  * operations. See the Javadoc on {@link AggregateOperation}. You can
  * also create your own aggregate operation using the {@link
- * AggregateOperation#withCreate builder object}.
+ * AggregateOperationBuilder builder object}.
  *
  * @since 3.0
  */
@@ -91,8 +91,7 @@ public final class AggregateOperations {
      */
     @Nonnull
     public static <T> AggregateOperation1<T, LongAccumulator, Long> counting() {
-        return AggregateOperation
-                .withCreate(LongAccumulator::new)
+        return withCreate(LongAccumulator::new)
                 .andAccumulate((LongAccumulator a, T item) -> a.add(1))
                 .andCombine(LongAccumulator::add)
                 .andDeduct(LongAccumulator::subtractAllowingOverflow)
@@ -126,8 +125,7 @@ public final class AggregateOperations {
             @Nonnull ToLongFunctionEx<? super T> getLongValueFn
     ) {
         checkSerializable(getLongValueFn, "getLongValueFn");
-        return AggregateOperation
-                .withCreate(LongAccumulator::new)
+        return withCreate(LongAccumulator::new)
                 .andAccumulate((LongAccumulator a, T item) -> a.add(getLongValueFn.applyAsLong(item)))
                 .andCombine(LongAccumulator::add)
                 .andDeduct(LongAccumulator::subtract)
@@ -158,8 +156,7 @@ public final class AggregateOperations {
             @Nonnull ToDoubleFunctionEx<? super T> getDoubleValueFn
     ) {
         checkSerializable(getDoubleValueFn, "getDoubleValueFn");
-        return AggregateOperation
-                .withCreate(DoubleAccumulator::new)
+        return withCreate(DoubleAccumulator::new)
                 .andAccumulate((DoubleAccumulator a, T item) -> a.accumulate(getDoubleValueFn.applyAsDouble(item)))
                 .andCombine(DoubleAccumulator::combine)
                 .andDeduct(DoubleAccumulator::deduct)
@@ -237,8 +234,7 @@ public final class AggregateOperations {
             @Nonnull ComparatorEx<? super T> comparator
     ) {
         checkSerializable(comparator, "comparator");
-        return AggregateOperation
-                .withCreate(MutableReference<T>::new)
+        return withCreate(MutableReference<T>::new)
                 .andAccumulate((MutableReference<T> a, T i) -> {
                     if (a.isNull() || comparator.compare(i, a.get()) > 0) {
                         a.set(i);
@@ -290,8 +286,7 @@ public final class AggregateOperations {
             }
             queue.offer(item);
         };
-        return AggregateOperation
-                .withCreate(() -> new PriorityQueue<T>(n, comparator))
+        return withCreate(() -> new PriorityQueue<T>(n, comparator))
                 .andAccumulate(accumulateFn)
                 .andCombine((left, right) -> {
                     for (T item : right) {
@@ -366,8 +361,7 @@ public final class AggregateOperations {
         checkSerializable(getLongValueFn, "getLongValueFn");
         // count == accumulator.value1
         // sum == accumulator.value2
-        return AggregateOperation
-                .withCreate(LongLongAccumulator::new)
+        return withCreate(LongLongAccumulator::new)
                 .andAccumulate((LongLongAccumulator a, T i) -> {
                     // a bit faster check than in addExact, specialized for increment
                     if (a.get1() == Long.MAX_VALUE) {
@@ -413,8 +407,7 @@ public final class AggregateOperations {
         checkSerializable(getDoubleValueFn, "getDoubleValueFn");
         // count == accumulator.value1
         // sum == accumulator.value2
-        return AggregateOperation
-                .withCreate(LongDoubleAccumulator::new)
+        return withCreate(LongDoubleAccumulator::new)
                 .andAccumulate((LongDoubleAccumulator a, T item) -> {
                     // a bit faster check than in addExact, specialized for increment
                     if (a.getLong() == Long.MAX_VALUE) {
@@ -473,8 +466,7 @@ public final class AggregateOperations {
     ) {
         checkSerializable(getXFn, "getXFn");
         checkSerializable(getYFn, "getYFn");
-        return AggregateOperation
-                .withCreate(LinTrendAccumulator::new)
+        return withCreate(LinTrendAccumulator::new)
                 .andAccumulate((LinTrendAccumulator a, T item) ->
                         a.accumulate(getXFn.applyAsLong(item), getYFn.applyAsLong(item)))
                 .andCombine(LinTrendAccumulator::combine)
@@ -497,8 +489,7 @@ public final class AggregateOperations {
      * }</pre>
      */
     public static AggregateOperation1<CharSequence, StringBuilder, String> concatenating() {
-        return AggregateOperation
-                .withCreate(StringBuilder::new)
+        return withCreate(StringBuilder::new)
                 .<CharSequence>andAccumulate(StringBuilder::append)
                 .andCombine(StringBuilder::append)
                 .andExportFinish(StringBuilder::toString);
@@ -546,8 +537,7 @@ public final class AggregateOperations {
             CharSequence delimiter, CharSequence prefix, CharSequence suffix
     ) {
         int prefixLen = prefix.length();
-        return AggregateOperation
-                .withCreate(() -> new StringBuilder().append(prefix))
+        return withCreate(() -> new StringBuilder().append(prefix))
                 .<CharSequence>andAccumulate((builder, val) -> {
                     if (builder.length() != prefixLen && val.length() > 0) {
                         builder.append(delimiter);
@@ -607,8 +597,7 @@ public final class AggregateOperations {
     ) {
         checkSerializable(mapFn, "mapFn");
         BiConsumerEx<? super A, ? super U> downstreamAccumulateFn = downstream.accumulateFn();
-        return AggregateOperation
-                .withCreate(downstream.createFn())
+        return withCreate(downstream.createFn())
                 .andAccumulate((A a, T t) -> {
                     U mapped = mapFn.apply(t);
                     if (mapped != null) {
@@ -655,8 +644,7 @@ public final class AggregateOperations {
     ) {
         checkSerializable(filterFn, "filterFn");
         BiConsumerEx<? super A, ? super T> downstreamAccumulateFn = downstream.accumulateFn();
-        return AggregateOperation
-                .withCreate(downstream.createFn())
+        return withCreate(downstream.createFn())
                 .andAccumulate((A a, T t) -> {
                     if (filterFn.test(t)) {
                         downstreamAccumulateFn.accept(a, t);
@@ -709,8 +697,7 @@ public final class AggregateOperations {
     ) {
         checkSerializable(flatMapFn, "flatMapFn");
         BiConsumerEx<? super A, ? super U> downstreamAccumulateFn = downstream.accumulateFn();
-        return AggregateOperation
-                .withCreate(downstream.createFn())
+        return withCreate(downstream.createFn())
                 .andAccumulate((A a, T t) -> {
                     Traverser<? extends U> trav = flatMapFn.apply(t);
                     for (U u; (u = trav.next()) != null; ) {
@@ -750,8 +737,7 @@ public final class AggregateOperations {
             @Nonnull SupplierEx<C> createCollectionFn
     ) {
         checkSerializable(createCollectionFn, "createCollectionFn");
-        return AggregateOperation
-                .withCreate(createCollectionFn)
+        return withCreate(createCollectionFn)
                 .<T>andAccumulate(Collection::add)
                 .andCombine(Collection::addAll)
                 .andExport(acc -> {
@@ -955,8 +941,7 @@ public final class AggregateOperations {
         checkSerializable(createMapFn, "createMapFn");
         BiConsumerEx<M, T> accumulateFn =
                 (map, element) -> map.merge(keyFn.apply(element), valueFn.apply(element), mergeFn);
-        return AggregateOperation
-                .withCreate(createMapFn)
+        return withCreate(createMapFn)
                 .andAccumulate(accumulateFn)
                 .andCombine((l, r) -> r.forEach((key, value) -> l.merge(key, value, mergeFn)))
                 .andExport(acc -> {
@@ -1141,8 +1126,8 @@ public final class AggregateOperations {
         // replace the map contents with finished values
         SupplierEx<Map<K, A>> createAccMapFn = (SupplierEx<Map<K, A>>) createMapFn;
 
-        return (AggregateOperation1<T, Map<K, A>, M>) AggregateOperation
-                .withCreate(createAccMapFn)
+        return (AggregateOperation1<T, Map<K, A>, M>)
+                withCreate(createAccMapFn)
                 .andAccumulate(accumulateFn)
                 .andCombine(combineFn)
                 .andExport(accMap -> accMap.entrySet().stream()
@@ -1219,8 +1204,7 @@ public final class AggregateOperations {
         // workaround for spotbugs issue: https://github.com/spotbugs/spotbugs/issues/552
         @SuppressWarnings("UnnecessaryLocalVariable")
         BinaryOperatorEx<A> deductFn = deductAccValueFn;
-        return AggregateOperation
-                .withCreate(() -> new MutableReference<>(emptyAccValue))
+        return withCreate(() -> new MutableReference<>(emptyAccValue))
                 .andAccumulate((MutableReference<A> a, T t) ->
                         a.set(combineAccValuesFn.apply(a.get(), toAccValueFn.apply(t))))
                 .andCombine((a, b) -> a.set(combineAccValuesFn.apply(a.get(), b.get())))
@@ -1256,8 +1240,7 @@ public final class AggregateOperations {
     @Nonnull
     @SuppressWarnings("checkstyle:needbraces")
     public static <T> AggregateOperation1<T, MutableReference<T>, T> pickAny() {
-        return AggregateOperation
-                .withCreate(MutableReference<T>::new)
+        return withCreate(MutableReference<T>::new)
                 // Result would be correct even without the acc.isNull() check, but that
                 // can cause more GC churn due to medium-lived objects.
                 .<T>andAccumulate((acc, item) -> {
@@ -1291,8 +1274,7 @@ public final class AggregateOperations {
             @Nonnull ComparatorEx<? super T> comparator
     ) {
         checkSerializable(comparator, "comparator");
-        return AggregateOperation
-                .withCreate(ArrayList<T>::new)
+        return withCreate(ArrayList<T>::new)
                 .<T>andAccumulate(ArrayList::add)
                 .andCombine(ArrayList::addAll)
                 .andExport(acc -> {
@@ -1348,8 +1330,7 @@ public final class AggregateOperations {
         BiConsumerEx<? super A1, ? super A1> combine1 = op1.combineFn();
         BiConsumerEx<? super A0, ? super A0> deduct0 = op0.deductFn();
         BiConsumerEx<? super A1, ? super A1> deduct1 = op1.deductFn();
-        return AggregateOperation
-                .withCreate(() -> tuple2(op0.createFn().get(), op1.createFn().get()))
+        return withCreate(() -> tuple2(op0.createFn().get(), op1.createFn().get()))
                 .<T>andAccumulate((acc, item) -> {
                     op0.accumulateFn().accept(acc.f0(), item);
                     op1.accumulateFn().accept(acc.f1(), item);
@@ -1433,8 +1414,7 @@ public final class AggregateOperations {
         BiConsumerEx<? super A0, ? super A0> deduct0 = op0.deductFn();
         BiConsumerEx<? super A1, ? super A1> deduct1 = op1.deductFn();
         BiConsumerEx<? super A2, ? super A2> deduct2 = op2.deductFn();
-        return AggregateOperation
-                .withCreate(() -> tuple3(op0.createFn().get(), op1.createFn().get(), op2.createFn().get()))
+        return withCreate(() -> tuple3(op0.createFn().get(), op1.createFn().get(), op2.createFn().get()))
                 .<T>andAccumulate((acc, item) -> {
                     op0.accumulateFn().accept(acc.f0(), item);
                     op1.accumulateFn().accept(acc.f1(), item);
@@ -1539,7 +1519,7 @@ public final class AggregateOperations {
      * independent aggregate operations where you combine their final results.
      * If you need an operation that combines the two inputs in the
      * accumulation phase, you can create an aggregate operation by specifying
-     * each primitive using the {@linkplain AggregateOperation#withCreate
+     * each primitive using the {@linkplain AggregateOperationBuilder
      * aggregate operation builder}.
      * <p>
      * As a quick example, let's say you have two data streams coming from an
@@ -1586,8 +1566,7 @@ public final class AggregateOperations {
         BiConsumerEx<? super A1, ? super A1> combine1 = op1.combineFn();
         BiConsumerEx<? super A0, ? super A0> deduct0 = op0.deductFn();
         BiConsumerEx<? super A1, ? super A1> deduct1 = op1.deductFn();
-        return AggregateOperation
-                .withCreate(() -> tuple2(op0.createFn().get(), op1.createFn().get()))
+        return withCreate(() -> tuple2(op0.createFn().get(), op1.createFn().get()))
                 .<T0>andAccumulate0((acc, item) -> op0.accumulateFn().accept(acc.f0(), item))
                 .<T1>andAccumulate1((acc, item) -> op1.accumulateFn().accept(acc.f1(), item))
                 .andCombine(combine0 == null || combine1 == null ? null
@@ -1706,8 +1685,7 @@ public final class AggregateOperations {
         BiConsumerEx<? super A0, ? super A0> deduct0 = op0.deductFn();
         BiConsumerEx<? super A1, ? super A1> deduct1 = op1.deductFn();
         BiConsumerEx<? super A2, ? super A2> deduct2 = op2.deductFn();
-        return AggregateOperation
-                .withCreate(() -> tuple3(op0.createFn().get(), op1.createFn().get(), op2.createFn().get()))
+        return withCreate(() -> tuple3(op0.createFn().get(), op1.createFn().get(), op2.createFn().get()))
                 .<T0>andAccumulate0((acc, item) -> op0.accumulateFn().accept(acc.f0(), item))
                 .<T1>andAccumulate1((acc, item) -> op1.accumulateFn().accept(acc.f1(), item))
                 .<T2>andAccumulate2((acc, item) -> op2.accumulateFn().accept(acc.f2(), item))
@@ -1897,5 +1875,9 @@ public final class AggregateOperations {
         AggregateOperation1<? super T, A, ? extends R> aggrOp
     ) {
         return new AggregateOpAggregator<>(aggrOp);
+    }
+    
+    public static <A> AggregateOperationBuilder<A> withCreate(SupplierEx<A> createFn) {
+        return new AggregateOperationBuilder<>(createFn);
     }
 }

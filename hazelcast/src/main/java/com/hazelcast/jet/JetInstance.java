@@ -17,6 +17,7 @@
 package com.hazelcast.jet;
 
 import com.hazelcast.jet.config.JobConfig;
+import com.hazelcast.jet.pipeline.Pipeline;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -65,7 +66,7 @@ public interface JetInstance {
      * Jet will asynchronously start executing the job.
      */
     @Nonnull
-    default Job newJob(@Nonnull ThePipeline pipeline) {
+    default Job newJob(@Nonnull Pipeline pipeline) {
         return newJob(pipeline, new JobConfig());
     }
 
@@ -86,7 +87,7 @@ public interface JetInstance {
      *                                   an equal name
      */
     @Nonnull
-    Job newJob(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config);
+    Job newJob(@Nonnull Pipeline pipeline, @Nonnull JobConfig config);
 
     /**
      * Creates and returns a Jet job based on the supplied pipeline and job
@@ -110,7 +111,7 @@ public interface JetInstance {
      * See also {@link #newJob}.
      */
     @Nonnull
-    Job newJobIfAbsent(@Nonnull ThePipeline pipeline, @Nonnull JobConfig config);
+    Job newJobIfAbsent(@Nonnull Pipeline pipeline, @Nonnull JobConfig config);
 
     /**
      * Creates and returns a Jet job based on the supplied pipeline and job

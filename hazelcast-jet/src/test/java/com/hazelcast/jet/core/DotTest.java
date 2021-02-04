@@ -99,7 +99,7 @@ public class DotTest {
                 + "\t\"filter\" -> \"loggerSink-3\";\n"
                 + "}");
 
-        String actualDag = p.toDag().toDotString();
+        String actualDag = ((DAGImpl) p.toDag()).toDotString();
         System.out.println(actualDag);
         // contains multiple subgraphs, order isn't stable, we'll assert individual lines and the length
         assertTrue(actualDag.startsWith("digraph DAG {"));
@@ -153,6 +153,6 @@ public class DotTest {
                 + "[label=\"distributed-partitioned\", queueSize=1024];\n"
                 + "\t}\n"
                 + "\t\"aggregateToCount\" -> \"loggerSink\" [queueSize=1024];\n"
-                + "}", p.toDag().toDotString());
+                + "}", ((DAGImpl) p.toDag()).toDotString());
     }
 }

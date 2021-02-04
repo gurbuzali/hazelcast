@@ -19,6 +19,7 @@ package com.hazelcast.jet.core.metrics;
 import com.hazelcast.config.Config;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.SupplierEx;
+import com.hazelcast.jet.DAG;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.JobMetrics;
 import com.hazelcast.jet.SimpleTestInClusterSupport;
@@ -473,7 +474,7 @@ public class MetricsTest extends SimpleTestInClusterSupport {
                 expectedSink ? "true" : null, measurement.tag(MetricTags.SINK));
     }
 
-    private Job runPipeline(DAGImpl dag) {
+    private Job runPipeline(DAG dag) {
         Job job = jetInstance().newJob(dag, JOB_CONFIG_WITH_METRICS);
         job.join();
         return job;

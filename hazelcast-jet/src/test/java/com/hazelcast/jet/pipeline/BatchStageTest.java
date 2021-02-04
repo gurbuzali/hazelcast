@@ -84,18 +84,18 @@ public class BatchStageTest extends PipelineTestSupport {
 
     @Test(expected = IllegalArgumentException.class)
     public void when_emptyPipelineToDag_then_exceptionInIterator() {
-        Pipeline.create().toDag().iterator();
+        ((DAGImpl) Pipeline.create().toDag()).iterator();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void when_missingSink_then_exceptionInDagIterator() {
-        p.toDag().iterator();
+        ((DAGImpl) p.toDag()).iterator();
     }
 
     @Test
     public void when_minimalPipeline_then_validDag() {
         batchStageFromList(emptyList()).writeTo(sink);
-        assertTrue(p.toDag().iterator().hasNext());
+        assertTrue(((DAGImpl) p.toDag()).iterator().hasNext());
     }
 
     @Test
@@ -1123,7 +1123,7 @@ public class BatchStageTest extends PipelineTestSupport {
                         .flatMap(i -> traverseItems(entry(i, prefixD + i)));
 
         // When
-        HashJoinBuilder<Integer> b = batchStageFromList(input).hashJoinBuilder();
+        HashJoinBuilder<Integer> b = new HashJoinBuilder<>(batchStageFromList(input));
         Tag<String> tagA = b.addInner(enrichingStage1, joinMapEntries(wholeItem()));
         Tag<String> tagB = b.addInner(enrichingStage2, joinMapEntries(wholeItem()));
         Tag<String> tagC = b.add(enrichingStage3, joinMapEntries(wholeItem()));
@@ -1197,7 +1197,7 @@ public class BatchStageTest extends PipelineTestSupport {
                 batchStageFromList(input).flatMap(i -> traverseItems(entry(i, prefixC + i), entry(i, prefixD + i)));
 
         // When
-        HashJoinBuilder<Integer> b = batchStageFromList(input).hashJoinBuilder();
+        HashJoinBuilder<Integer> b = new HashJoinBuilder<>(batchStageFromList(input));
         Tag<String> tagA = b.add(enrichingStage1, joinMapEntries(wholeItem()));
         Tag<String> tagB = b.add(enrichingStage2, joinMapEntries(wholeItem()));
         GeneralStage<Tuple2<Integer, ItemsByTag>> joined =
@@ -1322,7 +1322,7 @@ public class BatchStageTest extends PipelineTestSupport {
                 ProcessorMetaSupplier.of(lp, ProcessorSupplier.of(noopP()))))
                 .addTimestamps(o -> 0L, 0)
                 .writeTo(Sinks.noop());
-        DAGImpl dag = p.toDag();
+        DAGImpl dag = (DAGImpl) p.toDag();
 
         // Then
         Vertex tsVertex = dag.getVertex("add-timestamps");
@@ -1339,7 +1339,7 @@ public class BatchStageTest extends PipelineTestSupport {
                 .setLocalParallelism(lp)
                 .addTimestamps(t -> System.currentTimeMillis(), 1000)
                 .writeTo(Sinks.noop());
-        DAGImpl dag = p.toDag();
+        DAGImpl dag = (DAGImpl) p.toDag();
 
         // Then
         Vertex tsVertex = dag.getVertex("add-timestamps");
@@ -1356,7 +1356,7 @@ public class BatchStageTest extends PipelineTestSupport {
         p.readFrom(src)
                 .addTimestamps(o -> 0L, 0)
                 .writeTo(Sinks.noop());
-        DAGImpl dag = p.toDag();
+        DAGImpl dag = (DAGImpl) p.toDag();
 
         // Then
         Vertex tsVertex = dag.getVertex("add-timestamps");

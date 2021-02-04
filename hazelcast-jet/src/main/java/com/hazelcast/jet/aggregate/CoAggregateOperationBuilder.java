@@ -121,7 +121,7 @@ public class CoAggregateOperationBuilder {
         FunctionEx[] finishFns =
                 ops.stream().map(AggregateOperation::finishFn).toArray(FunctionEx[]::new);
 
-        AggregateOperationBuilder.VarArity<Object[], Void> b = AggregateOperation
+        AggregateOperationBuilder.VarArity<Object[], Void> b = AggregateOperations
                 .withCreate(() -> ops.stream().map(op -> op.createFn().get()).toArray())
                 .varArity();
         opsByTag.forEach((tag, op) -> {

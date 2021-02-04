@@ -22,6 +22,7 @@ import com.hazelcast.function.ToLongFunctionEx;
 import com.hazelcast.jet.accumulator.LongAccumulator;
 import com.hazelcast.jet.aggregate.AggregateOperation;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
+import com.hazelcast.jet.aggregate.AggregateOperations;
 import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.core.SlidingWindowPolicy;
 import com.hazelcast.jet.core.TimestampKind;
@@ -92,7 +93,7 @@ public class SlidingWindowPTest {
     public void before() {
         SlidingWindowPolicy winPolicy = slidingWinPolicy(4, 1);
 
-        AggregateOperation1<Entry<?, Long>, LongAccumulator, Long> operation = AggregateOperation
+        AggregateOperation1<Entry<?, Long>, LongAccumulator, Long> operation = AggregateOperations
                 .withCreate(LongAccumulator::new)
                 .andAccumulate((LongAccumulator acc, Entry<?, Long> item) -> acc.add(item.getValue()))
                 .andCombine(LongAccumulator::add)

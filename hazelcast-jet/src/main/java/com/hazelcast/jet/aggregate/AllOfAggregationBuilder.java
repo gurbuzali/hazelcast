@@ -88,7 +88,7 @@ public final class AllOfAggregationBuilder<T> {
         List<Tag> tags = this.tags;
         List<AggregateOperation1> operations = this.operations;
 
-        return (AggregateOperation1<T, Object[], R>) AggregateOperation
+        return (AggregateOperation1<T, Object[], R>) AggregateOperations
                 .withCreate(() -> {
                     Object[] acc = new Object[tags.size()];
                     Arrays.setAll(acc, i -> operations.get(i).createFn().get());
