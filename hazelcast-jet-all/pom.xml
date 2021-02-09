@@ -23,9 +23,9 @@
     <artifactId>hazelcast-jet</artifactId>
 
     <parent>
-        <groupId>com.hazelcast.jet</groupId>
-        <artifactId>hazelcast-jet-root</artifactId>
-        <version>4.5-SNAPSHOT</version>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-root</artifactId>
+        <version>5.0-SNAPSHOT</version>
     </parent>
 
     <properties>

@@ -27,9 +27,10 @@
     <artifactId>hazelcast-jet-extensions</artifactId>
 
     <parent>
-        <artifactId>hazelcast-jet-root</artifactId>
-        <groupId>com.hazelcast.jet</groupId>
-        <version>4.5-SNAPSHOT</version>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-root</artifactId>
+        <version>5.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modules>
