@@ -1,5 +1,13 @@
 package com.hazelcast.jet;
 
+import com.hazelcast.core.EntryEventType;
+import com.hazelcast.function.FunctionEx;
+import com.hazelcast.function.PredicateEx;
+import com.hazelcast.jet.impl.util.CommonImdgUtil;
+import com.hazelcast.jet.pipeline.Sources;
+import com.hazelcast.map.EventJournalMapEvent;
+import com.hazelcast.map.impl.journal.MapEventJournalFunctions;
+
 import javax.annotation.Nonnull;
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -17,6 +25,28 @@ public class Util {
     public static <K, V> Map.Entry<K, V> entry(K k, V v) {
         return new AbstractMap.SimpleImmutableEntry<>(k, v);
     }
+
+    /**
+     * Returns a predicate for {@link Sources#mapJournal} and
+     * {@link Sources#remoteMapJournal} that passes only
+     * {@link EntryEventType#ADDED ADDED} and {@link EntryEventType#UPDATED
+     * UPDATED} events.
+     */
+    public static <K, V> PredicateEx<EventJournalMapEvent<K, V>> mapPutEvents() {
+        return CommonImdgUtil.wrapImdgPredicate(MapEventJournalFunctions.mapPutEvents());
+    }
+
+    /**
+     * Returns a projection that converts the {@link EventJournalMapEvent} to a
+     * {@link Map.Entry} using the event's new value as a value.
+     *
+     * @see Sources#mapJournal
+     * @see Sources#remoteMapJournal
+     */
+    public static <K, V> FunctionEx<EventJournalMapEvent<K, V>, Map.Entry<K, V>> mapEventToEntry() {
+        return CommonImdgUtil.wrapImdgFunction(MapEventJournalFunctions.mapEventToEntry());
+    }
+
 
     /**
      * Converts a {@code long} job or execution ID to a string representation.

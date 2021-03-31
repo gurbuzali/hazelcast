@@ -30,6 +30,7 @@ import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.EntryView;
 import com.hazelcast.core.HazelcastInstanceAware;
 import com.hazelcast.core.ReadOnly;
+import com.hazelcast.internal.iteration.IterationPointer;
 import com.hazelcast.internal.locksupport.LockProxySupport;
 import com.hazelcast.internal.locksupport.LockSupportServiceImpl;
 import com.hazelcast.internal.monitor.impl.LocalMapStatsImpl;
@@ -44,16 +45,19 @@ import com.hazelcast.internal.util.IterationType;
 import com.hazelcast.internal.util.MutableLong;
 import com.hazelcast.internal.util.Timer;
 import com.hazelcast.internal.util.collection.PartitionIdSet;
+import com.hazelcast.internal.map.EntryFetcher;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.LocalMapStats;
 import com.hazelcast.map.MapInterceptor;
+import com.hazelcast.map.PartitionStrategyProvider;
 import com.hazelcast.map.impl.EntryEventFilter;
 import com.hazelcast.map.impl.MapEntries;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
 import com.hazelcast.map.impl.PartitionContainer;
 import com.hazelcast.map.impl.event.MapEventPublisher;
+import com.hazelcast.map.impl.iterator.MapEntriesWithCursor;
 import com.hazelcast.map.impl.operation.AddIndexOperation;
 import com.hazelcast.map.impl.operation.AddInterceptorOperationSupplier;
 import com.hazelcast.map.impl.operation.AwaitMapFlushOperation;
@@ -67,6 +71,7 @@ import com.hazelcast.map.impl.query.Query;
 import com.hazelcast.map.impl.query.QueryEngine;
 import com.hazelcast.map.impl.query.QueryEventFilter;
 import com.hazelcast.map.impl.query.Result;
+import com.hazelcast.map.impl.query.ResultSegment;
 import com.hazelcast.map.impl.query.Target;
 import com.hazelcast.map.impl.query.Target.TargetMode;
 import com.hazelcast.map.impl.querycache.QueryCacheContext;
@@ -141,7 +146,7 @@ import static java.util.Collections.singletonMap;
 
 abstract class MapProxySupport<K, V>
         extends AbstractDistributedObject<MapService>
-        implements IMap<K, V>, InitializingObject {
+        implements IMap<K, V>, InitializingObject, PartitionStrategyProvider, EntryFetcher {
 
     protected static final String NULL_KEY_IS_NOT_ALLOWED = "Null key is not allowed!";
     protected static final String NULL_KEYS_ARE_NOT_ALLOWED = "Null keys collection is not allowed!";
@@ -1395,6 +1400,19 @@ abstract class MapProxySupport<K, V>
                 ((HazelcastInstanceAware) object).setHazelcastInstance(getNodeEngine().getHazelcastInstance());
             }
         }
+    }
+
+    public InternalCompletableFuture<MapEntriesWithCursor> fetchEntries(
+            int partitionId, IterationPointer[] pointers, int fetchSize) {
+        MapOperation operation = operationProvider.createFetchEntriesOperation(name, pointers, fetchSize);
+        return operationService.invokeOnPartition(SERVICE_NAME, operation, partitionId);
+    }
+
+    @Override
+    public InternalCompletableFuture<ResultSegment> fetchWithQuery(
+            int partitionId, IterationPointer[] pointers, int fetchSize, Query query) {
+        MapOperation operation = operationProvider.createFetchWithQueryOperation(name, pointers, fetchSize, query);
+        return operationService.invokeOnPartition(SERVICE_NAME, operation, partitionId);
     }
 
     private class IncrementStatsExecutionCallback<T> implements BiConsumer<T, Throwable> {

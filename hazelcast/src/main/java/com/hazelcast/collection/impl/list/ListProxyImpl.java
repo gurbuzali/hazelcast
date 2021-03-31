@@ -27,6 +27,7 @@ import com.hazelcast.collection.impl.list.operations.ListRemoveOperation;
 import com.hazelcast.collection.impl.list.operations.ListSetOperation;
 import com.hazelcast.collection.impl.list.operations.ListSubOperation;
 import com.hazelcast.config.CollectionConfig;
+import com.hazelcast.internal.list.ListReader;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.spi.impl.NodeEngine;
@@ -43,7 +44,7 @@ import java.util.ListIterator;
 
 import static com.hazelcast.internal.util.Preconditions.checkNotNull;
 
-public class ListProxyImpl<E> extends AbstractCollectionProxyImpl<ListService, E> implements IList<E> {
+public class ListProxyImpl<E> extends AbstractCollectionProxyImpl<ListService, E> implements IList<E>, ListReader {
 
     protected ListProxyImpl(String name, NodeEngine nodeEngine, ListService service) {
         super(name, nodeEngine, service);

@@ -17,6 +17,7 @@
 package com.hazelcast.jet.pipeline;
 
 import com.hazelcast.jet.core.DAG;
+import com.hazelcast.jet.impl.pipeline.PipelineImpl;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -52,7 +53,7 @@ public interface Pipeline extends Serializable {
      */
     @Nonnull
     static Pipeline create() {
-        return ServiceLoader.load(Pipeline.class).iterator().next();
+        return new PipelineImpl();
     }
 
     /**

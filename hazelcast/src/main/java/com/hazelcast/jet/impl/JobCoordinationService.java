@@ -30,6 +30,7 @@ import com.hazelcast.internal.partition.impl.PartitionServiceState;
 import com.hazelcast.internal.serialization.Data;
 import com.hazelcast.internal.util.counters.Counter;
 import com.hazelcast.internal.util.counters.MwCounter;
+import com.hazelcast.jet.InternalObservable;
 import com.hazelcast.jet.JetException;
 import com.hazelcast.jet.JobAlreadyExistsException;
 import com.hazelcast.jet.config.JetConfig;
@@ -1074,7 +1075,7 @@ public class JobCoordinationService {
     private void completeObservables(Set<String> observables, Throwable error) {
         for (String observable : observables) {
             try {
-                String ringbufferName = ObservableImpl.ringbufferName(observable);
+                String ringbufferName = InternalObservable.ringbufferName(observable);
                 Ringbuffer<Object> ringbuffer = nodeEngine.getHazelcastInstance().getRingbuffer(ringbufferName);
                 Object completion = error == null ? DoneItem.DONE_ITEM : WrappedThrowable.of(error);
                 ringbuffer.addAsync(completion, OverflowPolicy.OVERWRITE);

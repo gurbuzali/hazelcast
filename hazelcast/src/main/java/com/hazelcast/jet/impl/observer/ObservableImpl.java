@@ -25,6 +25,7 @@ import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.OperationTimeoutException;
 import com.hazelcast.instance.impl.HazelcastInstanceImpl;
 import com.hazelcast.internal.util.UuidUtil;
+import com.hazelcast.jet.InternalObservable;
 import com.hazelcast.jet.Observable;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.function.Observer;
@@ -46,24 +47,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
+import static com.hazelcast.jet.InternalObservable.ringbufferName;
 import static com.hazelcast.jet.impl.JobRepository.INTERNAL_JET_OBJECTS_PREFIX;
 import static com.hazelcast.jet.impl.util.LoggingUtil.logFine;
 
-public class ObservableImpl<T> implements Observable<T> {
-
-    /**
-     * Prefix of all topic names used to back {@link Observable} implementations,
-     * necessary so that such topics can't clash with regular topics used
-     * for other purposes.
-     */
-    public static final String JET_OBSERVABLE_NAME_PREFIX = INTERNAL_JET_OBJECTS_PREFIX + "observables.";
-
-    /**
-     * Constant ID to be used as a {@link ProcessorMetaSupplier#getTags()
-     * PMS tag key} for specifying when a PMS owns an {@link Observable} (ie.
-     * is the entity populating the {@link Observable} with data).
-     */
-    public static final String OWNED_OBSERVABLE = ObservableImpl.class.getName() + ".ownedObservable";
+public class ObservableImpl<T> implements InternalObservable<T> {
 
     private final ConcurrentMap<UUID, RingbufferListener<T>> listeners = new ConcurrentHashMap<>();
     private final String name;
@@ -151,10 +139,6 @@ public class ObservableImpl<T> implements Observable<T> {
         onDestroy.accept(this);
     }
 
-    @Nonnull
-    public static String ringbufferName(String observableName) {
-        return JET_OBSERVABLE_NAME_PREFIX + observableName;
-    }
 
     private static class RingbufferListener<T> {
 
