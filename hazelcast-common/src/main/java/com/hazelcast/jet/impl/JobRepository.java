@@ -32,18 +32,16 @@ import com.hazelcast.jet.core.metrics.JobMetrics;
 import com.hazelcast.jet.impl.deployment.IMapOutputStream;
 import com.hazelcast.jet.impl.execution.init.JetInitDataSerializerHook;
 import com.hazelcast.jet.impl.metrics.RawJobMetrics;
+import com.hazelcast.jet.impl.util.CommonImdgUtil;
 import com.hazelcast.jet.impl.util.ExceptionUtil;
-import com.hazelcast.jet.impl.util.ImdgUtil;
 import com.hazelcast.jet.impl.util.Util;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.IMap;
-import com.hazelcast.map.impl.MapService;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.Predicate;
-import com.hazelcast.spi.impl.NodeEngine;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nonnull;
@@ -271,7 +269,7 @@ public class JobRepository extends JobRepositoryConstants {
      * newQuorumSize}.
      */
     void updateJobQuorumSizeIfSmaller(long jobId, int newQuorumSize) {
-        jobExecutionRecords.executeOnKey(jobId, ImdgUtil.entryProcessor((key, value) -> {
+        jobExecutionRecords.executeOnKey(jobId, CommonImdgUtil.entryProcessor((key, value) -> {
             if (value == null) {
                 return null;
             }
@@ -287,53 +285,53 @@ public class JobRepository extends JobRepositoryConstants {
         return idGenerator.newId();
     }
 
-    /**
-     * Puts a JobResult for the given job and deletes the JobRecord.
-     *
-     * @throws JobNotFoundException  if the JobRecord is not found
-     * @throws IllegalStateException if the JobResult is already present
-     */
-    void completeJob(
-            @Nonnull MasterContext masterContext,
-            @Nullable List<RawJobMetrics> terminalMetrics,
-            @Nullable Throwable error,
-            long completionTime
-    ) {
-        long jobId = masterContext.jobId();
-
-        JobConfig config = masterContext.jobRecord().getConfig();
-        long creationTime = masterContext.jobRecord().getCreationTime();
-        JobResult jobResult = new JobResult(jobId, config, creationTime, completionTime, toErrorMsg(error));
-
-        if (terminalMetrics != null) {
-            try {
-                List<RawJobMetrics> prevMetrics = jobMetrics.put(jobId, terminalMetrics);
-                if (prevMetrics != null) {
-                    logger.warning("Overwriting job metrics for job " + jobResult);
-                }
-            } catch (Exception e) {
-                logger.warning("Storing the job metrics failed, ignoring: " + e, e);
-            }
-        }
-        for (;;) {
-            // keep trying to store the JobResult until it succeeds
-            try {
-                jobResults.set(jobId, jobResult);
-                break;
-            } catch (Exception e) {
-                // if the local instance was shut down, re-throw the error
-                if (e instanceof HazelcastInstanceNotActiveException && (!instance.getLifecycleService().isRunning())) {
-                    throw e;
-                }
-                // retry otherwise, after a delay
-                long retryTimeoutSeconds = 1;
-                logger.warning("Failed to store JobResult, will retry in " + retryTimeoutSeconds + " seconds: " + e, e);
-                LockSupport.parkNanos(SECONDS.toNanos(retryTimeoutSeconds));
-            }
-        }
-
-        deleteJob(jobId);
-    }
+//    /**
+//     * Puts a JobResult for the given job and deletes the JobRecord.
+//     *
+//     * @throws JobNotFoundException  if the JobRecord is not found
+//     * @throws IllegalStateException if the JobResult is already present
+//     */
+//    void completeJob(
+//            @Nonnull MasterContext masterContext,
+//            @Nullable List<RawJobMetrics> terminalMetrics,
+//            @Nullable Throwable error,
+//            long completionTime
+//    ) {
+//        long jobId = masterContext.jobId();
+//
+//        JobConfig config = masterContext.jobRecord().getConfig();
+//        long creationTime = masterContext.jobRecord().getCreationTime();
+//        JobResult jobResult = new JobResult(jobId, config, creationTime, completionTime, toErrorMsg(error));
+//
+//        if (terminalMetrics != null) {
+//            try {
+//                List<RawJobMetrics> prevMetrics = jobMetrics.put(jobId, terminalMetrics);
+//                if (prevMetrics != null) {
+//                    logger.warning("Overwriting job metrics for job " + jobResult);
+//                }
+//            } catch (Exception e) {
+//                logger.warning("Storing the job metrics failed, ignoring: " + e, e);
+//            }
+//        }
+//        for (;;) {
+//            // keep trying to store the JobResult until it succeeds
+//            try {
+//                jobResults.set(jobId, jobResult);
+//                break;
+//            } catch (Exception e) {
+//                // if the local instance was shut down, re-throw the error
+//                if (e instanceof HazelcastInstanceNotActiveException && (!instance.getLifecycleService().isRunning())) {
+//                    throw e;
+//                }
+//                // retry otherwise, after a delay
+//                long retryTimeoutSeconds = 1;
+//                logger.warning("Failed to store JobResult, will retry in " + retryTimeoutSeconds + " seconds: " + e, e);
+//                LockSupport.parkNanos(SECONDS.toNanos(retryTimeoutSeconds));
+//            }
+//        }
+//
+//        deleteJob(jobId);
+//    }
 
     /**
      * Performs cleanup after job completion. Deletes job record and job resources but keeps the job id
@@ -352,79 +350,79 @@ public class JobRepository extends JobRepositoryConstants {
         jobRecords.removeAsync(jobId).whenComplete(callback);
     }
 
-    /**
-     * Cleans up stale maps related to jobs
-     */
-    void cleanup(NodeEngine nodeEngine) {
-        long start = System.nanoTime();
-
-        cleanupMaps(nodeEngine);
-        cleanupJobResults(nodeEngine);
-
-        long elapsed = System.nanoTime() - start;
-        logger.fine("Job cleanup took " + TimeUnit.NANOSECONDS.toMillis(elapsed) + "ms");
-    }
-
-    private void cleanupMaps(NodeEngine nodeEngine) {
-        Collection<DistributedObject> maps =
-                nodeEngine.getProxyService().getDistributedObjects(MapService.SERVICE_NAME);
-
-        // we need to take the list of active job records after getting the list of maps --
-        // otherwise the job records could be missing newly submitted jobs
-        Set<Long> activeJobs = jobRecords.keySet();
-
-        for (DistributedObject map : maps) {
-            if (map.getName().startsWith(SNAPSHOT_DATA_MAP_PREFIX)) {
-                long id = jobIdFromPrefixedName(map.getName(), SNAPSHOT_DATA_MAP_PREFIX);
-                if (!activeJobs.contains(id)) {
-                    logFine(logger, "Deleting snapshot data map '%s' because job already finished", map.getName());
-                    map.destroy();
-                }
-            } else if (map.getName().startsWith(RESOURCES_MAP_NAME_PREFIX)) {
-                deleteMap(activeJobs, map);
-            }
-        }
-    }
-
-    private void deleteMap(Set<Long> activeJobs, DistributedObject map) {
-        long id = jobIdFromPrefixedName(map.getName(), RESOURCES_MAP_NAME_PREFIX);
-        if (activeJobs.contains(id)) {
-            // job is still active, do nothing
-            return;
-        }
-        if (jobResults.containsKey(id)) {
-            // if job is finished, we can safely delete the map
-            logFine(logger, "Deleting job resource map '%s' because job is already finished", map.getName());
-            map.destroy();
-        } else {
-            // Job might be in the process of uploading resources, check how long the map has been there.
-            // If we happen to recreate a just-deleted map, it will be destroyed again after
-            // resourcesExpirationMillis.
-            @SuppressWarnings("rawtypes")
-            IMap resourceMap = (IMap) map;
-            long creationTime = resourceMap.getLocalMapStats().getCreationTime();
-            if (isResourceMapExpired(creationTime)) {
-                logger.fine("Deleting job resource map " + map.getName() + " because the map " +
-                        "was created long ago and job record or result still doesn't exist");
-                resourceMap.destroy();
-            }
-        }
-    }
-
-    private void cleanupJobResults(NodeEngine nodeEngine) {
-        int maxNoResults = Math.max(1, nodeEngine.getProperties().getInteger(JetProperties.JOB_RESULTS_MAX_SIZE));
-        // delete oldest job results
-        if (jobResults.size() > Util.addClamped(maxNoResults, maxNoResults / MAX_NO_RESULTS_OVERHEAD)) {
-            jobResults.values().stream().sorted(comparing(JobResult::getCompletionTime).reversed())
-                    .skip(maxNoResults)
-                    .map(JobResult::getJobId)
-                    .collect(Collectors.toList())
-                    .forEach(id -> {
-                        jobMetrics.delete(id);
-                        jobResults.delete(id);
-                    });
-        }
-    }
+//    /**
+//     * Cleans up stale maps related to jobs
+//     */
+//    void cleanup(NodeEngine nodeEngine) {
+//        long start = System.nanoTime();
+//
+//        cleanupMaps(nodeEngine);
+//        cleanupJobResults(nodeEngine);
+//
+//        long elapsed = System.nanoTime() - start;
+//        logger.fine("Job cleanup took " + TimeUnit.NANOSECONDS.toMillis(elapsed) + "ms");
+//    }
+//
+//    private void cleanupMaps(NodeEngine nodeEngine) {
+//        Collection<DistributedObject> maps =
+//                nodeEngine.getProxyService().getDistributedObjects(MapService.SERVICE_NAME);
+//
+//        // we need to take the list of active job records after getting the list of maps --
+//        // otherwise the job records could be missing newly submitted jobs
+//        Set<Long> activeJobs = jobRecords.keySet();
+//
+//        for (DistributedObject map : maps) {
+//            if (map.getName().startsWith(SNAPSHOT_DATA_MAP_PREFIX)) {
+//                long id = jobIdFromPrefixedName(map.getName(), SNAPSHOT_DATA_MAP_PREFIX);
+//                if (!activeJobs.contains(id)) {
+//                    logFine(logger, "Deleting snapshot data map '%s' because job already finished", map.getName());
+//                    map.destroy();
+//                }
+//            } else if (map.getName().startsWith(RESOURCES_MAP_NAME_PREFIX)) {
+//                deleteMap(activeJobs, map);
+//            }
+//        }
+//    }
+//
+//    private void deleteMap(Set<Long> activeJobs, DistributedObject map) {
+//        long id = jobIdFromPrefixedName(map.getName(), RESOURCES_MAP_NAME_PREFIX);
+//        if (activeJobs.contains(id)) {
+//            // job is still active, do nothing
+//            return;
+//        }
+//        if (jobResults.containsKey(id)) {
+//            // if job is finished, we can safely delete the map
+//            logFine(logger, "Deleting job resource map '%s' because job is already finished", map.getName());
+//            map.destroy();
+//        } else {
+//            // Job might be in the process of uploading resources, check how long the map has been there.
+//            // If we happen to recreate a just-deleted map, it will be destroyed again after
+//            // resourcesExpirationMillis.
+//            @SuppressWarnings("rawtypes")
+//            IMap resourceMap = (IMap) map;
+//            long creationTime = resourceMap.getLocalMapStats().getCreationTime();
+//            if (isResourceMapExpired(creationTime)) {
+//                logger.fine("Deleting job resource map " + map.getName() + " because the map " +
+//                        "was created long ago and job record or result still doesn't exist");
+//                resourceMap.destroy();
+//            }
+//        }
+//    }
+//
+//    private void cleanupJobResults(NodeEngine nodeEngine) {
+//        int maxNoResults = Math.max(1, nodeEngine.getProperties().getInteger(JetProperties.JOB_RESULTS_MAX_SIZE));
+//        // delete oldest job results
+//        if (jobResults.size() > Util.addClamped(maxNoResults, maxNoResults / MAX_NO_RESULTS_OVERHEAD)) {
+//            jobResults.values().stream().sorted(comparing(JobResult::getCompletionTime).reversed())
+//                    .skip(maxNoResults)
+//                    .map(JobResult::getJobId)
+//                    .collect(Collectors.toList())
+//                    .forEach(id -> {
+//                        jobMetrics.delete(id);
+//                        jobResults.delete(id);
+//                    });
+//        }
+//    }
 
     private static String toErrorMsg(@Nullable Throwable error) {
         if (error == null) {

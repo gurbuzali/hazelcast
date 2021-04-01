@@ -71,7 +71,7 @@ public class DefaultClientExtension implements ClientExtension {
     protected static final ILogger LOGGER = Logger.getLogger(ClientExtension.class);
 
     protected volatile HazelcastClientInstanceImpl client;
-//    protected JetClientInstanceImpl jetClient;
+    protected JetClientInstanceImpl jetClient;
 
     private final MemoryStats memoryStats = new DefaultMemoryStats();
 
@@ -82,7 +82,7 @@ public class DefaultClientExtension implements ClientExtension {
 
     @Override
     public void afterStart(HazelcastClientInstanceImpl client) {
-//        this.jetClient = new JetClientInstanceImpl(client);
+        this.jetClient = new JetClientInstanceImpl(client);
     }
 
     @Override
