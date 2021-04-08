@@ -175,8 +175,8 @@ public class JobRepository {
     private final ILogger logger;
 
     private final ConcurrentMemoizingSupplier<IMap<Long, JobRecord>> jobRecords;
+    private final ConcurrentMemoizingSupplier<IMap<Long, JobResult>> jobResults;
     private final Supplier<IMap<Long, JobExecutionRecord>> jobExecutionRecords;
-    private final Supplier<IMap<Long, JobResult>> jobResults;
     private final Supplier<IMap<Long, List<RawJobMetrics>>> jobMetrics;
     private final Supplier<IMap<String, SnapshotValidationRecord>> exportedSnapshotDetailsCache;
     private final Supplier<FlakeIdGenerator> idGenerator;
@@ -189,8 +189,8 @@ public class JobRepository {
         this.logger = instance.getLoggingService().getLogger(getClass());
 
         jobRecords = new ConcurrentMemoizingSupplier<>(() -> instance.getMap(JOB_RECORDS_MAP_NAME));
+        jobResults = new ConcurrentMemoizingSupplier<>(() -> instance.getMap(JOB_RESULTS_MAP_NAME));
         jobExecutionRecords = memoizeConcurrent(() -> instance.getMap(JOB_EXECUTION_RECORDS_MAP_NAME));
-        jobResults = memoizeConcurrent(() -> instance.getMap(JOB_RESULTS_MAP_NAME));
         jobMetrics = memoizeConcurrent(() -> instance.getMap(JOB_METRICS_MAP_NAME));
         exportedSnapshotDetailsCache = memoizeConcurrent(() -> instance.getMap(EXPORTED_SNAPSHOTS_DETAIL_CACHE));
         idGenerator = memoizeConcurrent(() -> instance.getFlakeIdGenerator(RANDOM_ID_GENERATOR_NAME));
@@ -444,7 +444,7 @@ public class JobRepository {
 
         // we need to take the list of active job records after getting the list of maps --
         // otherwise the job records could be missing newly submitted jobs
-        Set<Long> activeJobs = jobRecords.get().keySet();
+        Set<Long> activeJobs = jobRecordsMap().keySet();
 
         for (DistributedObject map : maps) {
             if (map.getName().startsWith(SNAPSHOT_DATA_MAP_PREFIX)) {
@@ -487,8 +487,9 @@ public class JobRepository {
     private void cleanupJobResults(NodeEngine nodeEngine) {
         int maxNoResults = Math.max(1, nodeEngine.getProperties().getInteger(JetProperties.JOB_RESULTS_MAX_SIZE));
         // delete oldest job results
-        if (jobResults.get().size() > Util.addClamped(maxNoResults, maxNoResults / MAX_NO_RESULTS_OVERHEAD)) {
-            jobResults.get().values().stream().sorted(comparing(JobResult::getCompletionTime).reversed())
+        Map<Long, JobResult> jobResultsMap = jobResultsMap();
+        if (jobResultsMap.size() > Util.addClamped(maxNoResults, maxNoResults / MAX_NO_RESULTS_OVERHEAD)) {
+            jobResultsMap.values().stream().sorted(comparing(JobResult::getCompletionTime).reversed())
                     .skip(maxNoResults)
                     .map(JobResult::getJobId)
                     .collect(Collectors.toList())
@@ -531,11 +532,23 @@ public class JobRepository {
     }
 
     public Collection<JobRecord> getJobRecords() {
+        return jobRecordsMap().values();
+    }
+
+    private Map<Long, JobRecord> jobRecordsMap(){
         if (jobRecords.remembered() != null ||
                 ((AbstractJetInstance) jetInstance).existsDistributedObject(SERVICE_NAME, JOB_RECORDS_MAP_NAME)) {
-            return jobRecords.get().values();
+            return jobRecords.get();
         }
-        return Collections.emptyList();
+        return Collections.emptyMap();
+    }
+
+    private Map<Long, JobResult> jobResultsMap(){
+        if (jobResults.remembered() != null ||
+                ((AbstractJetInstance) jetInstance).existsDistributedObject(SERVICE_NAME, JOB_RESULTS_MAP_NAME)) {
+            return jobResults.get();
+        }
+        return Collections.emptyMap();
     }
 
     public JobRecord getJobRecord(long jobId) {
